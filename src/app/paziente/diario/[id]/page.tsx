@@ -36,6 +36,15 @@ export default function PazienteDiarioPage({
   const [isNoteOpen, setIsNoteOpen] = useState(false);
   const [isNotificheOpen, setIsNotificheOpen] = useState(false);
 
+  const scrollContainerRef = React.useRef<HTMLDivElement>(null);
+
+  const scrollCalendar = (direction: "left" | "right") => {
+    if (scrollContainerRef.current) {
+      const scrollAmount = direction === "left" ? -280 : 280;
+      scrollContainerRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
+    }
+  };
+
   const loadData = async () => {
     try {
       const stored = localStorage.getItem("paziente_user");
@@ -76,6 +85,8 @@ export default function PazienteDiarioPage({
   const totalDays = (activeCiclo?.durataSettimane || 2) * 7;
   const currentActiveDay = 11; // 11 of 14 for Giuseppe Bianchi
   const braccioRef = (activeCiclo?.braccioRiferimento || "DX") as "DX" | "SX";
+  const currentWeek = Math.ceil(selectedDay / 7);
+  const totalWeeks = Math.ceil(totalDays / 7);
 
   // Filter measurements for the currently selected day
   const dayMisurazioni = misurazioni.filter((m: any) => m.giornoNumero === selectedDay);
@@ -187,7 +198,7 @@ export default function PazienteDiarioPage({
             <div className="flex items-center gap-1.5">
               <span className="material-symbols-outlined text-[16px] text-tertiary">calendar_today</span>
               <span>
-                Settimana 2 di 2 • <strong className="text-on-surface font-semibold">Giorno {selectedDay} di {totalDays}</strong>
+                Settimana {currentWeek} di {totalWeeks} • <strong className="text-on-surface font-semibold">Giorno {selectedDay} di {totalDays}</strong>
               </span>
             </div>
             <span className="text-[11px] bg-secondary-container px-2 py-0.5 rounded text-on-secondary-container font-semibold">
@@ -205,19 +216,75 @@ export default function PazienteDiarioPage({
         </section>
 
         {/* Horizontal Scrollable Days Calendar */}
-        <section className="space-y-2">
+        <section className="space-y-3">
           <div className="flex items-center justify-between px-1">
-            <h2 className="font-headline font-bold text-base text-on-surface">
-              Calendario del Diario
-            </h2>
-            <span className="text-xs font-semibold text-secondary capitalize">
-              {selectedDate.toLocaleDateString("it-IT", { month: "long", year: "numeric" })}
-            </span>
+            <div className="flex items-center gap-2">
+              <h2 className="font-headline font-bold text-base text-on-surface">
+                Calendario del Diario
+              </h2>
+              <span className="text-xs font-semibold text-secondary capitalize">
+                • {selectedDate.toLocaleDateString("it-IT", { month: "long", year: "numeric" })}
+              </span>
+            </div>
+
+            {/* Desktop / Touch Scroll Controls */}
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() => scrollCalendar("left")}
+                title="Giorni precedenti"
+                className="w-8 h-8 rounded-full bg-surface-container hover:bg-surface-container-high active:scale-95 text-on-surface flex items-center justify-center transition-all shadow-sm"
+              >
+                <span className="material-symbols-outlined text-lg">chevron_left</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => scrollCalendar("right")}
+                title="Giorni successivi"
+                className="w-8 h-8 rounded-full bg-surface-container hover:bg-surface-container-high active:scale-95 text-on-surface flex items-center justify-center transition-all shadow-sm"
+              >
+                <span className="material-symbols-outlined text-lg">chevron_right</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Week Selector Tabs */}
+          <div className="flex items-center gap-2 px-1">
+            {Array.from({ length: totalWeeks }, (_, wIdx) => {
+              const wNum = wIdx + 1;
+              const isWeekActive = currentWeek === wNum;
+              const startDayOfW = (wNum - 1) * 7 + 1;
+              const endDayOfW = Math.min(wNum * 7, totalDays);
+              return (
+                <button
+                  key={wNum}
+                  type="button"
+                  onClick={() => {
+                    setSelectedDay(startDayOfW);
+                    const el = document.getElementById(`day-btn-${startDayOfW}`);
+                    if (el) {
+                      el.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+                    }
+                  }}
+                  className={`flex-1 py-1.5 px-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1 ${
+                    isWeekActive
+                      ? "bg-primary text-white shadow-sm ring-1 ring-primary"
+                      : "bg-surface-container-low text-secondary hover:bg-surface-container hover:text-on-surface border border-surface-variant/40"
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-sm">
+                    {isWeekActive ? "check_circle" : "calendar_view_week"}
+                  </span>
+                  <span>Settimana {wNum} (G{startDayOfW}–G{endDayOfW})</span>
+                </button>
+              );
+            })}
           </div>
 
           {/* Scrollable Days Strip */}
           <div
-            className="flex items-center gap-2.5 overflow-x-auto py-3 -mx-4 px-4 scrollbar-none"
+            ref={scrollContainerRef}
+            className="flex items-center gap-2.5 overflow-x-auto py-3 -mx-4 px-4 scroll-smooth"
             style={{ WebkitOverflowScrolling: "touch" }}
           >
             {Array.from({ length: totalDays }, (_, i) => i + 1).map((dayNum) => {
