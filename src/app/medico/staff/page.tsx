@@ -6,22 +6,12 @@ export default function StaffPage() {
   const staffMembers = [
     {
       id: "med-1",
-      nome: "Valerio",
-      cognome: "Marchi",
-      ruolo: "Medico Primario / Titolare",
-      specializzazione: "Cardiologia e Malattie Vascolari",
-      email: "dott.marchi@cardiodiario.it",
-      telefono: "+39 06 88776655",
-      stato: "Attivo",
-    },
-    {
-      id: "med-2",
-      nome: "Elena",
-      cognome: "Sartori",
-      ruolo: "Specialista Associato",
-      specializzazione: "Medicina Interna & Ipertensione",
-      email: "dott.ssa.sartori@cardiodiario.it",
-      telefono: "+39 06 88776656",
+      nome: "Ivana",
+      cognome: "Pariggiano",
+      ruolo: "Dirigente Medico Cardiologia",
+      specializzazione: "A.O. Sant'Anna e San Sebastiano, Caserta",
+      email: "ivana.pariggiano@libero.it",
+      telefono: "—",
       stato: "Attivo",
     },
   ];

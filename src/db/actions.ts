@@ -61,7 +61,7 @@ export async function loginPaziente(codiceFiscale: string, pin: string) {
       cognome: String(paziente.cognome),
       codiceFiscale: String(paziente.codice_fiscale),
       medicoId: String(paziente.medico_id),
-      medicoNomeCompleto: `Dott. ${paziente.medico_nome} ${paziente.medico_cognome}`,
+      medicoNomeCompleto: `Dott.ssa ${paziente.medico_nome} ${paziente.medico_cognome}`,
       role: "paziente" as const,
     },
   };

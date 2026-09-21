@@ -40,21 +40,12 @@ export default function PazienteCicliPage() {
   useEffect(() => {
     const stored = localStorage.getItem("paziente_user");
     if (!stored) {
-      // Default to test patient Giuseppe Bianchi if not logged in
-      const defaultUser = {
-        id: "paz-1",
-        nome: "Giuseppe",
-        cognome: "Bianchi",
-        codiceFiscale: "BNCGPP58A01H501U",
-        medicoNomeCompleto: "Dott. Valerio Marchi",
-      };
-      setUser(defaultUser);
-      loadData("paz-1");
-    } else {
-      const u = JSON.parse(stored);
-      setUser(u);
-      loadData(u.id);
+      router.push("/login/paziente");
+      return;
     }
+    const u = JSON.parse(stored);
+    setUser(u);
+    loadData(u.id);
   }, []);
 
   const handleStartCycle = (cicloId: string) => {
@@ -158,7 +149,7 @@ export default function PazienteCicliPage() {
             I Tuoi Cicli di Monitoraggio
           </h1>
           <p className="text-xs text-on-surface-variant leading-relaxed">
-            Gestiti in collaborazione con il <strong>{user.medicoNomeCompleto || "Dott. Valerio Marchi"}</strong>.
+            Gestiti in collaborazione con la <strong>{user.medicoNomeCompleto || "Dott.ssa Ivana Pariggiano"}</strong>.
           </p>
         </div>
 

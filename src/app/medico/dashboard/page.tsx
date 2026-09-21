@@ -99,7 +99,7 @@ export default function DoctorDashboardPage() {
             Cruscotto Medico Esecutivo
           </h1>
           <p className="text-sm text-on-surface-variant">
-            Studio Dott. Valerio Marchi • Monitoraggio attivo e analisi pressoria domiciliare.
+            Dott.ssa Ivana Pariggiano • A.O. Sant&apos;Anna e San Sebastiano, Caserta
           </p>
         </div>
 
@@ -372,6 +372,17 @@ export default function DoctorDashboardPage() {
                   </tr>
                 );
               })}
+              {filteredPatients.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="py-12 text-center">
+                    <div className="flex flex-col items-center justify-center space-y-2">
+                      <span className="material-symbols-outlined text-outline text-3xl">person_off</span>
+                      <p className="text-sm font-semibold text-on-surface">Nessun paziente presente</p>
+                      <p className="text-xs text-on-surface-variant">Clicca su &quot;Nuovo Paziente&quot; in alto a destra per registrare il primo paziente.</p>
+                    </div>
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

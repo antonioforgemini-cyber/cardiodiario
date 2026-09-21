@@ -51,7 +51,11 @@ export default function PazienteDiarioPage({
   const loadData = async () => {
     try {
       const stored = localStorage.getItem("paziente_user");
-      const pId = stored ? JSON.parse(stored).id : "paz-1";
+      if (!stored) {
+        router.push("/login/paziente");
+        return;
+      }
+      const pId = JSON.parse(stored).id;
       const res = await getPazienteDettaglioClinico(pId);
       setData(res);
       const comms = await getComunicazioniPaziente(pId);
@@ -617,7 +621,7 @@ export default function PazienteDiarioPage({
         misurazioni={misurazioni}
         averages={averages || { avgMax: 125, avgMin: 80, avgBpm: 72, targetRate: 90, totalCount: misurazioni.length }}
         noteTerapia={noteTerapia}
-        medicoNome="Dott. Valerio Marchi"
+        medicoNome="Dott.ssa Ivana Pariggiano"
       />
     </div>
   );

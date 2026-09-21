@@ -65,7 +65,7 @@ export const ReportClinicoModal: React.FC<ReportClinicoModalProps> = ({
   misurazioni = [],
   averages,
   noteTerapia = [],
-  medicoNome = "Dott. Valerio Marchi",
+  medicoNome = "Dott.ssa Ivana Pariggiano",
 }) => {
   const [mounted, setMounted] = useState(false);
 
@@ -224,7 +224,7 @@ export const ReportClinicoModal: React.FC<ReportClinicoModalProps> = ({
             </div>
             <div className="text-right text-xs text-slate-600 space-y-0.5">
               <p className="font-bold text-slate-900 text-sm">{medicoNome}</p>
-              <p className="text-[11px]">Specialista in Cardiologia ed Ipertensione</p>
+              <p className="text-[11px]">Dirigente Medico Cardiologia • A.O. Sant&apos;Anna e San Sebastiano, Caserta</p>
               <p className="text-[11px] pt-1">
                 <span className="text-slate-400">Data emissione:</span> <strong>{todayFormatted}</strong>
               </p>

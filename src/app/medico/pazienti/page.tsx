@@ -105,10 +105,30 @@ export default function PazientiListPage() {
         </div>
       </div>
 
-      {/* Patient Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredPatients.map((p: any) => {
-          let badgeClass = "bg-surface-container text-on-surface-variant";
+      {/* Patient Cards Grid or Empty State */}
+      {filteredPatients.length === 0 ? (
+        <div className="bg-surface-container-lowest p-12 rounded-3xl border border-surface-variant/50 text-center space-y-4">
+          <div className="w-14 h-14 rounded-2xl bg-surface-container flex items-center justify-center text-outline mx-auto">
+            <span className="material-symbols-outlined text-3xl">group_off</span>
+          </div>
+          <div>
+            <h3 className="font-headline font-bold text-lg text-on-surface">Nessun paziente in archivio</h3>
+            <p className="text-xs text-on-surface-variant mt-1">
+              Non è ancora stato registrato alcun paziente. Clicca sul pulsante &quot;Nuovo Paziente&quot; in alto per iniziare.
+            </p>
+          </div>
+          <button
+            onClick={() => setIsNewPatientOpen(true)}
+            className="px-5 py-2.5 rounded-xl bg-primary text-on-primary text-xs font-bold inline-flex items-center gap-2 shadow-sm hover:bg-primary/90"
+          >
+            <span className="material-symbols-outlined text-base">person_add</span>
+            Registra Primo Paziente
+          </button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredPatients.map((p: any) => {
+            let badgeClass = "bg-surface-container text-on-surface-variant";
           if (p.cicloStato === "in corso") badgeClass = "bg-primary-container/40 text-primary font-bold";
           if (p.cicloStato === "da iniziare") badgeClass = "bg-secondary-container text-tertiary font-bold";
           if (p.cicloStato === "in pausa") badgeClass = "bg-error-container/40 text-error font-bold";
@@ -177,6 +197,7 @@ export default function PazientiListPage() {
           );
         })}
       </div>
+      )}
 
       {/* Modals */}
       <NuovoPazienteModal

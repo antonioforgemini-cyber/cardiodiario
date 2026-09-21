@@ -70,7 +70,7 @@ export default function LoginPazientePage() {
               Bentornato nel tuo Diario
             </h1>
             <p className="text-sm font-body text-on-surface-variant max-w-xs mx-auto leading-relaxed">
-              Il tuo diario pressorio digitale connesso con lo studio del <strong className="text-on-surface">Dott. Valerio Marchi</strong>.
+              Il tuo diario pressorio digitale connesso con la <strong className="text-on-surface">Dott.ssa Ivana Pariggiano</strong>.
             </p>
           </div>
         </header>

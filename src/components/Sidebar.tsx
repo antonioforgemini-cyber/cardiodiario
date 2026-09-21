@@ -68,14 +68,14 @@ export const Sidebar: React.FC = () => {
       <div className="p-4 m-4 rounded-2xl bg-surface-container/60 border border-surface-variant/50 space-y-3">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-primary-container/40 text-primary flex items-center justify-center font-bold text-sm">
-            VM
+            IP
           </div>
           <div className="flex flex-col min-w-0 flex-1">
             <span className="text-sm font-semibold text-on-surface truncate">
-              Dott. Valerio Marchi
+              Dott.ssa Ivana Pariggiano
             </span>
             <span className="text-xs text-secondary truncate">
-              Cardiologia Clinica
+              Cardiologia • A.O. Caserta
             </span>
           </div>
         </div>

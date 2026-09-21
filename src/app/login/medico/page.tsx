@@ -8,8 +8,8 @@ import { loginMedico } from "@/db/actions";
 
 export default function LoginMedicoPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("dott.marchi@cardiodiario.it");
-  const [password, setPassword] = useState("password123");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

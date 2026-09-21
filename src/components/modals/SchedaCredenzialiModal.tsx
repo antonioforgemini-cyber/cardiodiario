@@ -65,8 +65,8 @@ export const SchedaCredenzialiModal: React.FC<SchedaCredenzialiModalProps> = ({
           <div className="flex items-center justify-between border-b pb-4 border-surface-variant/40">
             <Logo size={44} showText={true} subtitle="Studio Medico Specialistico" />
             <div className="text-right text-xs text-secondary">
-              <p className="font-bold text-on-surface">Dott. Valerio Marchi</p>
-              <p>Specialista in Cardiologia</p>
+              <p className="font-bold text-on-surface">Dott.ssa Ivana Pariggiano</p>
+              <p>Dirigente Medico Cardiologia • A.O. Caserta</p>
             </div>
           </div>
 

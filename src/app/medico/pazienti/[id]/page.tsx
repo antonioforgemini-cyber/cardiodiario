@@ -488,7 +488,7 @@ export default function PazienteDetailPage({
         misurazioni={misurazioni}
         averages={averages}
         noteTerapia={noteTerapia}
-        medicoNome="Dott. Valerio Marchi"
+        medicoNome="Dott.ssa Ivana Pariggiano"
       />
     </div>
   );
