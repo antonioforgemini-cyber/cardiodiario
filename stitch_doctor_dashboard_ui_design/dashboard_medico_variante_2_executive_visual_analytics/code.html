@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+
+<html lang="it"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="web_dashboard" name="shell-type"/>
+<link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400..700;1,7..72,400..700&amp;family=Nunito+Sans:ital,opsz,wght@0,6..12,300..800;1,6..12,300..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+    @layer base {
+      html, body { margin: 0; padding: 0; }
+      body { overscroll-behavior: none; }
+    }
+    ::-webkit-scrollbar { display: none; }
+  </style>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "inverse-surface": "#2e3230",
+            "primary-fixed-dim": "#8ecf9e",
+            "surface-container-low": "#f5f1ea",
+            "surface-variant": "#e4e0d8",
+            "on-error-container": "#690005",
+            "outline-variant": "#c4c8bc",
+            "on-surface-variant": "#4a4e4a",
+            "error": "#b83230",
+            "surface-dim": "#dbd7cf",
+            "on-surface": "#2e3230",
+            "secondary": "#6b6358",
+            "outline": "#74796e",
+            "primary-container": "#78a886",
+            "error-container": "#ffdad8",
+            "on-secondary-fixed": "#1e1a13",
+            "on-primary-container": "#d8f0de",
+            "on-secondary": "#ffffff",
+            "tertiary-fixed-dim": "#dcc48e",
+            "on-tertiary-fixed-variant": "#554020",
+            "on-primary-fixed-variant": "#2a6038",
+            "on-tertiary-container": "#554020",
+            "on-background": "#2e3230",
+            "on-tertiary": "#ffffff",
+            "background": "#faf6f0",
+            "on-secondary-container": "#5e5548",
+            "surface": "#faf6f0",
+            "on-primary-fixed": "#002110",
+            "tertiary-fixed": "#f8e0a8",
+            "primary-fixed": "#c8e8d0",
+            "on-secondary-fixed-variant": "#4a4538",
+            "surface-tint": "#4a7c59",
+            "surface-bright": "#faf6f0",
+            "tertiary-container": "#c4a66a",
+            "inverse-on-surface": "#f5f0e8",
+            "secondary-fixed-dim": "#d4ccbf",
+            "secondary-fixed": "#f0e8db",
+            "primary": "#4a7c59",
+            "on-error": "#ffffff",
+            "secondary-container": "#f0e8db",
+            "surface-container-highest": "#e4e0d8",
+            "inverse-primary": "#8ecf9e",
+            "on-primary": "#ffffff",
+            "surface-container-lowest": "#ffffff",
+            "tertiary": "#705c30",
+            "surface-container-high": "#eae6de",
+            "surface-container": "#f0ece4",
+            "on-tertiary-fixed": "#221a05"
+          },
+          borderRadius: {
+            "DEFAULT": "0.5rem",
+            "lg": "1rem",
+            "xl": "1.5rem",
+            "2xl": "2rem",
+            "full": "9999px"
+          },
+          fontFamily: {
+            headline: ["Literata", "serif"],
+            display: ["Literata", "serif"],
+            body: ["Nunito Sans", "sans-serif"],
+            label: ["Nunito Sans", "sans-serif"]
+          }
+        }
+      }
+    };
+  </script>
+</head>
+<body class="bg-background font-body text-on-surface antialiased min-h-screen">
+<!-- Sidebar di navigazione istituzionale -->
+<aside class="fixed left-0 top-0 h-full w-72 bg-surface-container-low flex flex-col z-50 shadow-[0_1px_12px_rgba(46,50,48,0.05)] border-r border-surface-variant/40">
+<div class="p-6 pb-4">
+<div class="flex items-center gap-3.5">
+<div class="w-10 h-10 shrink-0">
+          https://lh3.googleusercontent.com/aida/AEtjO1X4O0jBWbydXPBiL28F9I3eH7aRaWjanpcv65E8k7dKIOcj25h9Kilf-oud27YgIuJV-RhvAD6oRa6KuBpZPi4h_UsZ5YBW9PFC6rFnrvo5DkOi7tjktF0wjHplMtlJNoHh2xrbSc__UWDxMmdpLVWdK_h1z3NClAtdQ6KWa8y-NuvWn-KrPgXlFtivrladWCsr96RVJl6yg-ROtaPWXXOSkd_YNV8RtcTNG3j49LIzS__xcQdSHZQbtA
+        </div>
+<div class="flex flex-col">
+<span class="font-headline text-xl font-bold text-primary tracking-tight">CardioDiario</span>
+<span class="text-[11px] font-label text-secondary uppercase tracking-wider font-semibold">Executive Analytics</span>
+</div>
+</div>
+<!-- Badge Medico Compatto in Sidebar -->
+<div class="mt-6 p-3.5 rounded-2xl bg-surface-container/70 border border-outline-variant/30 flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary/15 text-primary flex items-center justify-center font-bold text-sm">
+          VM
+        </div>
+<div class="flex flex-col min-w-0">
+<span class="text-xs font-bold text-on-surface truncate">Dott. Valerio Marchi</span>
+<span class="text-[11px] text-on-surface-variant truncate">Dirigente Cardiologia</span>
+</div>
+</div>
+</div>
+<!-- Voci di navigazione -->
+<nav class="flex-1 px-4 space-y-1.5 overflow-y-auto">
+<a aria-current="page" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary text-on-primary font-semibold shadow-[0_4px_16px_rgba(74,124,89,0.22)] transition-all" href="#">
+<span class="material-symbols-outlined text-[20px]">analytics</span>
+<span class="text-sm">Executive Overview</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">patient_list</span>
+<span>Coorte Pazienti (48)</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">equalizer</span>
+<span>Distribuzione &amp; Trend</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">send_to_mobile</span>
+<span>Comunicazioni &amp; Push</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">description</span>
+<span>Reportistica ESC/ESH</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">tune</span>
+<span>Protocolli Studio</span>
+</a>
+</nav>
+<!-- Footer Sidebar -->
+<div class="p-5 mt-auto space-y-3 border-t border-surface-variant/40">
+<div class="flex items-center justify-between p-2.5 rounded-xl bg-surface-container-high/60">
+<div class="flex items-center gap-2">
+<span class="relative flex h-2.5 w-2.5">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-primary"></span>
+</span>
+<span class="text-xs font-semibold text-on-surface">Hub Telemetrico</span>
+</div>
+<span class="text-[11px] font-bold text-primary tracking-wide">ATTIVO</span>
+</div>
+<div class="flex items-center justify-between pt-1">
+<span class="text-[11px] text-on-surface-variant font-medium">Versione Telemedicina 2.4</span>
+<button class="p-1.5 rounded-lg text-on-surface-variant hover:text-error hover:bg-error-container/30 transition-colors" title="Disconnetti">
+<span class="material-symbols-outlined text-[18px]">logout</span>
+</button>
+</div>
+</div>
+</aside>
+<!-- Area Principale -->
+<div class="pl-72">
+<!-- Header Superiore -->
+<header class="sticky top-0 z-40 bg-surface/90 backdrop-blur-xl border-b border-surface-variant/40 px-8 py-3.5 flex items-center justify-between gap-6">
+<!-- Search Bar Professionale -->
+<div class="relative w-full max-w-lg">
+<span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-[20px]">search</span>
+<input class="w-full pl-10 pr-4 py-2 text-xs font-medium bg-surface-container-lowest text-on-surface placeholder:text-on-surface-variant/60 rounded-xl border border-outline-variant/50 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all shadow-sm" placeholder="Cerca coorte, paziente per nome o codice fiscale..." type="search"/>
+</div>
+<!-- Azioni Rapide & Profilo -->
+<div class="flex items-center gap-4">
+<!-- Date Badge -->
+<div class="hidden xl:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-container text-xs font-medium text-on-surface-variant">
+<span class="material-symbols-outlined text-[17px] text-primary">event</span>
+<span>Sabato, 24 Maggio 2025</span>
+</div>
+<!-- Alert Pill -->
+<button class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-error-container/50 hover:bg-error-container text-error text-xs font-bold transition-colors">
+<span class="material-symbols-outlined text-[18px]">warning</span>
+<span>2 Notifiche Critiche</span>
+</button>
+<!-- CTA Broadcast & Paziente -->
+<button class="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-surface-container-high hover:bg-surface-container-highest text-on-surface text-xs font-semibold transition-all border border-outline-variant/40">
+<span class="material-symbols-outlined text-[18px] text-tertiary">cell_tower</span>
+<span>Broadcast</span>
+</button>
+<button class="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary hover:bg-primary-container text-on-primary hover:text-on-primary-container text-xs font-bold shadow-[0_3px_12px_rgba(74,124,89,0.25)] transition-all">
+<span class="material-symbols-outlined text-[18px]">person_add</span>
+<span>+ Nuovo Paziente</span>
+</button>
+<!-- Mini avatar -->
+<div class="w-9 h-9 rounded-xl bg-primary text-on-primary flex items-center justify-center font-bold text-xs shadow-sm">
+          VM
+        </div>
+</div>
+</header>
+<!-- Contenuto Dashboard Variant 2 -->
+<main class="px-8 py-8 space-y-8 max-w-[1600px] mx-auto">
+<!-- Saluto Executive & Quick Filters -->
+<section class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-2">
+<div class="space-y-1">
+<div class="flex items-center gap-2">
+<span class="px-2.5 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed-variant text-[11px] font-bold tracking-wide uppercase">
+              Executive Health-Tech
+            </span>
+<span class="text-xs text-secondary font-medium">• Aggiornato 4 min fa da nodi Bluetooth &amp; App</span>
+</div>
+<h1 class="font-headline text-3xl sm:text-4xl font-bold text-on-surface tracking-tight">
+            Bentornato, Dott. Marchi
+          </h1>
+<p class="text-sm text-on-surface-variant font-medium">
+            Monitoraggio della popolazione ipertesa attiva: <span class="font-bold text-on-surface">34 cicli domiciliare in corso</span> secondo linee guida ESC/ESH 2023.
+          </p>
+</div>
+<!-- Selettore temporale a pillola -->
+<div class="flex items-center gap-3">
+<div class="inline-flex p-1 bg-surface-container-high rounded-xl border border-outline-variant/30">
+<button class="px-4 py-1.5 rounded-lg text-xs font-bold bg-surface-container-lowest text-primary shadow-sm transition-all" type="button">
+              Oggi
+            </button>
+<button class="px-4 py-1.5 rounded-lg text-xs font-semibold text-on-surface-variant hover:text-on-surface transition-colors" type="button">
+              Settimana
+            </button>
+<button class="px-4 py-1.5 rounded-lg text-xs font-semibold text-on-surface-variant hover:text-on-surface transition-colors" type="button">
+              Mese
+            </button>
+</div>
+<button class="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-surface-container-lowest border border-outline-variant/40 text-xs font-bold text-secondary hover:text-on-surface transition-all shadow-sm">
+<span class="material-symbols-outlined text-[17px]">file_download</span>
+<span>Export Popolazione</span>
+</button>
+</div>
+</section>
+<!-- 1. HERO KPI ROW CON PROGRESS RINGS & MICRO-CHARTS -->
+<section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
+<!-- KPI 1: Pazienti in Monitoraggio -->
+<div class="p-6 rounded-2xl bg-surface-container-lowest border border-outline-variant/30 shadow-[0_4px_24px_rgba(46,50,48,0.04)] hover:shadow-md transition-shadow flex flex-col justify-between space-y-4">
+<div class="flex items-center justify-between">
+<span class="text-xs font-bold uppercase tracking-wider text-secondary">Pazienti in Monitoraggio</span>
+<div class="w-9 h-9 rounded-xl bg-secondary-container text-on-secondary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">groups</span>
+</div>
+</div>
+<div class="flex items-end justify-between">
+<div>
+<div class="font-headline text-3xl font-bold text-on-surface">48</div>
+<p class="text-xs font-semibold text-primary flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-[16px]">trending_up</span> +3 nuovi arruolati
+              </p>
+</div>
+<!-- Micro Sparkline SVG -->
+<svg class="w-24 h-10 overflow-visible text-primary" fill="none" viewbox="0 0 100 40">
+<path d="M0 32 Q 25 15, 50 25 T 100 8" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"></path>
+<circle cx="100" cy="8" fill="#4a7c59" r="4"></circle>
+</svg>
+</div>
+<div class="pt-2 border-t border-surface-variant/40 flex items-center justify-between text-[11px] text-on-surface-variant">
+<span>34 protocollo attivo</span>
+<span class="font-bold text-on-surface">14 in follow-up</span>
+</div>
+</div>
+<!-- KPI 2: Tasso Aderenza Globale 84% con Donut Ring -->
+<div class="p-6 rounded-2xl bg-surface-container-lowest border border-outline-variant/30 shadow-[0_4px_24px_rgba(46,50,48,0.04)] hover:shadow-md transition-shadow flex flex-col justify-between space-y-4">
+<div class="flex items-center justify-between">
+<span class="text-xs font-bold uppercase tracking-wider text-secondary">Aderenza Globale</span>
+<div class="w-9 h-9 rounded-xl bg-primary-fixed text-on-primary-fixed-variant flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">fact_check</span>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<div>
+<div class="font-headline text-3xl font-bold text-on-surface">84%</div>
+<p class="text-xs font-medium text-on-surface-variant mt-1">86 su 102 misurazioni oggi</p>
+</div>
+<!-- Progress Ring 84% -->
+<div class="relative w-14 h-14 flex items-center justify-center shrink-0">
+<svg class="w-14 h-14 -rotate-90" viewbox="0 0 48 48">
+<circle cx="24" cy="24" fill="transparent" r="20" stroke="#f0ece4" stroke-width="4.5"></circle>
+<circle cx="24" cy="24" fill="transparent" r="20" stroke="#4a7c59" stroke-dasharray="125.6" stroke-dashoffset="20.1" stroke-linecap="round" stroke-width="4.5"></circle>
+</svg>
+<span class="absolute text-[11px] font-bold text-primary">84%</span>
+</div>
+</div>
+<div class="pt-2 border-t border-surface-variant/40 flex items-center justify-between text-[11px]">
+<span class="text-on-surface-variant">Target di studio: 80%</span>
+<span class="font-bold text-primary">+4% vs sett. scorsa</span>
+</div>
+</div>
+<!-- KPI 3: Pazienti a Target ESC/ESH 68% con Donut Ring -->
+<div class="p-6 rounded-2xl bg-surface-container-lowest border border-outline-variant/30 shadow-[0_4px_24px_rgba(46,50,48,0.04)] hover:shadow-md transition-shadow flex flex-col justify-between space-y-4">
+<div class="flex items-center justify-between">
+<span class="text-xs font-bold uppercase tracking-wider text-secondary">Pazienti a Target</span>
+<div class="w-9 h-9 rounded-xl bg-tertiary-container/30 text-tertiary flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">verified</span>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<div>
+<div class="font-headline text-3xl font-bold text-on-surface">68%</div>
+<p class="text-xs font-medium text-on-surface-variant mt-1">&lt; 135/85 mmHg a domicilio</p>
+</div>
+<!-- Progress Ring 68% -->
+<div class="relative w-14 h-14 flex items-center justify-center shrink-0">
+<svg class="w-14 h-14 -rotate-90" viewbox="0 0 48 48">
+<circle cx="24" cy="24" fill="transparent" r="20" stroke="#f0ece4" stroke-width="4.5"></circle>
+<circle cx="24" cy="24" fill="transparent" r="20" stroke="#c4a66a" stroke-dasharray="125.6" stroke-dashoffset="40.2" stroke-linecap="round" stroke-width="4.5"></circle>
+</svg>
+<span class="absolute text-[11px] font-bold text-tertiary">68%</span>
+</div>
+</div>
+<div class="pt-2 border-t border-surface-variant/40 flex items-center justify-between text-[11px] text-on-surface-variant">
+<span>Totale 584 misurazioni</span>
+<span class="font-bold text-tertiary">33 pz controllati</span>
+</div>
+</div>
+<!-- KPI 4: Alert Valori Critici 48h -->
+<div class="p-6 rounded-2xl bg-surface-container-lowest border border-outline-variant/30 shadow-[0_4px_24px_rgba(46,50,48,0.04)] hover:shadow-md transition-shadow flex flex-col justify-between space-y-4">
+<div class="flex items-center justify-between">
+<span class="text-xs font-bold uppercase tracking-wider text-error">Alert Critici (48h)</span>
+<div class="w-9 h-9 rounded-xl bg-error-container text-error flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">emergency_home</span>
+</div>
+</div>
+<div class="flex items-end justify-between">
+<div>
+<div class="font-headline text-3xl font-bold text-error">2</div>
+<p class="text-xs font-bold text-error mt-1 flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-error animate-ping"></span> Azione richiesta urgente
+              </p>
+</div>
+<div class="text-right">
+<span class="text-[11px] font-mono font-bold text-on-surface-variant bg-surface-container px-2 py-1 rounded-lg">≥180/110 mmHg</span>
+</div>
+</div>
+<div class="pt-2 border-t border-surface-variant/40 flex items-center justify-between text-[11px]">
+<span class="text-on-surface-variant">Priorità ESC Grado 3</span>
+<span class="font-bold text-error">Revisione dosaggio</span>
+</div>
+</div>
+</section>
+<!-- 2. SEZIONE CENTRALE: VISUAL ANALYTICS A SINISTRA & PRIORITY DRAWER A DESTRA -->
+<section class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+<!-- CENTER LEFT (LARGE, 7 COLS): POPULATION PRESSURE DISTRIBUTION & DAILY TREND -->
+<div class="lg:col-span-7 rounded-2xl bg-surface-container-lowest border border-outline-variant/30 p-7 shadow-[0_4px_24px_rgba(46,50,48,0.04)] flex flex-col justify-between space-y-6">
+<!-- Header Grafico con Toggle Mattina / Sera -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+<div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[22px]">show_chart</span>
+<h2 class="font-headline text-xl font-bold text-on-surface">Distribuzione Emodinamica &amp; Trend</h2>
+</div>
+<p class="text-xs text-on-surface-variant font-medium mt-0.5">
+                Valutazione dinamica per fasce orarie e bande di severità clinica ESC/ESH
+              </p>
+</div>
+<!-- Quick Toggle Cutoff Mattina vs Pomeriggio/Sera -->
+<div class="inline-flex p-1 bg-surface-container rounded-xl border border-outline-variant/20 self-start sm:self-auto">
+<button class="px-3 py-1.5 rounded-lg text-xs font-bold bg-surface-container-lowest text-primary shadow-sm flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[15px]">wb_sunny</span>
+<span>Mattina (08:00)</span>
+</button>
+<button class="px-3 py-1.5 rounded-lg text-xs font-medium text-on-surface-variant hover:text-on-surface flex items-center gap-1.5 transition-colors">
+<span class="material-symbols-outlined text-[15px]">dark_mode</span>
+<span>Sera (21:00)</span>
+</button>
+</div>
+</div>
+<!-- Interactive Chart Visualization (Bande Range Sistolica/Diastolica) -->
+<div class="w-full bg-surface-container-low/60 rounded-2xl p-5 border border-surface-variant/40 space-y-4">
+<!-- Graphic Chart Canvas -->
+<div class="relative h-56 w-full flex flex-col justify-between">
+<!-- Griglie di soglia orizzontali -->
+<div class="absolute inset-0 flex flex-col justify-between pointer-events-none text-[10px] font-mono text-outline">
+<div class="border-b border-error/30 flex justify-between pb-0.5">
+<span class="text-error font-semibold">180 mmHg (Ipertensione Gr. 3 - Allerta)</span>
+<span class="text-error">Soglia Critica</span>
+</div>
+<div class="border-b border-tertiary/30 flex justify-between pb-0.5">
+<span class="text-tertiary font-semibold">140 mmHg (Target ESC Amb. &lt;135)</span>
+<span class="text-tertiary">Borderline</span>
+</div>
+<div class="border-b border-primary/30 flex justify-between pb-0.5">
+<span class="text-primary font-semibold">120 / 80 mmHg (Target Ottimale)</span>
+<span class="text-primary">Stabile</span>
+</div>
+<div class="border-b border-outline-variant/40 flex justify-between pb-0.5">
+<span>80 mmHg (Diastolica Normale)</span>
+<span>Basale</span>
+</div>
+</div>
+<!-- SVG Curve e Fasce di Popolazione -->
+<svg class="w-full h-full relative z-10" preserveaspectratio="none" viewbox="0 0 700 200">
+<defs>
+<!-- Gradient Sistolica Band -->
+<lineargradient id="systolicBand" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#4a7c59" stop-opacity="0.35"></stop>
+<stop offset="100%" stop-color="#4a7c59" stop-opacity="0.05"></stop>
+</lineargradient>
+<!-- Gradient Diastolica Band -->
+<lineargradient id="diastolicBand" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#c4a66a" stop-opacity="0.3"></stop>
+<stop offset="100%" stop-color="#c4a66a" stop-opacity="0.05"></stop>
+</lineargradient>
+</defs>
+<!-- Fascia Area Media Sistolica -->
+<path d="M0,110 C80,95 160,115 240,88 C320,60 400,90 480,82 C560,75 640,92 700,78 L700,140 C640,150 560,138 480,145 C400,150 320,135 240,148 C160,160 80,152 0,155 Z" fill="url(#systolicBand)"></path>
+<!-- Linea Sistolica Media (Puntini e Curva) -->
+<path d="M0,110 C80,95 160,115 240,88 C320,60 400,90 480,82 C560,75 640,92 700,78" fill="none" stroke="#4a7c59" stroke-linecap="round" stroke-width="3.5"></path>
+<!-- Linea Diastolica Media -->
+<path d="M0,155 C80,152 160,160 240,148 C320,135 400,150 480,145 C560,138 640,150 700,140" fill="none" stroke="#c4a66a" stroke-dasharray="4 4" stroke-linecap="round" stroke-width="2.5"></path>
+<!-- Punti Campione con Tooltip simulati -->
+<circle cx="240" cy="88" fill="#4a7c59" r="5" stroke="#ffffff" stroke-width="2"></circle>
+<circle cx="320" cy="60" fill="#b83230" r="6" stroke="#ffffff" stroke-width="2"></circle>
+<circle cx="480" cy="82" fill="#4a7c59" r="5" stroke="#ffffff" stroke-width="2"></circle>
+<circle cx="700" cy="78" fill="#4a7c59" r="5" stroke="#ffffff" stroke-width="2"></circle>
+<!-- Marcatore Alert su Giorno 4 (Giuseppe Bianchi Spike) -->
+<rect fill="#ffdad8" height="22" rx="4" width="70" x="285" y="32"></rect>
+<text fill="#b83230" font-family="Nunito Sans" font-size="10" font-weight="bold" x="292" y="47">Max 185 mmHg</text>
+</svg>
+<!-- Asse X: Giorni della settimana -->
+<div class="flex justify-between text-[11px] font-semibold text-on-surface-variant pt-2">
+<span>Lun 19</span>
+<span>Mar 20</span>
+<span>Mer 21</span>
+<span class="text-error font-bold">Gio 22 (Picco)</span>
+<span>Ven 23</span>
+<span class="text-primary font-bold">Sab 24 (Oggi)</span>
+<span class="text-outline">Dom 25</span>
+</div>
+</div>
+<!-- Segmentazione Categorie Popolazione (Stacked Bar) -->
+<div class="space-y-2 pt-2 border-t border-surface-variant/50">
+<div class="flex items-center justify-between text-xs">
+<span class="font-bold text-on-surface">Ripartizione Popolazione (48 Pazienti)</span>
+<span class="text-xs text-on-surface-variant">Soglie HBPM Domiciliari</span>
+</div>
+<div class="h-4 w-full rounded-full bg-surface-container flex overflow-hidden p-0.5 gap-1">
+<div class="bg-primary rounded-l-full flex items-center justify-center text-[10px] font-bold text-on-primary" style="width: 68%" title="68% a Target (&lt;135/85)">
+                  68% Target
+                </div>
+<div class="bg-tertiary flex items-center justify-center text-[10px] font-bold text-on-tertiary" style="width: 22%" title="22% Pre-ipertensione / Normale-Alta">
+                  22%
+                </div>
+<div class="bg-error rounded-r-full flex items-center justify-center text-[10px] font-bold text-on-error" style="width: 10%" title="10% Ipertensione Grado 2-3">
+                  10%
+                </div>
+</div>
+<div class="flex flex-wrap items-center justify-between text-[11px] pt-1">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-primary"></span>
+<span class="font-semibold text-on-surface">Target Controllato (&lt;135/85): 33 pz</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-tertiary"></span>
+<span class="font-semibold text-on-surface">Pre-Ipertensione (135-144): 10 pz</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-error"></span>
+<span class="font-semibold text-error">Ipertensione non controllata: 5 pz</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Footer Grafico con Insight Medico -->
+<div class="p-3.5 rounded-xl bg-surface-container/60 flex items-center justify-between gap-4">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-primary text-[20px]">auto_awesome</span>
+<p class="text-xs text-on-surface font-medium">
+<span class="font-bold">Sintesi Algoritmica:</span> La coorte mostra una riduzione media di 4.2 mmHg della diastolica serale rispetto al ciclo basale.
+              </p>
+</div>
+<button class="text-xs font-bold text-primary hover:underline whitespace-nowrap">
+              Dettagli Cohort →
+            </button>
+</div>
+</div>
+<!-- CENTER RIGHT (5 COLS): PRIORITY ATTENTION DRAWER / CARD STACK -->
+<div class="lg:col-span-5 rounded-2xl bg-surface-container-lowest border border-outline-variant/30 p-7 shadow-[0_4px_24px_rgba(46,50,48,0.04)] flex flex-col justify-between space-y-5">
+<!-- Header Priority Stack -->
+<div class="flex items-center justify-between pb-1 border-b border-surface-variant/40">
+<div class="flex items-center gap-2.5">
+<div class="w-8 h-8 rounded-lg bg-error-container text-error flex items-center justify-center">
+<span class="material-symbols-outlined text-[19px]">priority_high</span>
+</div>
+<div>
+<h3 class="font-headline text-lg font-bold text-on-surface">Priority Attention Drawer</h3>
+<p class="text-xs text-on-surface-variant font-medium">Pazienti che richiedono revisione terapeutica immediata</p>
+</div>
+</div>
+<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-error text-on-error shadow-sm">
+              2 Azioni
+            </span>
+</div>
+<!-- Card Stack con Pazienti Critici -->
+<div class="space-y-4 flex-1">
+<!-- Patient 1: Giuseppe Bianchi (Critico ≥180/110) -->
+<div class="p-4 rounded-xl bg-error-container/25 border border-error/30 hover:border-error/60 transition-all space-y-3.5">
+<div class="flex items-start justify-between">
+<div>
+<div class="flex items-center gap-2 flex-wrap">
+<span class="font-bold text-sm text-on-surface">Giuseppe Bianchi (67a)</span>
+<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-error text-on-error uppercase">Soglia Superata</span>
+</div>
+<span class="text-[11px] font-mono text-on-surface-variant">CF: BNCGPP58A01H501U • Ciclo: Giorno 11/14</span>
+</div>
+<div class="text-right">
+<div class="text-base font-bold text-error">185 / 112 <span class="text-[10px] font-normal text-on-surface-variant">mmHg</span></div>
+<span class="text-[10px] text-on-surface-variant">Oggi ore 08:30 (Mattina)</span>
+</div>
+</div>
+<div class="p-2.5 rounded-lg bg-surface-container-lowest/80 text-xs text-on-surface space-y-1">
+<p class="font-semibold text-error flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[15px]">medical_services</span>
+                  Raccomandazione: Aggiustamento terapia o consulto urgente.
+                </p>
+<p class="text-[11px] text-on-surface-variant">
+                  Attuale: Ramipril 5mg 1cp/die. Pressione arteriosa sopra target per 3 misurazioni consecutive.
+                </p>
+</div>
+<!-- Bottoni Diretti Prescrivi Nota / Scarica PDF -->
+<div class="flex items-center justify-end gap-2 pt-1">
+<button class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container text-xs font-semibold text-on-surface hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-[15px] text-primary">picture_as_pdf</span>
+<span>Scarica PDF</span>
+</button>
+<button class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-primary text-xs font-bold text-on-primary hover:bg-primary-container hover:text-on-primary-container transition-all shadow-sm">
+<span class="material-symbols-outlined text-[15px]">edit_note</span>
+<span>Prescrivi Terapia</span>
+</button>
+</div>
+</div>
+<!-- Patient 2: Maria Grazia Rossi (Ipertensione Grado 3) -->
+<div class="p-4 rounded-xl bg-error-container/15 border border-error/25 hover:border-error/50 transition-all space-y-3.5">
+<div class="flex items-start justify-between">
+<div>
+<div class="flex items-center gap-2 flex-wrap">
+<span class="font-bold text-sm text-on-surface">Maria Grazia Rossi (61a)</span>
+<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-error-container text-on-error-container uppercase">Grado 3 Persistente</span>
+</div>
+<span class="text-[11px] font-mono text-on-surface-variant">CF: RSSMRA64B45F205W • Ciclo: Giorno 5/14</span>
+</div>
+<div class="text-right">
+<div class="text-base font-bold text-error">178 / 104 <span class="text-[10px] font-normal text-on-surface-variant">mmHg</span></div>
+<span class="text-[10px] text-on-surface-variant">Oggi ore 12:45 (Pom.)</span>
+</div>
+</div>
+<div class="p-2.5 rounded-lg bg-surface-container-lowest/80 text-xs text-on-surface space-y-1">
+<p class="font-semibold text-secondary flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[15px]">sync_problem</span>
+                  Compliance farmacologica confermata.
+                </p>
+<p class="text-[11px] text-on-surface-variant">
+                  Attuale combinazione ACE-i + Calcio-antagonista con scarso controllo dei picchi pomeridiani.
+                </p>
+</div>
+<!-- Bottoni Diretti Prescrivi Nota / Scarica PDF -->
+<div class="flex items-center justify-end gap-2 pt-1">
+<button class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container text-xs font-semibold text-on-surface hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-[15px] text-primary">picture_as_pdf</span>
+<span>Scarica PDF</span>
+</button>
+<button class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-primary text-xs font-bold text-on-primary hover:bg-primary-container hover:text-on-primary-container transition-all shadow-sm">
+<span class="material-symbols-outlined text-[15px]">edit_note</span>
+<span>Prescrivi Terapia</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Bottom Drawer Switcher per vedere coda secondaria -->
+<div class="pt-3 border-t border-surface-variant/40 flex items-center justify-between">
+<span class="text-xs font-semibold text-on-surface-variant">
+              +3 pazienti con misurazioni saltate
+            </span>
+<button class="text-xs font-bold text-primary hover:underline flex items-center gap-1">
+<span>Espandi Registro Clinico</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</section>
+<!-- 3. BOTTOM ROW: HORIZONTAL GRID DI MONITORAGGIO PAZIENTI ATTIVI (CYCLE PROGRESS & 3-SLOT STATUS) -->
+<section class="space-y-4">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+<div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[22px]">vital_signs</span>
+<h2 class="font-headline text-xl font-bold text-on-surface">Pazienti Attivi in Tele-Monitoraggio</h2>
+</div>
+<p class="text-xs text-on-surface-variant font-medium">
+              Stato dei 3 slot giornalieri raccomandati dal protocollo (Mattina, Pomeriggio, Sera) e avanzamento ciclo
+            </p>
+</div>
+<!-- Filtri Rapidi Monitoraggio -->
+<div class="flex items-center gap-2">
+<span class="text-xs font-bold text-on-surface-variant">Mostra:</span>
+<button class="px-2.5 py-1 rounded-lg text-xs font-bold bg-surface-container-high text-on-surface">Tutti (34)</button>
+<button class="px-2.5 py-1 rounded-lg text-xs font-medium text-on-surface-variant hover:text-on-surface">3/3 Eseguiti</button>
+<button class="px-2.5 py-1 rounded-lg text-xs font-medium text-on-surface-variant hover:text-on-surface">In attesa sera</button>
+</div>
+</div>
+<!-- Horizontal Grid of 4 Modular Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
+<!-- Patient Card 1: Anna Verdi (Stato Ottimale) -->
+<div class="rounded-2xl bg-surface-container-lowest border border-outline-variant/30 p-5 shadow-[0_4px_20px_rgba(46,50,48,0.03)] hover:shadow-md transition-all space-y-4 flex flex-col justify-between">
+<div class="space-y-2">
+<div class="flex items-start justify-between">
+<div>
+<h3 class="font-bold text-sm text-on-surface">Anna Verdi</h3>
+<span class="text-[11px] font-mono text-on-surface-variant">VRDNNA68H52F205K • 56a</span>
+</div>
+<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary-fixed text-on-primary-fixed-variant">
+                  Braccio DX
+                </span>
+</div>
+<!-- Cycle Progress -->
+<div class="space-y-1">
+<div class="flex justify-between text-[11px] font-semibold">
+<span class="text-secondary">Ciclo Standard (14 gg)</span>
+<span class="text-primary font-bold">Giorno 8 di 14</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-1.5 overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 57%"></div>
+</div>
+</div>
+</div>
+<!-- 3-Slot Status Odierno -->
+<div class="p-3 rounded-xl bg-surface-container-low space-y-2">
+<div class="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">Slot Odierni</div>
+<div class="grid grid-cols-3 gap-1.5 text-center text-[10px]">
+<div class="p-1.5 rounded-lg bg-primary/15 text-primary font-bold flex flex-col items-center">
+<span>Mattina</span>
+<span class="material-symbols-outlined text-[14px]">check</span>
+</div>
+<div class="p-1.5 rounded-lg bg-primary/15 text-primary font-bold flex flex-col items-center">
+<span>Pomeriggio</span>
+<span class="material-symbols-outlined text-[14px]">check</span>
+</div>
+<div class="p-1.5 rounded-lg bg-surface-container text-tertiary font-bold flex flex-col items-center border border-dashed border-tertiary/40">
+<span>Sera</span>
+<span>Attesa</span>
+</div>
+</div>
+</div>
+<!-- Last recorded BP & Action -->
+<div class="pt-2 border-t border-surface-variant/40 flex items-center justify-between">
+<div>
+<span class="text-[10px] text-on-surface-variant block font-medium">Ultimo Rilievo:</span>
+<span class="text-sm font-bold text-primary">122 / 78 <span class="text-[10px] font-normal text-on-surface-variant">mmHg (72 bpm)</span></span>
+</div>
+<button class="p-2 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface transition-colors" title="Apri Diario Paziente">
+<span class="material-symbols-outlined text-[18px]">open_in_new</span>
+</button>
+</div>
+</div>
+<!-- Patient Card 2: Carlo Conti (Normale-Alta) -->
+<div class="rounded-2xl bg-surface-container-lowest border border-outline-variant/30 p-5 shadow-[0_4px_20px_rgba(46,50,48,0.03)] hover:shadow-md transition-all space-y-4 flex flex-col justify-between">
+<div class="space-y-2">
+<div class="flex items-start justify-between">
+<div>
+<h3 class="font-bold text-sm text-on-surface">Carlo Conti</h3>
+<span class="text-[11px] font-mono text-on-surface-variant">CNTCRL53C12H501J • 72a</span>
+</div>
+<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-secondary-container text-on-secondary-container">
+                  Braccio SX
+                </span>
+</div>
+<!-- Cycle Progress -->
+<div class="space-y-1">
+<div class="flex justify-between text-[11px] font-semibold">
+<span class="text-secondary">Ciclo Esteso (21 gg)</span>
+<span class="text-tertiary font-bold">Giorno 3 di 21</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-1.5 overflow-hidden">
+<div class="bg-tertiary h-full rounded-full" style="width: 14%"></div>
+</div>
+</div>
+</div>
+<!-- 3-Slot Status Odierno -->
+<div class="p-3 rounded-xl bg-surface-container-low space-y-2">
+<div class="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">Slot Odierni</div>
+<div class="grid grid-cols-3 gap-1.5 text-center text-[10px]">
+<div class="p-1.5 rounded-lg bg-primary/15 text-primary font-bold flex flex-col items-center">
+<span>Mattina</span>
+<span class="material-symbols-outlined text-[14px]">check</span>
+</div>
+<div class="p-1.5 rounded-lg bg-primary/15 text-primary font-bold flex flex-col items-center">
+<span>Pomeriggio</span>
+<span class="material-symbols-outlined text-[14px]">check</span>
+</div>
+<div class="p-1.5 rounded-lg bg-surface-container text-tertiary font-bold flex flex-col items-center border border-dashed border-tertiary/40">
+<span>Sera</span>
+<span>Attesa</span>
+</div>
+</div>
+</div>
+<!-- Last recorded BP & Action -->
+<div class="pt-2 border-t border-surface-variant/40 flex items-center justify-between">
+<div>
+<span class="text-[10px] text-on-surface-variant block font-medium">Ultimo Rilievo:</span>
+<span class="text-sm font-bold text-tertiary">138 / 88 <span class="text-[10px] font-normal text-on-surface-variant">mmHg (68 bpm)</span></span>
+</div>
+<button class="p-2 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface transition-colors" title="Apri Diario Paziente">
+<span class="material-symbols-outlined text-[18px]">open_in_new</span>
+</button>
+</div>
+</div>
+<!-- Patient Card 3: Elena Moretti (Ipertensione Gr. 1) -->
+<div class="rounded-2xl bg-surface-container-lowest border border-outline-variant/30 p-5 shadow-[0_4px_20px_rgba(46,50,48,0.03)] hover:shadow-md transition-all space-y-4 flex flex-col justify-between">
+<div class="space-y-2">
+<div class="flex items-start justify-between">
+<div>
+<h3 class="font-bold text-sm text-on-surface">Elena Moretti</h3>
+<span class="text-[11px] font-mono text-on-surface-variant">MRTLNE70S54L219K • 54a</span>
+</div>
+<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-error-container text-on-error-container">
+                  Braccio DX
+                </span>
+</div>
+<!-- Cycle Progress -->
+<div class="space-y-1">
+<div class="flex justify-between text-[11px] font-semibold">
+<span class="text-secondary">Ciclo Standard (14 gg)</span>
+<span class="text-error font-bold">Giorno 12 di 14</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-1.5 overflow-hidden">
+<div class="bg-tertiary h-full rounded-full" style="width: 85%"></div>
+</div>
+</div>
+</div>
+<!-- 3-Slot Status Odierno -->
+<div class="p-3 rounded-xl bg-surface-container-low space-y-2">
+<div class="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">Slot Odierni</div>
+<div class="grid grid-cols-3 gap-1.5 text-center text-[10px]">
+<div class="p-1.5 rounded-lg bg-primary/15 text-primary font-bold flex flex-col items-center">
+<span>Mattina</span>
+<span class="material-symbols-outlined text-[14px]">check</span>
+</div>
+<div class="p-1.5 rounded-lg bg-primary/15 text-primary font-bold flex flex-col items-center">
+<span>Pomeriggio</span>
+<span class="material-symbols-outlined text-[14px]">check</span>
+</div>
+<div class="p-1.5 rounded-lg bg-primary/15 text-primary font-bold flex flex-col items-center">
+<span>Sera</span>
+<span class="material-symbols-outlined text-[14px]">check</span>
+</div>
+</div>
+</div>
+<!-- Last recorded BP & Action -->
+<div class="pt-2 border-t border-surface-variant/40 flex items-center justify-between">
+<div>
+<span class="text-[10px] text-on-surface-variant block font-medium">Ultimo Rilievo:</span>
+<span class="text-sm font-bold text-error">144 / 92 <span class="text-[10px] font-normal text-on-surface-variant">mmHg (80 bpm)</span></span>
+</div>
+<button class="p-2 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface transition-colors" title="Apri Diario Paziente">
+<span class="material-symbols-outlined text-[18px]">open_in_new</span>
+</button>
+</div>
+</div>
+<!-- Patient Card 4: Roberto De Angelis (Slot Mancante) -->
+<div class="rounded-2xl bg-surface-container-lowest border border-outline-variant/30 p-5 shadow-[0_4px_20px_rgba(46,50,48,0.03)] hover:shadow-md transition-all space-y-4 flex flex-col justify-between">
+<div class="space-y-2">
+<div class="flex items-start justify-between">
+<div>
+<h3 class="font-bold text-sm text-on-surface">Roberto De Angelis</h3>
+<span class="text-[11px] font-mono text-on-surface-variant">DNGRBT65T15H501W • 59a</span>
+</div>
+<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-surface-container text-on-surface-variant">
+                  Braccio SX
+                </span>
+</div>
+<!-- Cycle Progress -->
+<div class="space-y-1">
+<div class="flex justify-between text-[11px] font-semibold">
+<span class="text-secondary">Ciclo Standard (14 gg)</span>
+<span class="text-on-surface font-bold">Giorno 9 di 14</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-1.5 overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 64%"></div>
+</div>
+</div>
+</div>
+<!-- 3-Slot Status Odierno -->
+<div class="p-3 rounded-xl bg-surface-container-low space-y-2">
+<div class="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">Slot Odierni</div>
+<div class="grid grid-cols-3 gap-1.5 text-center text-[10px]">
+<div class="p-1.5 rounded-lg bg-error-container text-error font-bold flex flex-col items-center">
+<span>Mattina</span>
+<span class="material-symbols-outlined text-[14px]">close</span>
+</div>
+<div class="p-1.5 rounded-lg bg-error-container text-error font-bold flex flex-col items-center">
+<span>Pomeriggio</span>
+<span class="material-symbols-outlined text-[14px]">close</span>
+</div>
+<div class="p-1.5 rounded-lg bg-surface-container text-on-surface-variant font-bold flex flex-col items-center border border-dashed border-outline-variant">
+<span>Sera</span>
+<span>Sollecito</span>
+</div>
+</div>
+</div>
+<!-- Last recorded BP & Action -->
+<div class="pt-2 border-t border-surface-variant/40 flex items-center justify-between">
+<div>
+<span class="text-[10px] text-on-surface-variant block font-medium">Ieri Sera:</span>
+<span class="text-sm font-bold text-on-surface">128 / 82 <span class="text-[10px] font-normal text-on-surface-variant">mmHg</span></span>
+</div>
+<button class="p-2 rounded-xl bg-secondary-container text-on-secondary-container hover:bg-secondary-fixed transition-colors" title="Invia Push di Recupero">
+<span class="material-symbols-outlined text-[18px]">send_to_mobile</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+</main>
+</div>
+</body></html>

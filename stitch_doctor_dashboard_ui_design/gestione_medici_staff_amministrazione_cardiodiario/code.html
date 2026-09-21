@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+
+<html lang="it"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400..700;1,7..72,400..700&amp;family=Nunito+Sans:ital,opsz,wght@0,6..12,300..800;1,6..12,300..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"error-container":"#ffdad8","on-surface-variant":"#4a4e4a","error":"#b83230","on-tertiary-fixed":"#221a05","surface-container-lowest":"#ffffff","on-secondary-fixed":"#1e1a13","outline":"#74796e","on-primary-fixed":"#002110","surface-container-highest":"#e4e0d8","on-secondary-fixed-variant":"#4a4538","primary-container":"#78a886","surface-variant":"#e4e0d8","on-secondary-container":"#5e5548","inverse-surface":"#2e3230","tertiary-fixed":"#f8e0a8","on-tertiary-fixed-variant":"#554020","tertiary-fixed-dim":"#dcc48e","on-error":"#ffffff","on-secondary":"#ffffff","primary":"#4a7c59","background":"#faf6f0","secondary-fixed":"#f0e8db","primary-fixed-dim":"#8ecf9e","surface-container":"#f0ece4","surface-bright":"#faf6f0","secondary":"#6b6358","on-primary":"#ffffff","tertiary":"#705c30","tertiary-container":"#c4a66a","on-background":"#2e3230","surface":"#faf6f0","inverse-primary":"#8ecf9e","inverse-on-surface":"#f5f0e8","primary-fixed":"#c8e8d0","surface-container-low":"#f5f1ea","outline-variant":"#c4c8bc","on-error-container":"#690005","on-surface":"#2e3230","surface-container-high":"#eae6de","on-primary-fixed-variant":"#2a6038","on-tertiary":"#ffffff","surface-tint":"#4a7c59","surface-dim":"#dbd7cf","on-tertiary-container":"#554020","secondary-fixed-dim":"#d4ccbf","on-primary-container":"#d8f0de","secondary-container":"#f0e8db"},"borderRadius":{"DEFAULT":"0.5rem","lg":"1rem","xl":"1.5rem","full":"9999px"},"spacing":{},"fontFamily":{"headline":["Literata"],"display":["Literata"],"body":["Nunito Sans"],"label":["Nunito Sans"]},"fontSize":{}}}}</script></head><body class="bg-background font-body text-on-surface min-h-screen"><aside class="fixed left-0 top-0 h-full w-72 bg-surface-container-low z-50 flex flex-col justify-between shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="flex flex-col flex-1"><div class="h-16 px-6 flex items-center gap-3"><img alt="Brand logo. - Primary color: #4a7c59
+- Font: nunitoSans
+- Mode: light
+- Roundness: rounded-lg
+" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1X4O0jBWbydXPBiL28F9I3eH7aRaWjanpcv65E8k7dKIOcj25h9Kilf-oud27YgIuJV-RhvAD6oRa6KuBpZPi4h_UsZ5YBW9PFC6rFnrvo5DkOi7tjktF0wjHplMtlJNoHh2xrbSc__UWDxMmdpLVWdK_h1z3NClAtdQ6KWa8y-NuvWn-KrPgXlFtivrladWCsr96RVJl6yg-ROtaPWXXOSkd_YNV8RtcTNG3j49LIzS__xcQdSHZQbtA"/><div class="flex flex-col leading-tight"><span class="font-headline font-bold text-lg text-primary tracking-tight">CardioDiario</span><span class="text-[11px] font-semibold text-secondary tracking-wide uppercase">Direzione Sanitaria</span></div></div><div class="px-4 py-3"><div class="bg-surface-container px-3 py-2 rounded-lg flex items-center justify-between"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-[18px]">verified_user</span><span class="text-xs font-semibold text-on-surface">Rete Sanitaria ASL/SSN</span></div><span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-primary text-on-primary">Attivo</span></div></div><div class="px-4 py-2"><div class="text-[11px] font-bold uppercase tracking-wider text-secondary px-3 mb-2">Amministrazione Sistema</div><nav class="flex flex-col gap-1.5" data-active-classes="bg-primary text-on-primary font-semibold shadow-[0_2px_8px_rgba(74,124,89,0.2)]"><a class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="dashboard-amministrazione" href="#"><span class="material-symbols-outlined text-[20px]">grid_view</span><span>Dashboard Amministrazione</span></a><a class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="gestione-medici-and-staff" href="#"><span class="material-symbols-outlined text-[20px]">badge</span><span>Gestione Medici &amp; Staff</span></a><a class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="reparti-and-strutture-sanitarie" href="#"><span class="material-symbols-outlined text-[20px]">domain</span><span>Reparti &amp; Strutture Sanitarie</span></a><a class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="regole-esc-and-soglie-globali" href="#"><span class="material-symbols-outlined text-[20px]">tune</span><span>Regole ESC &amp; Soglie Globali</span></a><a class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="audit-log-and-sicurezza-gdpr" href="#"><span class="material-symbols-outlined text-[20px]">shield</span><span>Audit Log &amp; Sicurezza GDPR</span></a><a class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="configurazione-server-and-db" href="#"><span class="material-symbols-outlined text-[20px]">database</span><span>Configurazione Server &amp; DB</span></a></nav></div></div><div class="p-4"><div class="bg-surface-container p-3 rounded-lg flex flex-col gap-2"><div class="flex items-center justify-between text-xs text-secondary"><span class="flex items-center gap-1.5 font-semibold text-on-surface"><span class="h-2 w-2 rounded-full bg-primary inline-block"></span>Turso LibSQL Cloud</span><span class="font-mono text-[11px] text-primary">99.98%</span></div><div class="text-[11px] text-on-surface-variant flex items-center gap-1.5"><span class="material-symbols-outlined text-[14px] text-primary">lock</span><span>Crittografia AES-256 GCM</span></div></div></div></aside><div class="pl-72 flex flex-col min-h-screen"><header class="fixed top-0 left-72 right-0 h-16 bg-surface/85 backdrop-blur-xl z-40 shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="w-full h-full px-8 flex items-center justify-between gap-6"><div class="flex-1 max-w-xl"><div class="relative flex items-center"><span class="material-symbols-outlined absolute left-3.5 text-secondary text-[20px]">search</span><input class="w-full pl-10 pr-4 py-2 text-sm bg-surface-container-low rounded-lg text-on-surface placeholder:text-secondary focus:outline-none focus:ring-1 focus:ring-primary shadow-[0_1px_8px_rgba(0,0,0,0.04)]" placeholder="Cerca medico, matricola, reparto o presidio sanitario..." type="search"/></div></div><div class="flex items-center gap-4 shrink-0"><div class="hidden xl:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-container text-xs font-semibold text-on-surface-variant"><span class="material-symbols-outlined text-primary text-[18px]">health_and_safety</span><span>FSE 2.0 / SISR Connesso</span></div><div class="h-8 w-px bg-surface-container-highest"></div><div class="flex items-center gap-3"><div class="text-right leading-tight hidden md:block"><div class="text-sm font-bold text-on-surface">Dott.ssa Clara Rossi</div><div class="text-xs text-secondary font-medium">Direzione Sanitaria / IT Manager</div></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></div></header><main class="w-full pt-16 flex-1 px-8 pb-10 bg-surface"><div class="flex flex-col w-full">
+<!-- Top Breadcrumb & Page Meta Area -->
+<div class="flex flex-col gap-3 mb-8">
+<nav class="flex items-center gap-2 text-xs text-secondary font-medium tracking-wide">
+<span class="hover:text-primary transition-colors cursor-pointer">Amministrazione</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="hover:text-primary transition-colors cursor-pointer">Gestione Utenze</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="text-on-surface font-semibold">Medici &amp; Specialisti</span>
+</nav>
+<div class="flex flex-col xl:flex-row xl:items-center justify-between gap-6">
+<div class="max-w-3xl">
+<div class="flex flex-wrap items-center gap-3 mb-2">
+<h1 class="font-headline font-bold text-2xl md:text-3xl text-on-surface tracking-tight">Registro Utenze Personale Medico</h1>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary">
+<span class="material-symbols-outlined text-[14px]">shield_person</span>
+            Multi-Tenant &amp; Segregazione Dati Attiva
+          </span>
+</div>
+<p class="text-secondary text-sm md:text-base leading-relaxed">
+          Censimento, autorizzazioni cliniche e configurazione credenziali crittografate per i medici curanti e specialisti accreditati della rete ospedaliera e territoriale.
+        </p>
+</div>
+<!-- Action Buttons in Top Header -->
+<div class="flex flex-wrap items-center gap-3 self-start xl:self-center">
+<button class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-primary text-on-primary text-sm font-bold shadow-md hover:bg-on-primary-fixed-variant transition-all cursor-pointer" id="btnOpenNewDoc">
+<span class="material-symbols-outlined text-[18px]">person_add</span>
+<span>+ Nuova Utenza Medico</span>
+</button>
+<button class="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-lg bg-surface-container-high text-on-surface-variant text-sm font-semibold hover:bg-surface-container-highest transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-[18px]">sync_alt</span>
+<span>Importa (HL7 FHIR / CSV)</span>
+</button>
+<button class="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-lg bg-surface-container-high text-on-surface-variant text-sm font-semibold hover:bg-surface-container-highest transition-colors cursor-pointer" title="Scarica audit formale">
+<span class="material-symbols-outlined text-[18px]">file_download</span>
+<span>Audit PDF</span>
+</button>
+</div>
+</div>
+</div>
+<!-- KPI Cards Grid (4 Units) -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+<!-- KPI 1 -->
+<div class="bg-surface-container-low rounded-xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+<div class="flex items-start justify-between">
+<div>
+<span class="text-xs font-bold uppercase tracking-wider text-secondary">Medici Attivi Accreditati</span>
+<div class="mt-2 flex items-baseline gap-2">
+<span class="font-headline font-bold text-3xl text-on-surface">18</span>
+<span class="text-xs font-semibold text-primary bg-primary-fixed/40 px-1.5 py-0.5 rounded">+2 questo mese</span>
+</div>
+</div>
+<div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[22px]">medical_services</span>
+</div>
+</div>
+<div class="mt-4 pt-3 border-t-0 flex items-center gap-1.5 text-xs text-secondary bg-surface-container px-2.5 py-1.5 rounded-md">
+<span class="material-symbols-outlined text-[16px] text-primary">verified</span>
+<span>100% Verificati FNOMCeO</span>
+</div>
+</div>
+<!-- KPI 2 -->
+<div class="bg-surface-container-low rounded-xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+<div class="flex items-start justify-between">
+<div>
+<span class="text-xs font-bold uppercase tracking-wider text-secondary">Pazienti Assegnati Totali</span>
+<div class="mt-2 flex items-baseline gap-2">
+<span class="font-headline font-bold text-3xl text-on-surface">412</span>
+<span class="text-xs text-secondary font-medium">in telemedicina</span>
+</div>
+</div>
+<div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[22px]">vital_signs</span>
+</div>
+</div>
+<div class="mt-4 flex items-center justify-between text-xs text-secondary">
+<span>Media: 22.8 per medico</span>
+<span class="font-bold text-on-surface">Capacità rete: 68%</span>
+</div>
+</div>
+<!-- KPI 3 -->
+<div class="bg-surface-container-low rounded-xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+<div class="flex items-start justify-between">
+<div>
+<span class="text-xs font-bold uppercase tracking-wider text-secondary">Inviti &amp; Attivazioni</span>
+<div class="mt-2 flex items-baseline gap-2">
+<span class="font-headline font-bold text-3xl text-tertiary">3</span>
+<span class="text-xs font-bold text-tertiary bg-tertiary-fixed/60 px-1.5 py-0.5 rounded">Pendenti</span>
+</div>
+</div>
+<div class="w-10 h-10 rounded-lg bg-tertiary-fixed/40 flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined text-[22px]">outgoing_mail</span>
+</div>
+</div>
+<div class="mt-4 flex items-center justify-between">
+<button class="text-xs font-bold text-primary hover:underline flex items-center gap-1">
+          Invia sollecito credenziali
+          <span class="material-symbols-outlined text-[14px]">send</span>
+</button>
+</div>
+</div>
+<!-- KPI 4 -->
+<div class="bg-surface-container-low rounded-xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+<div class="flex items-start justify-between">
+<div>
+<span class="text-xs font-bold uppercase tracking-wider text-secondary">Conformità GDPR &amp; Logins</span>
+<div class="mt-2 flex items-baseline gap-2">
+<span class="font-headline font-bold text-3xl text-on-surface">100%</span>
+<span class="text-xs font-semibold text-primary">2FA Enforced</span>
+</div>
+</div>
+<div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[22px]">phonelink_lock</span>
+</div>
+</div>
+<div class="mt-4 pt-3 flex items-center gap-2 text-xs text-secondary">
+<span class="h-2 w-2 rounded-full bg-primary inline-block"></span>
+<span>Zero accessi anomali (ultime 24h)</span>
+</div>
+</div>
+</div>
+<!-- COLLAPSIBLE / INTERACTIVE DRAWER: Nuova Utenza Medico Form Panel -->
+<div class="bg-surface-container-low rounded-xl shadow-md p-6 mb-8 transition-all duration-300" id="newDoctorFormPanel">
+<div class="flex flex-col md:flex-row md:items-center justify-between pb-5 gap-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-primary text-on-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[22px]">badge</span>
+</div>
+<div>
+<h2 class="font-headline font-bold text-xl text-on-surface">Nuova Utenza Medico - Censimento &amp; Credenziali</h2>
+<p class="text-xs text-secondary">Inserimento autorizzato ai sensi del Regolamento Sanità Digitale e FSE 2.0</p>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-xs font-semibold text-secondary px-2.5 py-1 bg-surface-container rounded-md">Step Amministrativo 1 di 1</span>
+<button class="p-1.5 rounded-lg text-secondary hover:bg-surface-container hover:text-on-surface transition-colors cursor-pointer" id="btnCloseForm" title="Riduci pannello">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+</div>
+<!-- Tab navigation inside drawer -->
+<div class="flex items-center gap-2 mb-6 bg-surface-container p-1 rounded-lg w-fit">
+<button class="doc-tab-btn px-4 py-1.5 rounded-md text-xs font-bold bg-surface-container-lowest text-on-surface shadow-sm cursor-pointer transition-all" id="tabBtn1">
+        1. Dati Anagrafici &amp; Albo
+      </button>
+<button class="doc-tab-btn px-4 py-1.5 rounded-md text-xs font-semibold text-secondary hover:text-on-surface cursor-pointer transition-all" id="tabBtn2">
+        2. Contatti &amp; Credenziali
+      </button>
+<button class="doc-tab-btn px-4 py-1.5 rounded-md text-xs font-semibold text-secondary hover:text-on-surface cursor-pointer transition-all" id="tabBtn3">
+        3. Privilegi &amp; Segregazione
+      </button>
+</div>
+<!-- Tab Content Sections -->
+<form id="createDoctorForm" onsubmit="event.preventDefault(); return false;">
+<!-- SEZIONE 1: Dati Anagrafici & Albo -->
+<div class="doc-tab-pane grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" id="tabContent1">
+<div class="flex flex-col gap-1.5">
+<label class="text-xs font-bold text-on-surface">Nome e Cognome Clinico *</label>
+<input class="bg-surface-container-lowest rounded-lg px-3.5 py-2.5 text-sm text-on-surface focus:outline-none focus:ring-1 focus:ring-primary placeholder:text-secondary/60" placeholder="Es. Valerio Marchi" required="" type="text"/>
+</div>
+<div class="flex flex-col gap-1.5">
+<label class="text-xs font-bold text-on-surface">Codice Fiscale *</label>
+<input class="bg-surface-container-lowest font-mono uppercase tracking-wider rounded-lg px-3.5 py-2.5 text-sm text-on-surface focus:outline-none focus:ring-1 focus:ring-primary placeholder:text-secondary/60" maxlength="16" placeholder="MRCVLR78A12H501Z" required="" type="text"/>
+</div>
+<div class="flex flex-col gap-1.5">
+<label class="text-xs font-bold text-on-surface">Numero Iscrizione Ordine Medici (FNOMCeO) *</label>
+<input class="bg-surface-container-lowest rounded-lg px-3.5 py-2.5 text-sm text-on-surface focus:outline-none focus:ring-1 focus:ring-primary placeholder:text-secondary/60" placeholder="Es. OMCeO Roma n. 58492" required="" type="text"/>
+</div>
+<div class="flex flex-col gap-1.5">
+<label class="text-xs font-bold text-on-surface">Specializzazione Clinica Principale *</label>
+<select class="bg-surface-container-lowest rounded-lg px-3.5 py-2.5 text-sm text-on-surface focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer" required="">
+<option value="cardiologia">Cardiologia Clinica &amp; Aritmologia</option>
+<option value="mmg">Medicina Generale (MMG)</option>
+<option value="geriatria">Geriatria &amp; Cure Croniche</option>
+<option value="interna">Medicina Interna</option>
+<option value="ipertensione">Centro Ipertensione Arteriosa Avanzata</option>
+</select>
+</div>
+<div class="flex flex-col gap-1.5">
+<label class="text-xs font-bold text-on-surface">Reparto / Struttura Sanitaria Collegata *</label>
+<select class="bg-surface-container-lowest rounded-lg px-3.5 py-2.5 text-sm text-on-surface focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer" required="">
+<option value="rep_1">Cardiologia Territoriale - Distretto Sanitario 2</option>
+<option value="rep_2">Hub Emodinamica &amp; UTIC Ospedaliera</option>
+<option value="rep_3">Ambulatorio Territoriale Centro - Cure Integrate</option>
+<option value="rep_4">Presidio Telemonitoraggio Cronicità ASL</option>
+</select>
+</div>
+<div class="flex flex-col gap-1.5">
+<label class="text-xs font-bold text-on-surface">Stato Iniziale Account</label>
+<select class="bg-surface-container-lowest rounded-lg px-3.5 py-2.5 text-sm text-on-surface focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer">
+<option value="attivo">Attivo (Accesso immediato post-setup)</option>
+<option selected="" value="invito_pendente">Invito Pendente (Attivazione guidata medico)</option>
+<option value="sospeso">Sospeso (Pre-censimento documentale)</option>
+</select>
+</div>
+</div>
+<!-- SEZIONE 2: Contatti & Credenziali -->
+<div class="doc-tab-pane hidden grid grid-cols-1 md:grid-cols-2 gap-5" id="tabContent2">
+<div class="flex flex-col gap-1.5">
+<label class="text-xs font-bold text-on-surface">Email Ufficiale Istituzionale (Login) *</label>
+<input class="bg-surface-container-lowest rounded-lg px-3.5 py-2.5 text-sm text-on-surface focus:outline-none focus:ring-1 focus:ring-primary placeholder:text-secondary/60" placeholder="nome.cognome@asl.regione.it" required="" type="email"/>
+<span class="text-[11px] text-secondary">Le notifiche di allarme clinico rosso ESC verranno inviate a questo recapito.</span>
+</div>
+<div class="flex flex-col gap-1.5">
+<label class="text-xs font-bold text-on-surface">Numero Telefono Reperibilità Clinica *</label>
+<input class="bg-surface-container-lowest rounded-lg px-3.5 py-2.5 text-sm text-on-surface focus:outline-none focus:ring-1 focus:ring-primary placeholder:text-secondary/60" placeholder="+39 338 9821455" required="" type="tel"/>
+<span class="text-[11px] text-secondary">Utilizzato per 2FA SMS e reperibilità tempestiva urgenze.</span>
+</div>
+<div class="md:col-span-2 bg-surface-container p-4 rounded-lg flex flex-col gap-3">
+<label class="text-xs font-bold text-on-surface">Metodo Inizializzazione Password &amp; Credenziali</label>
+<div class="flex items-start gap-3 p-3 rounded-lg bg-surface-container-lowest cursor-pointer">
+<input checked="" class="mt-1 text-primary focus:ring-primary" id="pwdOpt1" name="pwd_init" type="radio"/>
+<label class="cursor-pointer text-xs" for="pwdOpt1">
+<span class="font-bold text-on-surface block mb-0.5">Opzione 1 (Consigliata dal DPO): Invia link crittografato di prima attivazione via PEC/Email</span>
+<span class="text-secondary block">Il medico riceverà una email con token monouso sicuro valido 48 ore per generare la password e configurare l'Authenticator TOTP.</span>
+</label>
+</div>
+<div class="flex flex-col gap-2 p-3 rounded-lg bg-surface-container-lowest">
+<div class="flex items-start gap-3">
+<input class="mt-1 text-primary focus:ring-primary" id="pwdOpt2" name="pwd_init" type="radio"/>
+<label class="cursor-pointer text-xs flex-1" for="pwdOpt2">
+<span class="font-bold text-on-surface block mb-0.5">Opzione 2: Genera Password Temporanea e stampa foglio di servizio cifrato</span>
+<span class="text-secondary block">Utile in presidi ospedalieri fisici senza accesso immediato alla posta elettronica esterna.</span>
+</label>
+</div>
+<div class="pl-7 pt-2 flex flex-wrap items-center gap-3">
+<div class="relative flex items-center">
+<input class="font-mono text-xs bg-surface-container px-3 py-1.5 rounded text-on-surface font-semibold select-all" readonly="" type="text" value="K8#xP9!vL2$mQ4@"/>
+<button class="ml-2 text-primary hover:text-on-primary-fixed-variant text-xs font-bold flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[16px]">refresh</span>
+                  Rigenera
+                </button>
+</div>
+<button class="text-secondary hover:text-on-surface text-xs font-semibold flex items-center gap-1 px-2.5 py-1 rounded bg-surface-container-high" type="button">
+<span class="material-symbols-outlined text-[16px]">print</span>
+                Stampa Foglio Credenziali
+              </button>
+</div>
+</div>
+</div>
+<div class="md:col-span-2 flex items-center gap-3 p-3 rounded-lg bg-primary-fixed/20 text-on-surface">
+<span class="material-symbols-outlined text-primary text-[22px]">security</span>
+<div class="text-xs">
+<span class="font-bold">Autenticazione a Due Fattori (2FA / OTP) Obbligatoria</span>
+<p class="text-secondary mt-0.5">Per conformità GDPR Sanità e linee guida AgID, tutti i medici devono autenticarsi via App Authenticator o token SMS.</p>
+</div>
+</div>
+</div>
+<!-- SEZIONE 3: Privilegi & Segregazione -->
+<div class="doc-tab-pane hidden grid grid-cols-1 md:grid-cols-2 gap-5" id="tabContent3">
+<div class="flex flex-col gap-1.5">
+<label class="text-xs font-bold text-on-surface">Ruolo Clinico e Livello Permessi *</label>
+<select class="bg-surface-container-lowest rounded-lg px-3.5 py-2.5 text-sm text-on-surface focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer" required="">
+<option value="cardiologo">Cardiologo - Titolare Cartella &amp; Piani Terapeutici</option>
+<option value="medico_base">Medico di Medicina Generale (MMG) - Consultazione &amp; Prescrizioni</option>
+<option value="admin">Direttore di Dipartimento / Supervisore Sanitario (Privilegi Estesi)</option>
+</select>
+<span class="text-[11px] text-secondary">Definisce le capacità di modifica delle soglie ESC e validazione tele-visite.</span>
+</div>
+<div class="flex flex-col gap-1.5">
+<label class="text-xs font-bold text-on-surface">Limite Massimo Coorte Pazienti Attivi</label>
+<input class="bg-surface-container-lowest rounded-lg px-3.5 py-2.5 text-sm text-on-surface focus:outline-none focus:ring-1 focus:ring-primary" max="300" min="5" type="number" value="50"/>
+<span class="text-[11px] text-secondary">Limite di sicurezza per evitare sovraccarico di allarmi pressori su singolo medico.</span>
+</div>
+<div class="md:col-span-2 flex flex-col gap-3 pt-2">
+<label class="text-xs font-bold text-on-surface uppercase tracking-wide text-secondary">Permessi Specifici Modulo Clinico</label>
+<label class="flex items-center gap-3 p-3 rounded-lg bg-surface-container hover:bg-surface-container-high transition-colors cursor-pointer">
+<input checked="" class="rounded text-primary focus:ring-primary h-4 w-4" type="checkbox"/>
+<div class="text-xs">
+<span class="font-bold text-on-surface block">Invio Notifiche Web Push Broadcast &amp; Alert al Paziente</span>
+<span class="text-secondary block">Abilita il medico all'invio di messaggi prioritari direttamente sullo smartphone dei pazienti associati.</span>
+</div>
+</label>
+<label class="flex items-center gap-3 p-3 rounded-lg bg-surface-container hover:bg-surface-container-high transition-colors cursor-pointer">
+<input checked="" class="rounded text-primary focus:ring-primary h-4 w-4" type="checkbox"/>
+<div class="text-xs">
+<span class="font-bold text-on-surface block">Accesso Reportistica ESC/ESH Avanzata &amp; Export Statistiche</span>
+<span class="text-secondary block">Consente di generare report PDF consolidati dei trend pressori e frequenza cardiaca su base mensile e trimestrale.</span>
+</div>
+</label>
+</div>
+</div>
+<!-- Action Footer for Form -->
+<div class="flex flex-wrap items-center justify-between gap-4 mt-8 pt-5 bg-surface-container/60 -mx-6 -mb-6 px-6 py-4 rounded-b-xl">
+<div class="text-xs text-secondary flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-primary">lock</span>
+<span>Transazione registrata nel registro audit di sicurezza (Turso LibSQL GCM)</span>
+</div>
+<div class="flex items-center gap-3">
+<button class="px-4 py-2 rounded-lg text-secondary text-sm font-semibold hover:bg-surface-container-highest transition-colors cursor-pointer" id="btnCancelForm" type="button">
+            Annulla
+          </button>
+<button class="px-4 py-2 rounded-lg bg-surface-container-highest text-on-surface text-sm font-semibold hover:bg-surface-container transition-colors cursor-pointer" type="button">
+            Salva come Bozza
+          </button>
+<button class="px-5 py-2 rounded-lg bg-primary text-on-primary text-sm font-bold shadow hover:bg-on-primary-fixed-variant transition-all cursor-pointer flex items-center gap-2" type="submit">
+<span class="material-symbols-outlined text-[18px]">check_circle</span>
+<span>Salva e Attiva Medico</span>
+</button>
+</div>
+</div>
+</form>
+</div>
+<!-- Main Grid: Doctors Table (Left/Center) + Security & Segregation Sidebar (Right) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+<!-- Table Container (8 Cols) -->
+<div class="lg:col-span-8 flex flex-col gap-4">
+<!-- Filter Bar -->
+<div class="bg-surface-container-low p-4 rounded-xl shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+<!-- Live Search -->
+<div class="relative w-full md:w-80">
+<span class="material-symbols-outlined absolute left-3 top-2.5 text-secondary text-[18px]">search</span>
+<input class="w-full pl-9 pr-3 py-1.5 text-xs bg-surface-container rounded-lg text-on-surface placeholder:text-secondary focus:outline-none focus:ring-1 focus:ring-primary" id="tableSearchInput" placeholder="Filtra per nome, OMCeO, email..." type="search"/>
+</div>
+<!-- Filter Selects -->
+<div class="flex flex-wrap items-center gap-3 w-full md:w-auto justify-end">
+<div class="flex items-center gap-2 text-xs">
+<span class="text-secondary font-semibold">Specialità:</span>
+<select class="bg-surface-container text-on-surface text-xs rounded-md px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer" id="filterSpecialty">
+<option value="all">Tutte le specialità</option>
+<option value="cardiologia">Cardiologia</option>
+<option value="mmg">Medicina Generale (MMG)</option>
+<option value="geriatria">Geriatria</option>
+<option value="interna">Medicina Interna</option>
+</select>
+</div>
+<div class="flex items-center gap-2 text-xs">
+<span class="text-secondary font-semibold">Stato:</span>
+<select class="bg-surface-container text-on-surface text-xs rounded-md px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer" id="filterStatus">
+<option value="all">Tutti gli stati</option>
+<option value="attivo">Attivo</option>
+<option value="invito">Invito Pendente</option>
+<option value="sospeso">Sospeso</option>
+</select>
+</div>
+</div>
+</div>
+<!-- Doctors Table Card -->
+<div class="bg-surface-container-low rounded-xl shadow-sm overflow-hidden">
+<div class="px-6 py-4 flex items-center justify-between bg-surface-container/50">
+<div class="flex items-center gap-2">
+<span class="font-headline font-bold text-base text-on-surface">Medici Accreditati</span>
+<span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant">5 Visualizzati</span>
+</div>
+<div class="text-xs text-secondary">
+            Ordinamento per: <span class="font-bold text-on-surface">Pazienti in Carico (Decrescente)</span>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container text-[11px] font-bold uppercase tracking-wider text-secondary">
+<th class="py-3 px-5">Medico &amp; Identificativi</th>
+<th class="py-3 px-4">Specializzazione &amp; Reparto</th>
+<th class="py-3 px-4">Pazienti in Carico</th>
+<th class="py-3 px-4">Ultimo Accesso</th>
+<th class="py-3 px-4">Stato Account</th>
+<th class="py-3 px-5 text-right">Azioni</th>
+</tr>
+</thead>
+<tbody class="text-xs divide-y-0">
+<!-- Doctor Row 1 -->
+<tr class="hover:bg-surface-container/60 transition-colors">
+<td class="py-3.5 px-5">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-full bg-primary/20 text-primary font-bold flex items-center justify-center text-sm shrink-0">
+                      VM
+                    </div>
+<div class="flex flex-col">
+<span class="font-bold text-on-surface text-sm">Dott. Valerio Marchi</span>
+<span class="text-[11px] text-secondary font-mono">OMCeO Roma n. 58492</span>
+<span class="text-[11px] text-secondary">v.marchi@aslroma2.it</span>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<div class="flex flex-col gap-1">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-primary text-on-primary w-fit">
+                      Cardiologia Primaria
+                    </span>
+<span class="text-[11px] text-secondary">Distretto 2 - Telemedicina</span>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<div class="flex flex-col gap-1 w-32">
+<div class="flex items-center justify-between text-[11px]">
+<span class="font-bold text-on-surface">48 pazienti</span>
+<span class="text-secondary font-mono">96%</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 96%"></div>
+</div>
+<span class="text-[10px] text-secondary">Max cap: 50</span>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<div class="flex flex-col">
+<span class="text-on-surface font-semibold">Oggi, 10:45</span>
+<span class="text-[10px] text-secondary flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px] text-primary">verified</span>
+                      IP Ospedaliero ASL
+                    </span>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-primary/10 text-primary">
+<span class="h-1.5 w-1.5 rounded-full bg-primary"></span>
+                    Attivo
+                  </span>
+</td>
+<td class="py-3.5 px-5 text-right">
+<div class="flex items-center justify-end gap-1">
+<button class="p-1.5 text-secondary hover:text-primary hover:bg-surface-container rounded transition-colors" title="Modifica autorizzazioni">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+</button>
+<button class="p-1.5 text-secondary hover:text-primary hover:bg-surface-container rounded transition-colors" title="Gestisci pazienti assegnati">
+<span class="material-symbols-outlined text-[18px]">group</span>
+</button>
+<button class="p-1.5 text-secondary hover:text-error hover:bg-surface-container rounded transition-colors" title="Sospendi accesso">
+<span class="material-symbols-outlined text-[18px]">lock_reset</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Doctor Row 2 -->
+<tr class="hover:bg-surface-container/60 transition-colors bg-surface-container/20">
+<td class="py-3.5 px-5">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-full bg-primary/20 text-primary font-bold flex items-center justify-center text-sm shrink-0">
+                      EM
+                    </div>
+<div class="flex flex-col">
+<span class="font-bold text-on-surface text-sm">Dott.ssa Elena Moretti</span>
+<span class="text-[11px] text-secondary font-mono">OMCeO Milano n. 41209</span>
+<span class="text-[11px] text-secondary">elena.moretti@mmg.lombardia.it</span>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<div class="flex flex-col gap-1">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-secondary-fixed text-on-secondary-fixed w-fit">
+                      Medicina Generale (MMG)
+                    </span>
+<span class="text-[11px] text-secondary">Ambulatorio Centro Nord</span>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<div class="flex flex-col gap-1 w-32">
+<div class="flex items-center justify-between text-[11px]">
+<span class="font-bold text-on-surface">36 pazienti</span>
+<span class="text-secondary font-mono">72%</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 72%"></div>
+</div>
+<span class="text-[10px] text-secondary">Max cap: 50</span>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<div class="flex flex-col">
+<span class="text-on-surface font-semibold">Ieri, 18:20</span>
+<span class="text-[10px] text-secondary flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px] text-primary">verified</span>
+                      SPID Livello 2
+                    </span>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-primary/10 text-primary">
+<span class="h-1.5 w-1.5 rounded-full bg-primary"></span>
+                    Attivo
+                  </span>
+</td>
+<td class="py-3.5 px-5 text-right">
+<div class="flex items-center justify-end gap-1">
+<button class="p-1.5 text-secondary hover:text-primary hover:bg-surface-container rounded transition-colors" title="Modifica autorizzazioni">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+</button>
+<button class="p-1.5 text-secondary hover:text-primary hover:bg-surface-container rounded transition-colors" title="Gestisci pazienti assegnati">
+<span class="material-symbols-outlined text-[18px]">group</span>
+</button>
+<button class="p-1.5 text-secondary hover:text-error hover:bg-surface-container rounded transition-colors" title="Sospendi accesso">
+<span class="material-symbols-outlined text-[18px]">lock_reset</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Doctor Row 3 -->
+<tr class="hover:bg-surface-container/60 transition-colors">
+<td class="py-3.5 px-5">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-full bg-primary/20 text-primary font-bold flex items-center justify-center text-sm shrink-0">
+                      MB
+                    </div>
+<div class="flex flex-col">
+<span class="font-bold text-on-surface text-sm">Dott. Marco Bellini</span>
+<span class="text-[11px] text-secondary font-mono">OMCeO Torino n. 32018</span>
+<span class="text-[11px] text-secondary">m.bellini@ospedale-mauriziano.it</span>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<div class="flex flex-col gap-1">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-primary text-on-primary w-fit">
+                      Cardiologia Riabilitativa
+                    </span>
+<span class="text-[11px] text-secondary">Hub Emodinamica ASL</span>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<div class="flex flex-col gap-1 w-32">
+<div class="flex items-center justify-between text-[11px]">
+<span class="font-bold text-on-surface">29 pazienti</span>
+<span class="text-secondary font-mono">58%</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 58%"></div>
+</div>
+<span class="text-[10px] text-secondary">Max cap: 50</span>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<div class="flex flex-col">
+<span class="text-on-surface font-semibold">12 Maggio, 09:15</span>
+<span class="text-[10px] text-secondary flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px] text-primary">verified</span>
+                      App Authenticator TOTP
+                    </span>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-primary/10 text-primary">
+<span class="h-1.5 w-1.5 rounded-full bg-primary"></span>
+                    Attivo
+                  </span>
+</td>
+<td class="py-3.5 px-5 text-right">
+<div class="flex items-center justify-end gap-1">
+<button class="p-1.5 text-secondary hover:text-primary hover:bg-surface-container rounded transition-colors" title="Modifica autorizzazioni">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+</button>
+<button class="p-1.5 text-secondary hover:text-primary hover:bg-surface-container rounded transition-colors" title="Gestisci pazienti assegnati">
+<span class="material-symbols-outlined text-[18px]">group</span>
+</button>
+<button class="p-1.5 text-secondary hover:text-error hover:bg-surface-container rounded transition-colors" title="Sospendi accesso">
+<span class="material-symbols-outlined text-[18px]">lock_reset</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Doctor Row 4: Pending Activation -->
+<tr class="hover:bg-surface-container/60 transition-colors bg-surface-container/20">
+<td class="py-3.5 px-5">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-full bg-tertiary-fixed text-tertiary font-bold flex items-center justify-center text-sm shrink-0">
+                      RD
+                    </div>
+<div class="flex flex-col">
+<span class="font-bold text-on-surface text-sm">Dott. Roberto De Angelis</span>
+<span class="text-[11px] text-secondary font-mono">OMCeO Napoli n. 66102</span>
+<span class="text-[11px] text-secondary">r.deangelis@aslcampania.it</span>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<div class="flex flex-col gap-1">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-secondary-fixed text-on-secondary-fixed w-fit">
+                      Geriatria Clinica
+                    </span>
+<span class="text-[11px] text-secondary">Distretto Cronici 3</span>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<div class="flex flex-col gap-1 w-32">
+<div class="flex items-center justify-between text-[11px]">
+<span class="font-bold text-on-surface">0 pazienti</span>
+<span class="text-secondary font-mono">0%</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-tertiary rounded-full" style="width: 0%"></div>
+</div>
+<span class="text-[10px] text-tertiary font-medium">In attesa accettazione</span>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<div class="flex flex-col">
+<span class="text-tertiary font-medium">Mai effettuato</span>
+<span class="text-[10px] text-secondary">Invito PEC inviato (scade in 28h)</span>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-tertiary-fixed/60 text-tertiary">
+<span class="h-1.5 w-1.5 rounded-full bg-tertiary"></span>
+                    Invito Inviato
+                  </span>
+</td>
+<td class="py-3.5 px-5 text-right">
+<div class="flex items-center justify-end gap-1">
+<button class="px-2.5 py-1 text-xs font-bold text-primary bg-primary-fixed/40 hover:bg-primary-fixed rounded transition-colors flex items-center gap-1" title="Rinvia credenziali">
+<span class="material-symbols-outlined text-[14px]">forward_to_inbox</span>
+                      Sollecita
+                    </button>
+</div>
+</td>
+</tr>
+<!-- Doctor Row 5 -->
+<tr class="hover:bg-surface-container/60 transition-colors">
+<td class="py-3.5 px-5">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-full bg-primary/20 text-primary font-bold flex items-center justify-center text-sm shrink-0">
+                      MC
+                    </div>
+<div class="flex flex-col">
+<span class="font-bold text-on-surface text-sm">Dott.ssa Maria Grazia Conti</span>
+<span class="text-[11px] text-secondary font-mono">OMCeO Bologna n. 29331</span>
+<span class="text-[11px] text-secondary">mg.conti@ausl.bologna.it</span>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<div class="flex flex-col gap-1">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-secondary-fixed text-on-secondary-fixed w-fit">
+                      Medicina Interna
+                    </span>
+<span class="text-[11px] text-secondary">Centro Ipertensione Arteriosa</span>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<div class="flex flex-col gap-1 w-32">
+<div class="flex items-center justify-between text-[11px]">
+<span class="font-bold text-on-surface">42 pazienti</span>
+<span class="text-secondary font-mono">84%</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 84%"></div>
+</div>
+<span class="text-[10px] text-secondary">Max cap: 50</span>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<div class="flex flex-col">
+<span class="text-on-surface font-semibold">11 Maggio, 15:40</span>
+<span class="text-[10px] text-secondary flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px] text-primary">verified</span>
+                      IP Rete VPN Regionale
+                    </span>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-primary/10 text-primary">
+<span class="h-1.5 w-1.5 rounded-full bg-primary"></span>
+                    Attivo
+                  </span>
+</td>
+<td class="py-3.5 px-5 text-right">
+<div class="flex items-center justify-end gap-1">
+<button class="p-1.5 text-secondary hover:text-primary hover:bg-surface-container rounded transition-colors" title="Modifica autorizzazioni">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+</button>
+<button class="p-1.5 text-secondary hover:text-primary hover:bg-surface-container rounded transition-colors" title="Gestisci pazienti assegnati">
+<span class="material-symbols-outlined text-[18px]">group</span>
+</button>
+<button class="p-1.5 text-secondary hover:text-error hover:bg-surface-container rounded transition-colors" title="Sospendi accesso">
+<span class="material-symbols-outlined text-[18px]">lock_reset</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Footer / Pagination -->
+<div class="p-4 bg-surface-container flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-secondary">
+<div class="flex items-center gap-2">
+<span>Mostrando da 1 a 5 di 18 medici censiti</span>
+</div>
+<div class="flex items-center gap-1.5">
+<button class="px-2.5 py-1.5 rounded bg-surface-container-high text-secondary hover:text-on-surface disabled:opacity-50 cursor-pointer" disabled="">
+<span class="material-symbols-outlined text-[16px]">chevron_left</span>
+</button>
+<span class="px-3 py-1 rounded bg-primary text-on-primary font-bold">1</span>
+<button class="px-3 py-1 rounded hover:bg-surface-container-high text-on-surface cursor-pointer">2</button>
+<button class="px-3 py-1 rounded hover:bg-surface-container-high text-on-surface cursor-pointer">3</button>
+<button class="px-2.5 py-1.5 rounded bg-surface-container-high text-secondary hover:text-on-surface cursor-pointer">
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Security & Administrative Sidebar (4 Cols) -->
+<div class="lg:col-span-4 flex flex-col gap-6">
+<!-- Box Informativo: Segregazione dei Dati Pazienti -->
+<div class="bg-surface-container-low p-6 rounded-xl shadow-sm flex flex-col gap-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">enhanced_encryption</span>
+</div>
+<div>
+<h3 class="font-headline font-bold text-sm text-on-surface">Segregazione dei Dati Pazienti</h3>
+<span class="text-[11px] text-secondary font-mono">Row-Level Security &amp; LibSQL Edge</span>
+</div>
+</div>
+<!-- Inline Visual Diagram (SVG Minimal) -->
+<div class="bg-surface-container rounded-lg p-3 flex flex-col items-center justify-center">
+<svg class="w-full max-w-[240px] h-20 text-primary" fill="none" viewbox="0 0 240 80">
+<!-- Node Medico -->
+<rect fill="currentColor" fill-opacity="0.15" height="36" rx="6" stroke="currentColor" stroke-width="1.5" width="60" x="10" y="22"></rect>
+<text fill="currentColor" font-family="Nunito Sans" font-size="9" font-weight="bold" text-anchor="middle" x="40" y="44">MEDICO</text>
+<!-- Connection Line with AES Lock -->
+<line stroke="currentColor" stroke-dasharray="3 3" stroke-width="1.5" x1="70" x2="160" y1="40" y2="40"></line>
+<circle cx="115" cy="40" fill="#faf6f0" r="12" stroke="currentColor" stroke-width="1.5"></circle>
+<text fill="currentColor" font-family="Nunito Sans" font-size="10" font-weight="bold" text-anchor="middle" x="115" y="44">KEY</text>
+<!-- Node Pazienti Segregati -->
+<rect fill="currentColor" fill-opacity="0.1" height="60" rx="6" stroke="currentColor" stroke-width="1.5" width="70" x="160" y="10"></rect>
+<text fill="currentColor" font-family="Nunito Sans" font-size="8" font-weight="bold" text-anchor="middle" x="195" y="32">COORTE</text>
+<text fill="currentColor" font-family="Nunito Sans" font-size="8" text-anchor="middle" x="195" y="46">medico_id</text>
+<text fill="currentColor" font-family="Nunito Sans" font-size="7" text-anchor="middle" x="195" y="58">ISOLATO</text>
+</svg>
+</div>
+<p class="text-xs text-secondary leading-relaxed">
+          Ogni utenza creata opera sotto una policy stringente: le query al database SQLite Turso filtrano obbligatoriamente su <code class="bg-surface-container px-1 py-0.5 rounded text-on-surface font-mono">medico_id</code>. Nessun medico può visualizzare telemetrie, annotazioni cliniche o diario pressorio di pazienti al di fuori della propria coorte assegnata, conformemente all'art. 32 del Regolamento UE 2016/679 (GDPR).
+        </p>
+<div class="flex items-center gap-2 pt-2 text-[11px] font-semibold text-primary">
+<span class="material-symbols-outlined text-[16px]">verified_user</span>
+<span>Certificazione ISO/IEC 27001 &amp; 27701</span>
+</div>
+</div>
+<!-- Quick Action / Admin Audit Trail Preview -->
+<div class="bg-surface-container-low p-6 rounded-xl shadow-sm flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[18px]">history</span>
+<h3 class="font-headline font-bold text-sm text-on-surface">Ultime Azioni Amministrative</h3>
+</div>
+<a class="text-[11px] font-bold text-primary hover:underline" href="#">Vedi Log Completo</a>
+</div>
+<div class="flex flex-col gap-3">
+<!-- Log 1 -->
+<div class="flex items-start gap-2.5 text-xs pb-3 border-b-0">
+<div class="w-2 h-2 rounded-full bg-primary mt-1.5 shrink-0"></div>
+<div class="flex flex-col">
+<span class="font-semibold text-on-surface">Utenza attivata con successo</span>
+<span class="text-secondary text-[11px]">Dott.ssa Elena Moretti ha completato la registrazione 2FA via SPID.</span>
+<span class="text-[10px] text-secondary/80 mt-0.5">Ieri, ore 18:22 • IP: 93.42.118.2</span>
+</div>
+</div>
+<!-- Log 2 -->
+<div class="flex items-start gap-2.5 text-xs pb-3 border-b-0">
+<div class="w-2 h-2 rounded-full bg-tertiary mt-1.5 shrink-0"></div>
+<div class="flex flex-col">
+<span class="font-semibold text-on-surface">Generato invito token monouso</span>
+<span class="text-secondary text-[11px]">Inviato invito a Dott. Roberto De Angelis (PEC ASL Campania).</span>
+<span class="text-[10px] text-secondary/80 mt-0.5">Ieri, ore 14:10 • Da: Dott.ssa Clara Rossi</span>
+</div>
+</div>
+<!-- Log 3 -->
+<div class="flex items-start gap-2.5 text-xs">
+<div class="w-2 h-2 rounded-full bg-primary-container mt-1.5 shrink-0"></div>
+<div class="flex flex-col">
+<span class="font-semibold text-on-surface">Aumento coorte autorizzato</span>
+<span class="text-secondary text-[11px]">Estesa capienza da 40 a 50 pazienti per Dott. Valerio Marchi.</span>
+<span class="text-[10px] text-secondary/80 mt-0.5">10 Maggio, ore 11:30 • Approvato Direzione</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Quick Summary Card: Presidi Ospedalieri Collegati -->
+<div class="bg-surface-container-low p-5 rounded-xl shadow-sm flex flex-col gap-3">
+<span class="text-xs font-bold uppercase tracking-wider text-secondary">Ripartizione Personale nei Reparti</span>
+<div class="flex flex-col gap-2 text-xs">
+<div class="flex items-center justify-between">
+<span class="text-on-surface font-medium">Cardiologia Territoriale (Distr. 2)</span>
+<span class="font-bold font-mono text-primary">8 medici</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-on-surface font-medium">Hub Emodinamica &amp; UTIC</span>
+<span class="font-bold font-mono text-primary">5 medici</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-on-surface font-medium">Medicina Generale &amp; Distretto 3</span>
+<span class="font-bold font-mono text-primary">5 medici</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Micro-Interactions Script: Tabs & Form Panel Toggle -->
+<script>
+    (function initAdminDoctorManagement() {
+      const btnOpenNewDoc = document.getElementById('btnOpenNewDoc');
+      const btnCloseForm = document.getElementById('btnCloseForm');
+      const btnCancelForm = document.getElementById('btnCancelForm');
+      const newDoctorFormPanel = document.getElementById('newDoctorFormPanel');
+
+      if (btnOpenNewDoc && newDoctorFormPanel) {
+        btnOpenNewDoc.addEventListener('click', () => {
+          newDoctorFormPanel.classList.remove('hidden');
+          newDoctorFormPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      }
+
+      const closeHandler = () => {
+        if (newDoctorFormPanel) {
+          newDoctorFormPanel.classList.add('opacity-50');
+          setTimeout(() => {
+            newDoctorFormPanel.classList.add('hidden');
+            newDoctorFormPanel.classList.remove('opacity-50');
+          }, 150);
+        }
+      };
+
+      if (btnCloseForm) btnCloseForm.addEventListener('click', closeHandler);
+      if (btnCancelForm) btnCancelForm.addEventListener('click', closeHandler);
+
+      // Tabs inside the drawer
+      const tabBtns = document.querySelectorAll('.doc-tab-btn');
+      const tabPanes = document.querySelectorAll('.doc-tab-pane');
+
+      tabBtns.forEach((btn, idx) => {
+        btn.addEventListener('click', () => {
+          tabBtns.forEach(b => {
+            b.classList.remove('bg-surface-container-lowest', 'text-on-surface', 'shadow-sm', 'font-bold');
+            b.classList.add('text-secondary', 'font-semibold');
+          });
+          btn.classList.add('bg-surface-container-lowest', 'text-on-surface', 'shadow-sm', 'font-bold');
+          btn.classList.remove('text-secondary', 'font-semibold');
+
+          tabPanes.forEach((pane, pIdx) => {
+            if (pIdx === idx) {
+              pane.classList.remove('hidden');
+            } else {
+              pane.classList.add('hidden');
+            }
+          });
+        });
+      });
+
+      // Quick Client Search in Table
+      const searchInput = document.getElementById('tableSearchInput');
+      if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+          const term = e.target.value.toLowerCase();
+          const rows = document.querySelectorAll('tbody tr');
+          rows.forEach(row => {
+            const text = row.innerText.toLowerCase();
+            row.style.display = text.includes(term) ? '' : 'none';
+          });
+        });
+      }
+    })();
+  </script>
+</div></main><footer class="w-full bg-surface-container-low py-3 px-8 shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="flex flex-wrap items-center justify-between gap-4 text-xs text-secondary"><div class="flex items-center gap-4"><span>CardioDiario Enterprise v4.8.2</span><span>•</span><span class="flex items-center gap-1.5"><span class="h-1.5 w-1.5 rounded-full bg-primary inline-block"></span>Servizi Sanitari Operativi</span><span>•</span><span>Nodo LibSQL / Turso: eu-central (Milano)</span></div><div class="flex items-center gap-3"><span>Conforme Regolamento UE 2016/679 (GDPR Sanità)</span><span class="text-primary font-semibold flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">verified</span>Protetto da HSM Sanitario</span></div></div></footer></div></body></html>

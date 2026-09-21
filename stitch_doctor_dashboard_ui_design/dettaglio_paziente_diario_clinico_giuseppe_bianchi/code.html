@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+
+<html lang="it"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="web_dashboard" name="shell-type"/>
+<link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400..700;1,7..72,400..700&amp;family=Nunito+Sans:ital,opsz,wght@0,6..12,300..800;1,6..12,300..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+    @layer base {
+      html, body { margin: 0; padding: 0; }
+      body { overscroll-behavior: none; }
+    }
+    ::-webkit-scrollbar { display: none; }
+  </style>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "on-surface-variant": "#4a4e4a",
+            "tertiary-container": "#c4a66a",
+            "background": "#faf6f0",
+            "primary-container": "#78a886",
+            "surface-variant": "#e4e0d8",
+            "secondary-container": "#f0e8db",
+            "surface-dim": "#dbd7cf",
+            "secondary": "#6b6358",
+            "on-tertiary-fixed": "#221a05",
+            "error-container": "#ffdad8",
+            "surface-bright": "#faf6f0",
+            "primary-fixed-dim": "#8ecf9e",
+            "surface": "#faf6f0",
+            "on-primary-fixed-variant": "#2a6038",
+            "surface-container": "#f0ece4",
+            "inverse-primary": "#8ecf9e",
+            "on-secondary-fixed-variant": "#4a4538",
+            "on-error-container": "#690005",
+            "on-primary": "#ffffff",
+            "primary": "#4a7c59",
+            "on-primary-container": "#d8f0de",
+            "on-tertiary-container": "#554020",
+            "error": "#b83230",
+            "primary-fixed": "#c8e8d0",
+            "outline-variant": "#c4c8bc",
+            "surface-container-high": "#eae6de",
+            "inverse-on-surface": "#f5f0e8",
+            "on-error": "#ffffff",
+            "surface-container-lowest": "#ffffff",
+            "on-surface": "#2e3230",
+            "on-secondary": "#ffffff",
+            "surface-container-highest": "#e4e0d8",
+            "inverse-surface": "#2e3230",
+            "on-secondary-fixed": "#1e1a13",
+            "on-background": "#2e3230",
+            "tertiary-fixed-dim": "#dcc48e",
+            "outline": "#74796e",
+            "on-secondary-container": "#5e5548",
+            "surface-container-low": "#f5f1ea",
+            "on-tertiary": "#ffffff",
+            "tertiary": "#705c30",
+            "surface-tint": "#4a7c59",
+            "secondary-fixed": "#f0e8db",
+            "on-primary-fixed": "#002110",
+            "secondary-fixed-dim": "#d4ccbf",
+            "on-tertiary-fixed-variant": "#554020",
+            "tertiary-fixed": "#f8e0a8"
+          },
+          borderRadius: {
+            "DEFAULT": "0.5rem",
+            "lg": "1rem",
+            "xl": "1.5rem",
+            "full": "9999px"
+          },
+          fontFamily: {
+            headline: ["Literata"],
+            display: ["Literata"],
+            body: ["Nunito Sans"],
+            label: ["Nunito Sans"]
+          }
+        }
+      }
+    };
+  </script>
+</head>
+<body class="bg-background font-body text-on-surface antialiased min-h-screen">
+<!-- Sidebar di navigazione istituzionale -->
+<aside class="fixed left-0 top-0 h-full w-72 bg-surface-container-low flex flex-col z-50 shadow-[0_4px_20px_rgba(46,50,48,0.06)] border-r border-surface-variant/40">
+<div class="p-6 pb-4">
+<div class="flex items-center gap-3.5">
+<div class="w-10 h-10 shrink-0 flex items-center justify-center overflow-hidden rounded-xl bg-surface-container">
+          https://lh3.googleusercontent.com/aida/AEtjO1X4O0jBWbydXPBiL28F9I3eH7aRaWjanpcv65E8k7dKIOcj25h9Kilf-oud27YgIuJV-RhvAD6oRa6KuBpZPi4h_UsZ5YBW9PFC6rFnrvo5DkOi7tjktF0wjHplMtlJNoHh2xrbSc__UWDxMmdpLVWdK_h1z3NClAtdQ6KWa8y-NuvWn-KrPgXlFtivrladWCsr96RVJl6yg-ROtaPWXXOSkd_YNV8RtcTNG3j49LIzS__xcQdSHZQbtA
+        </div>
+<div class="flex flex-col">
+<span class="font-headline text-xl font-bold text-primary tracking-tight">CardioDiario</span>
+<span class="text-[11px] font-label text-secondary uppercase tracking-wider font-semibold">Executive Analytics</span>
+</div>
+</div>
+<!-- Badge Medico Compatto in Sidebar -->
+<div class="mt-6 p-3.5 rounded-xl bg-surface-container/70 border border-outline-variant/30 flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary/15 text-primary flex items-center justify-center font-bold text-sm">
+          VM
+        </div>
+<div class="flex flex-col min-w-0">
+<span class="text-xs font-bold text-on-surface truncate">Dott. Valerio Marchi</span>
+<span class="text-[11px] text-on-surface-variant truncate">Dirigente Cardiologia</span>
+</div>
+</div>
+</div>
+<!-- Voci di navigazione strutturate -->
+<nav class="flex-1 px-4 space-y-1.5 overflow-y-auto" data-active-classes="bg-primary text-on-primary font-bold shadow-sm">
+<a class="flex items-center px-4 py-3 rounded-xl text-sm font-medium text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="overview" href="#">
+Dashboard / Overview
+</a>
+<a aria-current="page" class="flex items-center px-4 py-3 rounded-xl transition-colors bg-primary text-on-primary font-bold shadow-sm" data-path="pazienti" href="/medico/pazienti">
+Pazienti &amp; Anagrafica
+</a>
+<a class="flex items-center px-4 py-3 rounded-xl text-sm font-medium text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="comunicazioni" href="/medico/comunicazioni">
+Comunicazioni &amp; Push
+</a>
+<a class="flex items-center px-4 py-3 rounded-xl text-sm font-medium text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="referti" href="/medico/referti">
+Referti Clinici &amp; Export
+</a>
+<a class="flex items-center px-4 py-3 rounded-xl text-sm font-medium text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="protocolli" href="/medico/protocolli">
+Protocolli &amp; Soglie ESC
+</a>
+</nav>
+<!-- Footer Sidebar -->
+<div class="p-5 mt-auto space-y-3 border-t border-surface-variant/40">
+<div class="flex items-center justify-between p-2.5 rounded-xl bg-surface-container-high/60">
+<div class="flex items-center gap-2">
+<span class="relative flex h-2.5 w-2.5">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-primary"></span>
+</span>
+<span class="text-xs font-semibold text-on-surface">Hub Telemetrico</span>
+</div>
+<span class="text-[11px] font-bold text-primary tracking-wide">ATTIVO</span>
+</div>
+<div class="flex items-center justify-between pt-1">
+<span class="text-[11px] text-on-surface-variant font-medium">Versione Telemedicina 2.4</span>
+<button class="p-1.5 rounded-lg text-on-surface-variant hover:text-error hover:bg-error-container/30 transition-colors" title="Disconnetti">
+<span class="material-symbols-outlined text-[18px]">logout</span>
+</button>
+</div>
+</div>
+</aside>
+<!-- Area Principale -->
+<div class="pl-72">
+<!-- Header Superiore -->
+<header class="sticky top-0 z-40 bg-surface/90 backdrop-blur-xl border-b border-surface-variant/40">
+<div class="h-16 px-8 flex items-center justify-between gap-6">
+<!-- Search Bar Globale Pazienti -->
+<div class="relative w-full max-w-lg">
+<span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-[20px]">search</span>
+<input class="w-full pl-10 pr-4 py-2 text-xs font-medium bg-surface-container-lowest text-on-surface placeholder:text-on-surface-variant/60 rounded-xl border border-outline-variant/50 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all shadow-sm" placeholder="Cerca paziente per nome, codice fiscale o cartella clinica..." type="search"/>
+</div>
+<!-- Azioni Rapide & Profilo -->
+<div class="flex items-center gap-4">
+<!-- Indicatore Data / Orario -->
+<div class="hidden xl:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-container text-xs font-medium text-on-surface-variant">
+<span class="material-symbols-outlined text-[17px] text-primary">schedule</span>
+<span>Sabato, 24 Maggio 2025 · 10:45</span>
+</div>
+<!-- Badge Notifiche Critiche -->
+<button class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-error-container/60 hover:bg-error-container text-error text-xs font-bold transition-colors">
+<span class="material-symbols-outlined text-[18px]">warning</span>
+<span>2 Notifiche Critiche</span>
+</button>
+<!-- CTA Primario Nuovo Paziente -->
+<button class="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary hover:bg-primary-container text-on-primary hover:text-on-primary-container text-xs font-bold shadow-[0_3px_12px_rgba(74,124,89,0.25)] transition-all">
+<span class="material-symbols-outlined text-[18px]">person_add</span>
+<span>+ Nuovo Paziente</span>
+</button>
+<!-- Mini avatar -->
+<div class="w-9 h-9 rounded-xl bg-primary text-on-primary flex items-center justify-center font-bold text-xs shadow-sm">
+          VM
+        </div>
+</div>
+</div>
+</header>
+<!-- Contenuto Dashboard -->
+<main class="pt-16 px-8 py-8 space-y-8 max-w-[1600px] mx-auto"><div class="flex flex-col w-full space-y-7">
+<!-- Top Bar Contestuale & Breadcrumbs -->
+<div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+<div class="flex flex-col gap-1.5">
+<nav class="flex items-center gap-2 text-xs font-medium text-secondary">
+<a class="hover:text-primary transition-colors flex items-center gap-1" href="/medico/pazienti">
+<span class="material-symbols-outlined text-base">group</span>
+<span>Pazienti</span>
+</a>
+<span class="text-outline/40">/</span>
+<span class="text-on-surface font-semibold truncate max-w-[280px] sm:max-w-md">Giuseppe Bianchi (CF: BNCGPP58A01H501U)</span>
+</nav>
+<div class="flex items-center gap-2.5">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-bold">
+<span class="h-1.5 w-1.5 rounded-full bg-primary animate-pulse"></span>
+          Telemetria Sincronizzata
+        </span>
+<span class="text-xs text-on-surface-variant">Ultimo dato ricevuto: Oggi, 08:32</span>
+</div>
+</div>
+<!-- Azioni Rapide Cliniche -->
+<div class="flex flex-wrap items-center gap-2.5">
+<button class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface text-xs font-bold shadow-sm transition-all" onclick="downloadPdfSim()">
+<span class="material-symbols-outlined text-[17px] text-primary">description</span>
+<span>Scarica Report PDF</span>
+</button>
+<button class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface text-xs font-bold shadow-sm transition-all" onclick="toggleModal('modal-push')">
+<span class="material-symbols-outlined text-[17px] text-tertiary">send</span>
+<span>Invia Notifica</span>
+</button>
+<button class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface text-xs font-bold shadow-sm transition-all" onclick="toggleModal('modal-cycle')">
+<span class="material-symbols-outlined text-[17px] text-secondary">tune</span>
+<span>Gestisci Ciclo</span>
+</button>
+<button class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary hover:bg-primary/90 text-on-primary text-xs font-bold shadow-sm transition-all" onclick="toggleModal('modal-note')">
+<span class="material-symbols-outlined text-[17px]">edit_note</span>
+<span>+ Nuova Nota</span>
+</button>
+</div>
+</div>
+<!-- Profilo Paziente & Stato Ciclo (Bento Duo) -->
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+<!-- Scheda Anagrafica & Fenotipo Clinico (7 Cols) -->
+<div class="xl:col-span-7 rounded-xl bg-surface-container-low p-6 shadow-sm flex flex-col justify-between">
+<div class="flex flex-col sm:flex-row sm:items-start gap-5">
+<div class="relative shrink-0">
+<div class="w-20 h-20 rounded-xl overflow-hidden shadow-sm bg-surface-container-high">
+<img class="w-full h-full object-cover" data-alt="Warm natural portrait of Giuseppe, an elderly Italian grandfather, 67 years old with silver hair, warm expressive eyes and slight wrinkles, wearing a sage green knitted sweater, gentle natural lighting in a home environment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC5idvk7NRN5taGW5GFF0ikhcl7Amjxb7U0Q5p-816PgHnVQp_ohQQ7U7jxFk74757mpK-spE_wQjyEJnzIk1m9ScpJPFx5TZItguSl4drelp52Rp2kRGO4GCtFLho5G8e9N6UJdXKoSjdN3XUoPJPzmgjiXiUawyCHoDPdUIhVhIxxLEmTgMPQMMOyYXDSZa879HSnnn2IGiATEog1fOFTT0-QW08ozB1GwNCYBSIoFG3N433l3btk"/>
+</div>
+<span class="absolute -bottom-1 -right-1 flex h-4 w-4 rounded-full bg-surface-container-low p-0.5" title="Dispositivo Connesso">
+<span class="h-full w-full rounded-full bg-primary"></span>
+</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex flex-wrap items-center gap-2.5">
+<h1 class="font-headline text-2xl font-bold text-on-surface tracking-tight">Giuseppe Bianchi</h1>
+<span class="px-2.5 py-0.5 rounded-full bg-surface-container-highest text-secondary text-xs font-semibold">67 anni (14/05/1959)</span>
+</div>
+<div class="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-on-surface-variant font-medium">
+<span class="inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-sm text-outline">call</span>
+              +39 338 9821455
+            </span>
+<span class="inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-sm text-outline">mail</span>
+              g.bianchi@email.it
+            </span>
+<span class="inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-sm text-outline">badge</span>
+              ASL Roma 1 - Distretto 2
+            </span>
+</div>
+<!-- Highlight Clinico: Braccio DX & Diagnosi -->
+<div class="mt-4 flex flex-wrap items-center gap-2">
+<div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-tertiary/10 text-on-tertiary-container text-xs font-bold shadow-sm">
+<span class="material-symbols-outlined text-base text-tertiary">pan_tool</span>
+<span>Braccio di Riferimento: DESTRO (DX)</span>
+<span class="text-[10px] font-medium text-tertiary opacity-85">(Delta onboarding: 138 vs 130 SX)</span>
+</div>
+<div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-error-container/60 text-error text-xs font-bold">
+<span class="material-symbols-outlined text-sm">priority_high</span>
+<span>Rischio Cardiovascolare Elevato</span>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-5 pt-4 border-t border-surface-variant/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+<div class="text-on-surface-variant leading-relaxed">
+<strong class="text-on-surface font-semibold">Anamnesi:</strong> Ipertensione arteriosa essenziale non controllata, monitoraggio telemetrico post-terapia combinata. Nessun evento coronarico pregresso.
+        </div>
+<button class="shrink-0 text-primary hover:text-primary-container font-bold inline-flex items-center gap-1 text-xs">
+<span>Cartella Completa</span>
+<span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Monitoraggio Ciclo ESC Attivo (5 Cols) -->
+<div class="xl:col-span-5 rounded-xl bg-surface-container-low p-6 shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="p-1.5 rounded-lg bg-primary/10 text-primary">
+<span class="material-symbols-outlined text-lg">event_repeat</span>
+</span>
+<span class="font-headline text-base font-bold text-on-surface">Ciclo Telemetrico ESC</span>
+</div>
+<span class="px-2.5 py-1 rounded-lg bg-surface-container-highest text-secondary text-xs font-bold">
+            Standard 14 Giorni
+          </span>
+</div>
+<div class="mt-4 flex items-baseline justify-between">
+<div>
+<div class="text-2xl font-bold font-headline text-on-surface">Giorno 11 <span class="text-sm font-normal text-on-surface-variant">di 14</span></div>
+<p class="text-xs text-on-surface-variant mt-0.5">Fase di consolidamento telemetrico domiciliare</p>
+</div>
+<div class="text-right">
+<span class="text-base font-bold text-primary">78%</span>
+<div class="text-[11px] text-tertiary font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">timer</span>
+              Scade tra 3 giorni
+            </div>
+</div>
+</div>
+<!-- Progress Bar con Giorni Segnati -->
+<div class="mt-4 space-y-2">
+<div class="w-full bg-surface-container-highest h-3 rounded-full overflow-hidden p-0.5">
+<div class="bg-primary h-full rounded-full transition-all duration-500" style="width: 78%;"></div>
+</div>
+<div class="grid grid-cols-14 gap-1 text-center">
+<span class="text-[9px] font-bold text-primary">1</span>
+<span class="text-[9px] font-bold text-primary">2</span>
+<span class="text-[9px] font-bold text-primary">3</span>
+<span class="text-[9px] font-bold text-primary">4</span>
+<span class="text-[9px] font-bold text-primary">5</span>
+<span class="text-[9px] font-bold text-primary">6</span>
+<span class="text-[9px] font-bold text-primary">7</span>
+<span class="text-[9px] font-bold text-primary">8</span>
+<span class="text-[9px] font-bold text-primary">9</span>
+<span class="text-[9px] font-bold text-primary">10</span>
+<span class="text-[9px] font-bold text-on-surface bg-primary/20 rounded">11</span>
+<span class="text-[9px] font-medium text-secondary">12</span>
+<span class="text-[9px] font-medium text-secondary">13</span>
+<span class="text-[9px] font-medium text-secondary">14</span>
+</div>
+</div>
+</div>
+<div class="mt-4 p-3 rounded-xl bg-surface-container flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-base text-tertiary">clinical_notes</span>
+<span class="text-xs font-semibold text-on-surface">Termine protocollo: Martedì, 27 Maggio 2025</span>
+</div>
+<button class="text-xs text-primary font-bold hover:underline" onclick="toggleModal('modal-cycle')">Rinnova / Chiudi</button>
+</div>
+</div>
+</div>
+<!-- 4 KPI Card Cliniche del Ciclo -->
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+<!-- Sistolica -->
+<div class="rounded-xl bg-surface-container-low p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
+<div class="flex items-center justify-between">
+<span class="text-xs font-bold uppercase tracking-wider text-secondary">Media Sistolica (MAX)</span>
+<span class="p-1 rounded-lg bg-error/10 text-error">
+<span class="material-symbols-outlined text-lg">trending_up</span>
+</span>
+</div>
+<div class="mt-3 flex items-baseline gap-2">
+<span class="font-headline text-3xl font-bold text-error">152</span>
+<span class="text-xs text-on-surface-variant font-semibold">mmHg</span>
+</div>
+<div class="mt-2.5 flex items-center justify-between text-xs">
+<span class="text-on-surface-variant">Target ESC &lt; 135</span>
+<span class="font-bold text-error">+17 mmHg fuori soglia</span>
+</div>
+<div class="w-full bg-surface-variant/40 h-1.5 rounded-full mt-3 overflow-hidden">
+<div class="bg-error h-full rounded-full" style="width: 82%;"></div>
+</div>
+</div>
+<!-- Diastolica -->
+<div class="rounded-xl bg-surface-container-low p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
+<div class="flex items-center justify-between">
+<span class="text-xs font-bold uppercase tracking-wider text-secondary">Media Diastolica (MIN)</span>
+<span class="p-1 rounded-lg bg-error/10 text-error">
+<span class="material-symbols-outlined text-lg">trending_up</span>
+</span>
+</div>
+<div class="mt-3 flex items-baseline gap-2">
+<span class="font-headline text-3xl font-bold text-error">94</span>
+<span class="text-xs text-on-surface-variant font-semibold">mmHg</span>
+</div>
+<div class="mt-2.5 flex items-center justify-between text-xs">
+<span class="text-on-surface-variant">Target ESC &lt; 85</span>
+<span class="font-bold text-error">+9 mmHg fuori soglia</span>
+</div>
+<div class="w-full bg-surface-variant/40 h-1.5 rounded-full mt-3 overflow-hidden">
+<div class="bg-error h-full rounded-full" style="width: 76%;"></div>
+</div>
+</div>
+<!-- Frequenza Media -->
+<div class="rounded-xl bg-surface-container-low p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
+<div class="flex items-center justify-between">
+<span class="text-xs font-bold uppercase tracking-wider text-secondary">Frequenza Media</span>
+<span class="p-1 rounded-lg bg-primary/10 text-primary">
+<span class="material-symbols-outlined text-lg">favorite</span>
+</span>
+</div>
+<div class="mt-3 flex items-baseline gap-2">
+<span class="font-headline text-3xl font-bold text-on-surface">76</span>
+<span class="text-xs text-on-surface-variant font-semibold">BPM</span>
+</div>
+<div class="mt-2.5 flex items-center justify-between text-xs">
+<span class="text-on-surface-variant">Range fisiologico 60-85</span>
+<span class="font-bold text-primary">Ritmo Stabile</span>
+</div>
+<div class="w-full bg-surface-variant/40 h-1.5 rounded-full mt-3 overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 64%;"></div>
+</div>
+</div>
+<!-- Aderenza al Protocollo -->
+<div class="rounded-xl bg-surface-container-low p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
+<div class="flex items-center justify-between">
+<span class="text-xs font-bold uppercase tracking-wider text-secondary">Aderenza Ciclo</span>
+<span class="p-1 rounded-lg bg-tertiary/10 text-tertiary">
+<span class="material-symbols-outlined text-lg">verified</span>
+</span>
+</div>
+<div class="mt-3 flex items-baseline gap-2">
+<span class="font-headline text-3xl font-bold text-primary">88%</span>
+<span class="text-xs text-on-surface-variant font-semibold">Completamento</span>
+</div>
+<div class="mt-2.5 flex items-center justify-between text-xs">
+<span class="text-on-surface-variant">29 / 33 Rilevazioni attese</span>
+<span class="font-bold text-primary">Ottima Compliance</span>
+</div>
+<div class="w-full bg-surface-variant/40 h-1.5 rounded-full mt-3 overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 88%;"></div>
+</div>
+</div>
+</div>
+<!-- Visual Analytics & Grafici Clinici (Stile Recharts) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+<!-- Grafico a Linee Temporale (8 Cols) -->
+<div class="lg:col-span-8 rounded-xl bg-surface-container-low p-6 shadow-sm flex flex-col">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-surface-variant/30">
+<div>
+<h2 class="font-headline text-base font-bold text-on-surface flex items-center gap-2">
+<span>Trend Pressorio Giornaliero (11 Giorni)</span>
+<span class="px-2 py-0.5 rounded-full bg-error/15 text-error text-[10px] font-bold uppercase tracking-wider">Picco 185 mmHg</span>
+</h2>
+<p class="text-xs text-on-surface-variant mt-0.5">Monitoraggio telemetrico domiciliare a riposo - Braccio Destro (DX)</p>
+</div>
+<!-- Legenda Custom Recharts -->
+<div class="flex flex-wrap items-center gap-3 text-xs">
+<div class="flex items-center gap-1.5">
+<span class="h-2.5 w-2.5 rounded-full bg-primary"></span>
+<span class="text-on-surface-variant font-semibold">Sistolica (MAX)</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="h-2.5 w-2.5 rounded-full bg-tertiary"></span>
+<span class="text-on-surface-variant font-semibold">Diastolica (MIN)</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="h-0.5 w-4 border-b border-dashed border-error"></span>
+<span class="text-error font-medium text-[11px]">Crisi 180</span>
+</div>
+</div>
+</div>
+<!-- Area SVG Line Chart Dinamico -->
+<div class="relative w-full h-72 mt-4 pt-2">
+<svg class="w-full h-full overflow-visible" viewbox="0 0 740 260">
+<defs>
+<lineargradient id="sysGradient" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#4a7c59" stop-opacity="0.22"></stop>
+<stop offset="100%" stop-color="#4a7c59" stop-opacity="0.0"></stop>
+</lineargradient>
+<lineargradient id="diaGradient" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#705c30" stop-opacity="0.18"></stop>
+<stop offset="100%" stop-color="#705c30" stop-opacity="0.0"></stop>
+</lineargradient>
+</defs>
+<!-- Griglie orizzontali e soglie -->
+<!-- 180 mmHg (Crisi - Rosso) -->
+<line opacity="0.8" stroke="#b83230" stroke-dasharray="4 4" stroke-width="1.2" x1="40" x2="720" y1="35" y2="35"></line>
+<text fill="#b83230" font-size="10" font-weight="bold" x="724" y="38">180</text>
+<!-- 140 mmHg (Soglia Sistolica ESC - Giallo/Ambra) -->
+<line opacity="0.6" stroke="#705c30" stroke-dasharray="3 3" stroke-width="1" x1="40" x2="720" y1="105" y2="105"></line>
+<text fill="#705c30" font-size="10" font-weight="bold" x="724" y="108">140</text>
+<!-- 90 mmHg (Soglia Diastolica ESC) -->
+<line opacity="0.4" stroke="#74796e" stroke-dasharray="2 2" stroke-width="0.8" x1="40" x2="720" y1="175" y2="175"></line>
+<text fill="#74796e" font-size="10" x="724" y="178">90</text>
+<!-- Linee Verticali Giorni -->
+<line stroke="#e4e0d8" stroke-width="0.7" x1="50" x2="50" y1="20" y2="230"></line>
+<line stroke="#e4e0d8" stroke-width="0.7" x1="115" x2="115" y1="20" y2="230"></line>
+<line stroke="#e4e0d8" stroke-width="0.7" x1="180" x2="180" y1="20" y2="230"></line>
+<line stroke="#e4e0d8" stroke-width="0.7" x1="245" x2="245" y1="20" y2="230"></line>
+<line stroke="#e4e0d8" stroke-width="0.7" x1="310" x2="310" y1="20" y2="230"></line>
+<line stroke="#e4e0d8" stroke-width="0.7" x1="375" x2="375" y1="20" y2="230"></line>
+<line stroke="#e4e0d8" stroke-width="0.7" x1="440" x2="440" y1="20" y2="230"></line>
+<line stroke="#e4e0d8" stroke-width="0.7" x1="505" x2="505" y1="20" y2="230"></line>
+<line stroke="#e4e0d8" stroke-width="0.7" x1="570" x2="570" y1="20" y2="230"></line>
+<line stroke="#e4e0d8" stroke-width="0.7" x1="635" x2="635" y1="20" y2="230"></line>
+<line stroke="#e4e0d8" stroke-width="0.7" x1="700" x2="700" y1="20" y2="230"></line>
+<!-- Area & Linea Sistolica: 148, 150, 146, 154, 152, 149, 153, 150, 158, 152, 185 -->
+<!-- Coordinate Y calcolate (range 60 - 200 mmHg) -->
+<polygon fill="url(#sysGradient)" points="50,91 115,87 180,95 245,79 310,83 375,89 440,81 505,87 570,71 635,83 700,28 700,230 50,230"></polygon>
+<path d="M 50 91 L 115 87 L 180 95 L 245 79 L 310 83 L 375 89 L 440 81 L 505 87 L 570 71 L 635 83 L 700 28" fill="none" stroke="#4a7c59" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"></path>
+<!-- Punti Sistolica -->
+<circle cx="50" cy="91" fill="#4a7c59" r="3.5"></circle>
+<circle cx="115" cy="87" fill="#4a7c59" r="3.5"></circle>
+<circle cx="180" cy="95" fill="#4a7c59" r="3.5"></circle>
+<circle cx="245" cy="79" fill="#4a7c59" r="3.5"></circle>
+<circle cx="310" cy="83" fill="#4a7c59" r="3.5"></circle>
+<circle cx="375" cy="89" fill="#4a7c59" r="3.5"></circle>
+<circle cx="440" cy="81" fill="#4a7c59" r="3.5"></circle>
+<circle cx="505" cy="87" fill="#4a7c59" r="3.5"></circle>
+<circle cx="570" cy="71" fill="#4a7c59" r="3.5"></circle>
+<circle cx="635" cy="83" fill="#4a7c59" r="3.5"></circle>
+<!-- Area & Linea Diastolica: 92, 94, 90, 96, 95, 93, 94, 92, 98, 93, 112 -->
+<polygon fill="url(#diaGradient)" points="50,172 115,168 180,175 245,164 310,166 375,170 440,168 505,172 570,160 635,170 700,132 700,230 50,230"></polygon>
+<path d="M 50 172 L 115 168 L 180 175 L 245 164 L 310 166 L 375 170 L 440 168 L 505 172 L 570 160 L 635 170 L 700 132" fill="none" stroke="#705c30" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+<!-- Punti Diastolica -->
+<circle cx="50" cy="172" fill="#705c30" r="3"></circle>
+<circle cx="115" cy="168" fill="#705c30" r="3"></circle>
+<circle cx="180" cy="175" fill="#705c30" r="3"></circle>
+<circle cx="245" cy="164" fill="#705c30" r="3"></circle>
+<circle cx="310" cy="166" fill="#705c30" r="3"></circle>
+<circle cx="375" cy="170" fill="#705c30" r="3"></circle>
+<circle cx="440" cy="168" fill="#705c30" r="3"></circle>
+<circle cx="505" cy="172" fill="#705c30" r="3"></circle>
+<circle cx="570" cy="160" fill="#705c30" r="3"></circle>
+<circle cx="635" cy="170" fill="#705c30" r="3"></circle>
+<!-- Picco Critico Odierno (Punto Giorno 11) con marcatore pulsante -->
+<circle cx="700" cy="28" fill="#b83230" fill-opacity="0.3" r="7"></circle>
+<circle cx="700" cy="28" fill="#b83230" r="4.5"></circle>
+<!-- Tooltip badge permanente su G11 -->
+<rect fill="#b83230" height="20" rx="4" width="70" x="630" y="3"></rect>
+<text fill="#ffffff" font-size="9.5" font-weight="bold" text-anchor="middle" x="665" y="16">185 / 112 !</text>
+<!-- Label Asse X (Giorni) -->
+<text fill="#4a4e4a" font-size="10" text-anchor="middle" x="50" y="248">14 Mag</text>
+<text fill="#4a4e4a" font-size="10" text-anchor="middle" x="115" y="248">15 Mag</text>
+<text fill="#4a4e4a" font-size="10" text-anchor="middle" x="180" y="248">16 Mag</text>
+<text fill="#4a4e4a" font-size="10" text-anchor="middle" x="245" y="248">17 Mag</text>
+<text fill="#4a4e4a" font-size="10" text-anchor="middle" x="310" y="248">18 Mag</text>
+<text fill="#4a4e4a" font-size="10" text-anchor="middle" x="375" y="248">19 Mag</text>
+<text fill="#4a4e4a" font-size="10" text-anchor="middle" x="440" y="248">20 Mag</text>
+<text fill="#4a4e4a" font-size="10" text-anchor="middle" x="505" y="248">21 Mag</text>
+<text fill="#4a4e4a" font-size="10" text-anchor="middle" x="570" y="248">22 Mag</text>
+<text fill="#4a4e4a" font-size="10" text-anchor="middle" x="635" y="248">23 Mag</text>
+<text fill="#b83230" font-size="10" font-weight="bold" text-anchor="middle" x="700" y="248">Oggi (G11)</text>
+</svg>
+</div>
+<div class="mt-3 p-2.5 rounded-lg bg-surface-container flex items-center justify-between text-xs text-on-surface-variant">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-sm text-error">info</span>
+<span><strong>Alert ESH:</strong> Picco sistolico odierno oltre 180 mmHg richiede verifica telefonica immediata.</span>
+</div>
+<button class="text-xs text-error font-bold hover:underline shrink-0" onclick="toggleModal('modal-push')">Contatta Paziente</button>
+</div>
+</div>
+<!-- Grafico a Barre: Distribuzione Fasce Orarie (4 Cols) -->
+<div class="lg:col-span-4 rounded-xl bg-surface-container-low p-6 shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between pb-3 border-b border-surface-variant/30">
+<div>
+<h3 class="font-headline text-base font-bold text-on-surface">Pattern Circadiano</h3>
+<p class="text-xs text-on-surface-variant">Medie per fascia oraria</p>
+</div>
+<span class="px-2 py-0.5 rounded bg-tertiary/10 text-tertiary text-[11px] font-bold">Slot Diurno</span>
+</div>
+<div class="mt-5 space-y-5">
+<!-- Mattina -->
+<div class="space-y-1.5">
+<div class="flex justify-between items-center text-xs">
+<span class="font-bold text-on-surface flex items-center gap-1.5">
+<span class="material-symbols-outlined text-base text-tertiary">wb_sunny</span>
+<span>Mattina (07:00 - 11:00)</span>
+</span>
+<span class="font-bold text-error">154 / 96 mmHg</span>
+</div>
+<div class="grid grid-cols-2 gap-2">
+<div>
+<div class="w-full bg-surface-container-highest h-2.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 85%;"></div>
+</div>
+<div class="flex justify-between text-[10px] text-secondary mt-0.5">
+<span>MAX</span>
+<span class="font-bold">154</span>
+</div>
+</div>
+<div>
+<div class="w-full bg-surface-container-highest h-2.5 rounded-full overflow-hidden">
+<div class="bg-tertiary h-full rounded-full" style="width: 78%;"></div>
+</div>
+<div class="flex justify-between text-[10px] text-secondary mt-0.5">
+<span>MIN</span>
+<span class="font-bold">96</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Pomeriggio -->
+<div class="space-y-1.5">
+<div class="flex justify-between items-center text-xs">
+<span class="font-bold text-on-surface flex items-center gap-1.5">
+<span class="material-symbols-outlined text-base text-primary">wb_twilight</span>
+<span>Pomeriggio (13:00 - 17:00)</span>
+</span>
+<span class="font-bold text-on-surface">148 / 92 mmHg</span>
+</div>
+<div class="grid grid-cols-2 gap-2">
+<div>
+<div class="w-full bg-surface-container-highest h-2.5 rounded-full overflow-hidden">
+<div class="bg-primary/80 h-full rounded-full" style="width: 78%;"></div>
+</div>
+<div class="flex justify-between text-[10px] text-secondary mt-0.5">
+<span>MAX</span>
+<span>148</span>
+</div>
+</div>
+<div>
+<div class="w-full bg-surface-container-highest h-2.5 rounded-full overflow-hidden">
+<div class="bg-tertiary/80 h-full rounded-full" style="width: 72%;"></div>
+</div>
+<div class="flex justify-between text-[10px] text-secondary mt-0.5">
+<span>MIN</span>
+<span>92</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Sera -->
+<div class="space-y-1.5">
+<div class="flex justify-between items-center text-xs">
+<span class="font-bold text-on-surface flex items-center gap-1.5">
+<span class="material-symbols-outlined text-base text-secondary">nights_stay</span>
+<span>Sera (19:00 - 22:30)</span>
+</span>
+<span class="font-bold text-on-surface">151 / 93 mmHg</span>
+</div>
+<div class="grid grid-cols-2 gap-2">
+<div>
+<div class="w-full bg-surface-container-highest h-2.5 rounded-full overflow-hidden">
+<div class="bg-primary/80 h-full rounded-full" style="width: 82%;"></div>
+</div>
+<div class="flex justify-between text-[10px] text-secondary mt-0.5">
+<span>MAX</span>
+<span>151</span>
+</div>
+</div>
+<div>
+<div class="w-full bg-surface-container-highest h-2.5 rounded-full overflow-hidden">
+<div class="bg-tertiary/80 h-full rounded-full" style="width: 74%;"></div>
+</div>
+<div class="flex justify-between text-[10px] text-secondary mt-0.5">
+<span>MIN</span>
+<span>93</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Evidenza Clinica Pattern -->
+<div class="mt-4 p-3 rounded-xl bg-surface-container border border-outline-variant/30 text-xs">
+<div class="font-bold text-on-surface flex items-center gap-1.5 text-tertiary">
+<span class="material-symbols-outlined text-base">lightbulb</span>
+<span>Morning Surge Evidente</span>
+</div>
+<p class="mt-1 text-on-surface-variant leading-relaxed text-[11px]">
+          Carico pressorio prevalentemente mattutino (154/96). Ipotesi: sottodosaggio notturno o assunzione ritardata dei farmaci.
+        </p>
+</div>
+</div>
+</div>
+<!-- Note Terapeutiche (Prescrizioni Condivise vs Private Medico) -->
+<div class="rounded-xl bg-surface-container-low p-6 shadow-sm">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-surface-variant/30">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-xl text-primary">clinical_notes</span>
+<h2 class="font-headline text-lg font-bold text-on-surface">Istruzioni Cliniche &amp; Note Mediche</h2>
+</div>
+<!-- Tab Controller -->
+<div class="inline-flex p-1 rounded-xl bg-surface-container max-w-fit">
+<button class="px-3.5 py-1.5 text-xs font-bold rounded-lg bg-surface-container-lowest text-primary shadow-sm transition-all" id="tab-shared-btn" onclick="switchTab('shared')">
+          Note Condivise con Paziente
+        </button>
+<button class="px-3.5 py-1.5 text-xs font-bold rounded-lg text-on-surface-variant hover:text-on-surface transition-all" id="tab-private-btn" onclick="switchTab('private')">
+          Note Private Clinica
+        </button>
+</div>
+</div>
+<!-- Contenuto Tab 1: Condiviso -->
+<div class="mt-5 space-y-4" id="tab-shared">
+<div class="p-4 rounded-xl bg-surface-container flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div class="flex items-start gap-3.5">
+<span class="p-2 rounded-xl bg-primary/10 text-primary mt-0.5">
+<span class="material-symbols-outlined text-xl">medication</span>
+</span>
+<div class="space-y-1">
+<div class="flex items-center gap-2">
+<span class="text-xs font-bold text-primary uppercase tracking-wider">Terapia Farmacologica Attiva</span>
+<span class="text-[11px] text-secondary">Aggiornato: 20 Maggio 2025 ore 11:20</span>
+</div>
+<p class="text-sm text-on-surface font-medium leading-relaxed">
+              "Assumere <strong class="font-bold text-on-surface">Ramipril 10mg + Amlodipina 5mg</strong> alle ore 08:00 a stomaco pieno. Evitare rigorosamente sale aggiunto e misurare sempre a riposo (almeno 5 minuti seduto con braccio DX sul tavolo)."
+            </p>
+</div>
+</div>
+<div class="flex items-center gap-2 self-end md:self-center shrink-0">
+<button class="px-3 py-1.5 rounded-lg bg-surface-container-highest hover:bg-surface-variant text-on-surface text-xs font-bold transition-colors" onclick="toggleModal('modal-note')">
+            Modifica
+          </button>
+<button class="px-3 py-1.5 rounded-lg bg-primary text-on-primary text-xs font-bold hover:bg-primary/90 transition-colors" onclick="toggleModal('modal-push')">
+            Invia Push Promemoria
+          </button>
+</div>
+</div>
+</div>
+<!-- Contenuto Tab 2: Privato Medico -->
+<div class="mt-5 space-y-4 hidden" id="tab-private">
+<div class="p-4 rounded-xl bg-tertiary/10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div class="flex items-start gap-3.5">
+<span class="p-2 rounded-xl bg-tertiary/20 text-tertiary mt-0.5">
+<span class="material-symbols-outlined text-xl">lock</span>
+</span>
+<div class="space-y-1">
+<div class="flex items-center gap-2">
+<span class="text-xs font-bold text-tertiary uppercase tracking-wider">Note Riservate Equipe Medica</span>
+<span class="text-[11px] text-secondary">Dott. Valerio Marchi</span>
+</div>
+<p class="text-sm text-on-surface font-medium leading-relaxed">
+              "Rilevati picchi pressori mattutini ricorrenti (oggi max 185 mmHg con cefalea lieve). Se confermato domani mattina, switchare a triplice combinazione con diuretico tiazidico (Ramipril + Amlodipina + Idroclorotiazide 12.5mg) e richiedere ecocardiogramma di controllo per ipertrofia VS."
+            </p>
+</div>
+</div>
+<button class="px-3 py-1.5 rounded-lg bg-surface-container-lowest text-tertiary text-xs font-bold self-end md:self-center shrink-0 hover:bg-surface-container-high transition-colors" onclick="toggleModal('modal-note')">
+          Aggiungi appunto
+        </button>
+</div>
+</div>
+</div>
+<!-- Tabella Cronologica Completa delle Misurazioni Telemetriche -->
+<div class="rounded-xl bg-surface-container-low p-6 shadow-sm flex flex-col">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-surface-variant/30">
+<div>
+<div class="flex items-center gap-2">
+<h2 class="font-headline text-lg font-bold text-on-surface">Diario Clinico Completo</h2>
+<span class="px-2 py-0.5 rounded-full bg-surface-container-highest text-secondary text-xs font-bold">29 misurazioni</span>
+</div>
+<p class="text-xs text-on-surface-variant mt-0.5">Rilevazioni validate secondo linee guida ESC/ESH 2024</p>
+</div>
+<div class="flex flex-wrap items-center gap-2 text-xs">
+<span class="text-secondary font-medium">Filtra per fascia:</span>
+<button class="px-2.5 py-1 rounded-lg bg-primary text-on-primary font-bold">Tutti</button>
+<button class="px-2.5 py-1 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-medium">Mattina</button>
+<button class="px-2.5 py-1 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-medium">Pomeriggio</button>
+<button class="px-2.5 py-1 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-medium">Sera</button>
+</div>
+</div>
+<!-- Tabella Responsiva -->
+<div class="overflow-x-auto mt-2">
+<table class="w-full text-left text-xs">
+<thead>
+<tr class="text-[11px] font-bold uppercase tracking-wider text-secondary border-b border-surface-variant/40">
+<th class="py-3 px-3">Data / Ora</th>
+<th class="py-3 px-3">Fascia</th>
+<th class="py-3 px-3">Braccio</th>
+<th class="py-3 px-3">Sistolica (MAX)</th>
+<th class="py-3 px-3">Diastolica (MIN)</th>
+<th class="py-3 px-3">Freq. (BPM)</th>
+<th class="py-3 px-4">Sintomi &amp; Note Paziente</th>
+<th class="py-3 px-3">Classificazione ESC</th>
+<th class="py-3 px-2 text-right">Azioni</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-variant/30">
+<!-- Riga 1: Oggi Critica -->
+<tr class="bg-error-container/20 hover:bg-error-container/30 transition-colors font-medium">
+<td class="py-3.5 px-3">
+<div class="font-bold text-on-surface flex items-center gap-1.5">
+<span class="h-2 w-2 rounded-full bg-error"></span>
+<span>Oggi, 24 Maggio</span>
+</div>
+<span class="text-[11px] text-secondary pl-3.5">08:30:14</span>
+</td>
+<td class="py-3.5 px-3">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-tertiary/10 text-tertiary font-bold text-[11px]">
+<span class="material-symbols-outlined text-xs">wb_sunny</span>
+                Mattina
+              </span>
+</td>
+<td class="py-3.5 px-3 font-bold text-on-surface">DX</td>
+<td class="py-3.5 px-3">
+<span class="font-headline text-sm font-bold text-error">185</span>
+<span class="text-[10px] text-secondary">mmHg</span>
+</td>
+<td class="py-3.5 px-3">
+<span class="font-headline text-sm font-bold text-error">112</span>
+<span class="text-[10px] text-secondary">mmHg</span>
+</td>
+<td class="py-3.5 px-3 font-semibold text-on-surface">88 bpm</td>
+<td class="py-3.5 px-4 max-w-[220px]">
+<div class="text-on-surface text-xs font-semibold">"Leggera cefalea occipitale al risveglio"</div>
+<span class="text-[10px] text-error font-medium">Alert automatico inviato a centrale</span>
+</td>
+<td class="py-3.5 px-3">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-error text-on-error text-[10px] font-bold">
+<span class="material-symbols-outlined text-xs">warning</span>
+                Crisi / Grado 3
+              </span>
+</td>
+<td class="py-3.5 px-2 text-right">
+<button class="p-1.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors" onclick="alert('Conferma presa visione clinica registrata per Giuseppe Bianchi')" title="Valida Rilevazione">
+<span class="material-symbols-outlined text-base">check_circle</span>
+</button>
+</td>
+</tr>
+<!-- Riga 2: Ieri Sera -->
+<tr class="hover:bg-surface-container/50 transition-colors">
+<td class="py-3 px-3">
+<span class="font-semibold text-on-surface">Ieri, 23 Maggio</span>
+<div class="text-[11px] text-secondary">21:15:02</div>
+</td>
+<td class="py-3 px-3">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container-highest text-secondary text-[11px] font-semibold">
+<span class="material-symbols-outlined text-xs">nights_stay</span>
+                Sera
+              </span>
+</td>
+<td class="py-3 px-3 font-medium text-on-surface">DX</td>
+<td class="py-3 px-3">
+<span class="font-headline text-sm font-bold text-on-surface">152</span>
+<span class="text-[10px] text-secondary">mmHg</span>
+</td>
+<td class="py-3 px-3">
+<span class="font-headline text-sm font-bold text-on-surface">93</span>
+<span class="text-[10px] text-secondary">mmHg</span>
+</td>
+<td class="py-3 px-3 text-on-surface">74 bpm</td>
+<td class="py-3 px-4 max-w-[220px] text-on-surface-variant truncate">
+              "Tranquillo dopo cena leggera"
+            </td>
+<td class="py-3 px-3">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-tertiary/15 text-tertiary text-[10px] font-bold">
+                Grado 1 (Lieve)
+              </span>
+</td>
+<td class="py-3 px-2 text-right">
+<button class="p-1.5 rounded-lg text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-base">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Riga 3: Ieri Pomeriggio -->
+<tr class="hover:bg-surface-container/50 transition-colors">
+<td class="py-3 px-3">
+<span class="font-semibold text-on-surface">Ieri, 23 Maggio</span>
+<div class="text-[11px] text-secondary">15:40:18</div>
+</td>
+<td class="py-3 px-3">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container-highest text-secondary text-[11px] font-semibold">
+<span class="material-symbols-outlined text-xs">wb_twilight</span>
+                Pomeriggio
+              </span>
+</td>
+<td class="py-3 px-3 font-medium text-on-surface">DX</td>
+<td class="py-3 px-3">
+<span class="font-headline text-sm font-bold text-on-surface">144</span>
+<span class="text-[10px] text-secondary">mmHg</span>
+</td>
+<td class="py-3 px-3">
+<span class="font-headline text-sm font-bold text-on-surface">89</span>
+<span class="text-[10px] text-secondary">mmHg</span>
+</td>
+<td class="py-3 px-3 text-on-surface">72 bpm</td>
+<td class="py-3 px-4 max-w-[220px] text-on-surface-variant truncate">
+              "Dopo 20 minuti di passeggiata rilassante"
+            </td>
+<td class="py-3 px-3">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-tertiary/15 text-tertiary text-[10px] font-bold">
+                Grado 1
+              </span>
+</td>
+<td class="py-3 px-2 text-right">
+<button class="p-1.5 rounded-lg text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-base">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Riga 4: Ieri Mattina -->
+<tr class="hover:bg-surface-container/50 transition-colors">
+<td class="py-3 px-3">
+<span class="font-semibold text-on-surface">Ieri, 23 Maggio</span>
+<div class="text-[11px] text-secondary">08:12:00</div>
+</td>
+<td class="py-3 px-3">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-tertiary/10 text-tertiary text-[11px] font-bold">
+<span class="material-symbols-outlined text-xs">wb_sunny</span>
+                Mattina
+              </span>
+</td>
+<td class="py-3 px-3 font-medium text-on-surface">DX</td>
+<td class="py-3 px-3">
+<span class="font-headline text-sm font-bold text-error">158</span>
+<span class="text-[10px] text-secondary">mmHg</span>
+</td>
+<td class="py-3 px-3">
+<span class="font-headline text-sm font-bold text-error">98</span>
+<span class="text-[10px] text-secondary">mmHg</span>
+</td>
+<td class="py-3 px-3 text-on-surface">80 bpm</td>
+<td class="py-3 px-4 max-w-[220px] text-on-surface-variant truncate">
+              "Prima di colazione e pillole"
+            </td>
+<td class="py-3 px-3">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-error/15 text-error text-[10px] font-bold">
+                Grado 2 (Moderata)
+              </span>
+</td>
+<td class="py-3 px-2 text-right">
+<button class="p-1.5 rounded-lg text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-base">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Riga 5: 22 Maggio Sera (Target Raggiunto) -->
+<tr class="hover:bg-surface-container/50 transition-colors">
+<td class="py-3 px-3">
+<span class="font-semibold text-on-surface">22 Maggio</span>
+<div class="text-[11px] text-secondary">21:05:44</div>
+</td>
+<td class="py-3 px-3">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container-highest text-secondary text-[11px] font-semibold">
+<span class="material-symbols-outlined text-xs">nights_stay</span>
+                Sera
+              </span>
+</td>
+<td class="py-3 px-3 font-medium text-on-surface">DX</td>
+<td class="py-3 px-3">
+<span class="font-headline text-sm font-bold text-primary">132</span>
+<span class="text-[10px] text-secondary">mmHg</span>
+</td>
+<td class="py-3 px-3">
+<span class="font-headline text-sm font-bold text-primary">82</span>
+<span class="text-[10px] text-secondary">mmHg</span>
+</td>
+<td class="py-3 px-3 text-on-surface">69 bpm</td>
+<td class="py-3 px-4 max-w-[220px] text-on-surface-variant truncate">
+              "Nessun sintomo, riposato"
+            </td>
+<td class="py-3 px-3">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/15 text-primary text-[10px] font-bold">
+                Target Ottimale
+              </span>
+</td>
+<td class="py-3 px-2 text-right">
+<button class="p-1.5 rounded-lg text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-base">more_vert</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Paginazione e Carica altro -->
+<div class="mt-4 pt-4 border-t border-surface-variant/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-on-surface-variant">
+<span>Visualizzate 5 di 29 misurazioni del ciclo</span>
+<div class="flex items-center gap-2">
+<button class="px-3 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high font-semibold text-on-surface transition-colors">Carica altre misurazioni</button>
+<button class="px-3 py-1.5 rounded-lg bg-surface-container-highest font-bold text-primary hover:text-primary-container transition-colors" onclick="downloadPdfSim()">Esporta CSV / HL7</button>
+</div>
+</div>
+</div>
+<!-- MODAL: Invia Notifica Push al Paziente (M6) -->
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm hidden p-4" id="modal-push">
+<div class="w-full max-w-lg rounded-xl bg-surface-container-low p-6 shadow-xl space-y-4">
+<div class="flex items-center justify-between pb-3 border-b border-surface-variant/40">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary">notification_add</span>
+<h3 class="font-headline text-lg font-bold text-on-surface">Notifica Push / SMS Medico</h3>
+</div>
+<button class="text-secondary hover:text-on-surface" onclick="toggleModal('modal-push')">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="space-y-3 text-xs">
+<div>
+<label class="block font-semibold text-on-surface mb-1">Destinatario:</label>
+<div class="p-2.5 rounded-xl bg-surface-container text-on-surface font-medium">
+            Giuseppe Bianchi (+39 338 9821455) · App CardioDiario Installata
+          </div>
+</div>
+<div>
+<label class="block font-semibold text-on-surface mb-1">Tipologia Alert:</label>
+<select class="w-full p-2.5 rounded-xl bg-surface-container-lowest border-0 text-on-surface font-medium focus:ring-2 focus:ring-primary">
+<option>Avviso Clinico Urgente (Picco Pressorio Rilevato)</option>
+<option>Promemoria Assunzione Terapia del Mattino</option>
+<option>Istruzioni per Controllo Pressione Ripetuto</option>
+<option>Richiesta Contatto Telefonico col Reparto</option>
+</select>
+</div>
+<div>
+<label class="block font-semibold text-on-surface mb-1">Messaggio Clinico:</label>
+<textarea class="w-full p-3 rounded-xl bg-surface-container-lowest border-0 text-on-surface text-xs focus:ring-2 focus:ring-primary" placeholder="Gentile Sig. Bianchi, abbiamo notato il valore di 185 mmHg di stamattina. La preghiamo di riposare 15 minuti e ripetere la misurazione sul braccio destro. Se la cefalea persiste, risponda a questa notifica." rows="3"></textarea>
+</div>
+</div>
+<div class="flex items-center justify-end gap-2.5 pt-2">
+<button class="px-4 py-2 rounded-xl bg-surface-container text-secondary text-xs font-bold hover:bg-surface-container-high transition-colors" onclick="toggleModal('modal-push')">
+          Annulla
+        </button>
+<button class="px-4 py-2 rounded-xl bg-primary text-on-primary text-xs font-bold hover:bg-primary-container transition-colors flex items-center gap-1.5" onclick="sendPushConfirm()">
+<span class="material-symbols-outlined text-sm">send</span>
+<span>Invia Subito</span>
+</button>
+</div>
+</div>
+</div>
+<!-- MODAL: Gestisci Ciclo (M4) -->
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm hidden p-4" id="modal-cycle">
+<div class="w-full max-w-md rounded-xl bg-surface-container-low p-6 shadow-xl space-y-4">
+<div class="flex items-center justify-between pb-3 border-b border-surface-variant/40">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">manage_history</span>
+<h3 class="font-headline text-lg font-bold text-on-surface">Gestione Ciclo Telemetrico</h3>
+</div>
+<button class="text-secondary hover:text-on-surface" onclick="toggleModal('modal-cycle')">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="text-xs text-on-surface-variant space-y-3">
+<p>Ciclo attuale ESC: <strong>Giorno 11 di 14</strong> (scadenza naturale tra 3 giorni).</p>
+<div class="space-y-2">
+<button class="w-full text-left p-3 rounded-xl bg-surface-container hover:bg-surface-container-high flex items-center justify-between transition-colors" onclick="alert('Ciclo esteso di 7 giorni addizionali'); toggleModal('modal-cycle')">
+<div>
+<span class="font-bold text-on-surface block">Proroga Ciclo (+7 Giorni)</span>
+<span class="text-[11px] text-secondary">Estende fino al 3 Giugno per titolazione farmaci</span>
+</div>
+<span class="material-symbols-outlined text-primary">arrow_forward</span>
+</button>
+<button class="w-full text-left p-3 rounded-xl bg-surface-container hover:bg-surface-container-high flex items-center justify-between transition-colors" onclick="alert('Ciclo concluso anticipatamente con successo'); toggleModal('modal-cycle')">
+<div>
+<span class="font-bold text-on-surface block">Concludi Ciclo &amp; Archivia</span>
+<span class="text-[11px] text-secondary">Genera referto definitivo di fine monitoraggio</span>
+</div>
+<span class="material-symbols-outlined text-tertiary">fact_check</span>
+</button>
+<button class="w-full text-left p-3 rounded-xl bg-error-container/30 hover:bg-error-container/50 flex items-center justify-between transition-colors text-error" onclick="alert('Ciclo sospeso temporaneamente'); toggleModal('modal-cycle')">
+<div>
+<span class="font-bold block">Sospendi / Metti in Pausa</span>
+<span class="text-[11px] opacity-80">Per ospedalizzazione o mancata aderenza</span>
+</div>
+<span class="material-symbols-outlined">pause_circle</span>
+</button>
+</div>
+</div>
+<div class="flex justify-end pt-2">
+<button class="px-4 py-2 rounded-xl bg-surface-container text-secondary text-xs font-bold hover:bg-surface-container-high" onclick="toggleModal('modal-cycle')">Chiudi</button>
+</div>
+</div>
+</div>
+<!-- MODAL: Nuova Nota Terapeutica (M5) -->
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm hidden p-4" id="modal-note">
+<div class="w-full max-w-lg rounded-xl bg-surface-container-low p-6 shadow-xl space-y-4">
+<div class="flex items-center justify-between pb-3 border-b border-surface-variant/40">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">edit_note</span>
+<h3 class="font-headline text-lg font-bold text-on-surface">Inserisci Nota o Aggiorna Terapia</h3>
+</div>
+<button class="text-secondary hover:text-on-surface" onclick="toggleModal('modal-note')">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="space-y-3 text-xs">
+<div>
+<label class="block font-semibold text-on-surface mb-1">Visibilità Nota:</label>
+<div class="grid grid-cols-2 gap-2">
+<label class="flex items-center gap-2 p-2.5 rounded-xl bg-surface-container cursor-pointer">
+<input checked="" class="text-primary focus:ring-primary" name="note-type" type="radio" value="shared"/>
+<span class="font-bold text-on-surface">Condivisa col Paziente</span>
+</label>
+<label class="flex items-center gap-2 p-2.5 rounded-xl bg-surface-container cursor-pointer">
+<input class="text-tertiary focus:ring-tertiary" name="note-type" type="radio" value="private"/>
+<span class="font-bold text-on-surface">Privata Medico</span>
+</label>
+</div>
+</div>
+<div>
+<label class="block font-semibold text-on-surface mb-1">Testo Prescrizione / Nota Clinica:</label>
+<textarea class="w-full p-3 rounded-xl bg-surface-container-lowest border-0 text-on-surface text-xs focus:ring-2 focus:ring-primary" id="note-text-input" placeholder="Es. Modifica posologia Ramipril a 10mg mattina..." rows="4"></textarea>
+</div>
+</div>
+<div class="flex items-center justify-end gap-2.5 pt-2">
+<button class="px-4 py-2 rounded-xl bg-surface-container text-secondary text-xs font-bold hover:bg-surface-container-high" onclick="toggleModal('modal-note')">Annulla</button>
+<button class="px-4 py-2 rounded-xl bg-primary text-on-primary text-xs font-bold hover:bg-primary-container" onclick="saveNoteSim()">Salva Nota</button>
+</div>
+</div>
+</div>
+</div>
+<script>
+  function switchTab(tab) {
+    const sharedTab = document.getElementById('tab-shared');
+    const privateTab = document.getElementById('tab-private');
+    const sharedBtn = document.getElementById('tab-shared-btn');
+    const privateBtn = document.getElementById('tab-private-btn');
+
+    if (tab === 'shared') {
+      sharedTab.classList.remove('hidden');
+      privateTab.classList.add('hidden');
+      sharedBtn.className = 'px-3.5 py-1.5 text-xs font-bold rounded-lg bg-surface-container-lowest text-primary shadow-sm transition-all';
+      privateBtn.className = 'px-3.5 py-1.5 text-xs font-bold rounded-lg text-on-surface-variant hover:text-on-surface transition-all';
+    } else {
+      sharedTab.classList.add('hidden');
+      privateTab.classList.remove('hidden');
+      privateBtn.className = 'px-3.5 py-1.5 text-xs font-bold rounded-lg bg-surface-container-lowest text-tertiary shadow-sm transition-all';
+      sharedBtn.className = 'px-3.5 py-1.5 text-xs font-bold rounded-lg text-on-surface-variant hover:text-on-surface transition-all';
+    }
+  }
+
+  function toggleModal(id) {
+    const el = document.getElementById(id);
+    if (el) {
+      el.classList.toggle('hidden');
+    }
+  }
+
+  function downloadPdfSim() {
+    alert('Generazione Report Clinico PDF in corso...\nInclusi: 29 rilevazioni, braccio DX di riferimento e trend orari per Giuseppe Bianchi.');
+  }
+
+  function sendPushConfirm() {
+    alert('Notifica Push inviata con successo allo smartphone di Giuseppe Bianchi.');
+    toggleModal('modal-push');
+  }
+
+  function saveNoteSim() {
+    alert('Nota clinica registrata nella cartella telemetrica del paziente.');
+    toggleModal('modal-note');
+  }
+</script></main>
+</div>
+</body></html>
