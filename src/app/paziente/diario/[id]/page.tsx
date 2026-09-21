@@ -53,6 +53,17 @@ export default function PazienteDiarioPage({
     loadData();
   }, [cicloId]);
 
+  useEffect(() => {
+    if (!loading) {
+      setTimeout(() => {
+        const el = document.getElementById(`day-btn-${selectedDay}`);
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+        }
+      }, 100);
+    }
+  }, [selectedDay, loading]);
+
   if (loading || !data) {
     return (
       <div className="flex items-center justify-center min-h-[70vh]">
@@ -197,7 +208,7 @@ export default function PazienteDiarioPage({
         <section className="space-y-2">
           <div className="flex items-center justify-between px-1">
             <h2 className="font-headline font-bold text-base text-on-surface">
-              Calendario del Ciclo
+              Calendario del Diario
             </h2>
             <span className="text-xs font-semibold text-secondary capitalize">
               {selectedDate.toLocaleDateString("it-IT", { month: "long", year: "numeric" })}
@@ -206,7 +217,7 @@ export default function PazienteDiarioPage({
 
           {/* Scrollable Days Strip */}
           <div
-            className="flex items-center gap-2 overflow-x-auto py-2 -mx-4 px-4 scrollbar-none"
+            className="flex items-center gap-2.5 overflow-x-auto py-3 -mx-4 px-4 scrollbar-none"
             style={{ WebkitOverflowScrolling: "touch" }}
           >
             {Array.from({ length: totalDays }, (_, i) => i + 1).map((dayNum) => {
@@ -227,29 +238,40 @@ export default function PazienteDiarioPage({
               const mSer = dMis.find((m: any) => m.slot === "sera");
 
               const getDotColor = (m?: any) => {
-                if (!m) return isFuture ? "bg-surface-variant" : "bg-outline/30";
-                if (m.pressioneMax >= 140 || m.pressioneMin >= 90) return "bg-error";
-                if (m.pressioneMax >= 130 || m.pressioneMin >= 85) return "bg-tertiary-fixed";
-                return "bg-primary";
+                if (!m) return isSelected ? "bg-white/40" : (isFuture ? "bg-surface-variant" : "bg-outline/30");
+                if (m.pressioneMax >= 140 || m.pressioneMin >= 90) return isSelected ? "bg-red-200" : "bg-error";
+                if (m.pressioneMax >= 130 || m.pressioneMin >= 85) return isSelected ? "bg-amber-200" : "bg-tertiary-fixed";
+                return isSelected ? "bg-white" : "bg-primary";
               };
 
               return (
                 <button
                   key={dayNum}
+                  id={`day-btn-${dayNum}`}
                   type="button"
                   onClick={() => setSelectedDay(dayNum)}
-                  className={`flex-shrink-0 flex flex-col items-center justify-between py-2.5 rounded-2xl transition-all ${
+                  className={`flex-shrink-0 flex flex-col items-center justify-between rounded-2xl transition-all duration-200 relative ${
                     isSelected
-                      ? "w-16 py-3 bg-primary text-on-primary shadow-md scale-105"
+                      ? "w-16 py-3 bg-primary text-white shadow-lg shadow-primary/30 ring-2 ring-primary ring-offset-2 ring-offset-background scale-105 z-10 font-bold border-2 border-primary"
+                      : isToday
+                      ? "w-14 py-2.5 bg-primary-container/30 border-2 border-primary text-primary font-bold shadow-sm hover:bg-primary-container/45"
                       : isFuture
-                      ? "w-14 bg-surface-container-highest/40 text-on-surface-variant/40 opacity-60 cursor-not-allowed"
-                      : "w-14 bg-surface-container-low text-on-surface-variant hover:bg-surface-container"
+                      ? "w-14 py-2.5 bg-surface-container-highest/40 text-on-surface-variant/40 opacity-50 cursor-not-allowed border border-transparent"
+                      : "w-14 py-2.5 bg-surface-container-low text-on-surface hover:bg-surface-container border border-surface-variant/40"
                   }`}
                 >
-                  <span className={`text-[10px] uppercase font-bold ${isSelected ? "text-on-primary" : "text-secondary"}`}>
+                  <span className={`text-[10px] uppercase font-bold tracking-tight ${
+                    isSelected
+                      ? "text-white"
+                      : isToday
+                      ? "text-primary font-extrabold"
+                      : "text-secondary"
+                  }`}>
                     {isToday ? "Oggi" : `${dayOfWeek} ${dayOfMonth}`}
                   </span>
-                  <span className={`font-headline font-extrabold text-base my-0.5 ${isSelected ? "text-on-primary text-lg" : "text-on-surface"}`}>
+                  <span className={`font-headline font-extrabold my-0.5 ${
+                    isSelected ? "text-white text-lg" : isToday ? "text-primary text-base" : "text-on-surface text-base"
+                  }`}>
                     G{dayNum}
                   </span>
                   {/* 3 Status dots: Mattina, Pomeriggio, Sera */}
