@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Logo } from "@/components/Logo";
-import { getPazienteDettaglioClinico } from "@/db/actions";
+import { getPazienteDettaglioClinico, getComunicazioniPaziente } from "@/db/actions";
 import { OnboardingModal } from "@/components/modals/OnboardingModal";
 import MisurazioneInizialeModal from "@/components/modals/MisurazioneInizialeModal";
 import { NoteTerapiaModal } from "@/components/modals/NoteTerapiaModal";
@@ -15,6 +15,7 @@ export default function PazienteCicliPage() {
   const [user, setUser] = useState<any>(null);
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   // Modals
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
@@ -27,6 +28,8 @@ export default function PazienteCicliPage() {
     try {
       const res = await getPazienteDettaglioClinico(pazienteId);
       setData(res);
+      const comms = await getComunicazioniPaziente(pazienteId);
+      setUnreadCount(comms.filter((c: any) => !c.letta).length);
     } catch (e) {
       console.error(e);
     } finally {
@@ -105,15 +108,21 @@ export default function PazienteCicliPage() {
           <div className="flex items-center gap-1.5">
             <button
               onClick={() => setIsNotificheOpen(true)}
-              aria-label="Notifiche"
+              title={unreadCount > 0 ? `Centro Notifiche (${unreadCount} nuove)` : "Centro Notifiche (Nessuna nuova notifica)"}
+              aria-label="Centro Notifiche"
               className="relative w-10 h-10 flex items-center justify-center rounded-full text-on-surface hover:bg-surface-container active:scale-95 transition-all"
             >
               <span className="material-symbols-outlined text-[22px]">notifications</span>
-              <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-error ring-2 ring-surface"></span>
+              {unreadCount > 0 && (
+                <span className="absolute top-1.5 right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-error text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-surface">
+                  {unreadCount}
+                </span>
+              )}
             </button>
 
             <button
               onClick={() => setIsNoteOpen(true)}
+              title="Note di Terapia e Prescrizioni del Medico"
               aria-label="Note Medico"
               className="w-10 h-10 flex items-center justify-center rounded-full text-on-surface hover:bg-surface-container active:scale-95 transition-all"
             >
@@ -125,7 +134,8 @@ export default function PazienteCicliPage() {
                 localStorage.removeItem("paziente_user");
                 router.push("/login/paziente");
               }}
-              title="Esci"
+              title="Disconnetti (Esci dal diario)"
+              aria-label="Esci"
               className="w-10 h-10 flex items-center justify-center rounded-full text-secondary hover:text-error hover:bg-surface-container active:scale-95 transition-all"
             >
               <span className="material-symbols-outlined text-[20px]">logout</span>
@@ -324,6 +334,7 @@ export default function PazienteCicliPage() {
       <NotificheModal
         isOpen={isNotificheOpen}
         onClose={() => setIsNotificheOpen(false)}
+        onRead={() => setUnreadCount(0)}
         pazienteId={user.id}
       />
     </div>

@@ -594,13 +594,15 @@ export async function sendComunicazione(data: {
 export async function getComunicazioniPaziente(pazienteId: string) {
   await ensureDb();
   const res = await db.execute({
-    sql: `SELECT c.id, c.titolo, c.messaggio, c.created_at, cd.letta, m.cognome as medico_cognome
+    sql: `SELECT c.id, c.titolo, c.messaggio, c.created_at, 
+                 COALESCE(cd.letta, 0) as letta, 
+                 m.cognome as medico_cognome
           FROM comunicazioni c
-          JOIN comunicazione_destinatari cd ON c.id = cd.comunicazione_id
           JOIN medici m ON c.medico_id = m.id
-          WHERE cd.paziente_id = ?
+          LEFT JOIN comunicazione_destinatari cd ON c.id = cd.comunicazione_id AND cd.paziente_id = ?
+          WHERE c.inviato_a_tutti = 1 OR cd.paziente_id = ?
           ORDER BY c.created_at DESC`,
-    args: [pazienteId],
+    args: [pazienteId, pazienteId],
   });
 
   return res.rows.map((r) => ({
@@ -611,4 +613,19 @@ export async function getComunicazioniPaziente(pazienteId: string) {
     letta: Boolean(r.letta),
     medicoCognome: String(r.medico_cognome),
   }));
+}
+
+export async function markComunicazioniAsRead(pazienteId: string) {
+  await ensureDb();
+  // Get all communication IDs for this patient
+  const comms = await getComunicazioniPaziente(pazienteId);
+  for (const c of comms) {
+    await db.execute({
+      sql: `INSERT INTO comunicazione_destinatari (comunicazione_id, paziente_id, letta, letta_il)
+            VALUES (?, ?, 1, CURRENT_TIMESTAMP)
+            ON CONFLICT(comunicazione_id, paziente_id) DO UPDATE SET letta = 1, letta_il = CURRENT_TIMESTAMP`,
+      args: [c.id, pazienteId],
+    });
+  }
+  return { success: true };
 }

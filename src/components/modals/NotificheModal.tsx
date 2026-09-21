@@ -1,27 +1,41 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { getComunicazioniPaziente } from "@/db/actions";
+import { getComunicazioniPaziente, markComunicazioniAsRead } from "@/db/actions";
 
 interface NotificheModalProps {
   isOpen: boolean;
   onClose: () => void;
   pazienteId: string;
+  onRead?: () => void;
 }
 
 export const NotificheModal: React.FC<NotificheModalProps> = ({
   isOpen,
   onClose,
   pazienteId,
+  onRead,
 }) => {
   const [comunicazioni, setComunicazioni] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const loadNotifs = async () => {
+    try {
+      const res = await getComunicazioniPaziente(pazienteId);
+      setComunicazioni(res);
+      // Automatically mark as read
+      await markComunicazioniAsRead(pazienteId);
+      if (onRead) onRead();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (isOpen) {
-      getComunicazioniPaziente(pazienteId)
-        .then((res) => setComunicazioni(res))
-        .finally(() => setLoading(false));
+      loadNotifs();
     }
   }, [isOpen, pazienteId]);
 

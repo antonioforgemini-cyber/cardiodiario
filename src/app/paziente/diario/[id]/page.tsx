@@ -4,7 +4,7 @@ import React, { useEffect, useState, use } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Logo } from "@/components/Logo";
-import { getPazienteDettaglioClinico } from "@/db/actions";
+import { getPazienteDettaglioClinico, getComunicazioniPaziente } from "@/db/actions";
 import { NuovaMisurazioneModal } from "@/components/modals/NuovaMisurazioneModal";
 import { OnboardingModal } from "@/components/modals/OnboardingModal";
 import { ConclusioneCicloModal } from "@/components/modals/ConclusioneCicloModal";
@@ -23,6 +23,7 @@ export default function PazienteDiarioPage({
 
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   // Active selected day in the horizontal calendar (default to Day 11)
   const [selectedDay, setSelectedDay] = useState<number>(11);
@@ -51,6 +52,8 @@ export default function PazienteDiarioPage({
       const pId = stored ? JSON.parse(stored).id : "paz-1";
       const res = await getPazienteDettaglioClinico(pId);
       setData(res);
+      const comms = await getComunicazioniPaziente(pId);
+      setUnreadCount(comms.filter((c: any) => !c.letta).length);
     } catch (e) {
       console.error(e);
     } finally {
@@ -142,15 +145,21 @@ export default function PazienteDiarioPage({
           <div className="flex items-center gap-1.5">
             <button
               onClick={() => setIsNotificheOpen(true)}
-              aria-label="Notifiche"
+              title={unreadCount > 0 ? `Centro Notifiche (${unreadCount} nuove)` : "Centro Notifiche (Nessuna nuova notifica)"}
+              aria-label="Centro Notifiche"
               className="relative w-10 h-10 flex items-center justify-center rounded-full text-on-surface hover:bg-surface-container active:scale-95 transition-all"
             >
               <span className="material-symbols-outlined text-[22px]">notifications</span>
-              <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-error ring-2 ring-surface"></span>
+              {unreadCount > 0 && (
+                <span className="absolute top-1.5 right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-error text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-surface">
+                  {unreadCount}
+                </span>
+              )}
             </button>
 
             <button
               onClick={() => setIsNoteOpen(true)}
+              title="Note di Terapia e Prescrizioni del Medico"
               aria-label="Note Medico"
               className="w-10 h-10 flex items-center justify-center rounded-full text-on-surface hover:bg-surface-container active:scale-95 transition-all"
             >
@@ -159,7 +168,8 @@ export default function PazienteDiarioPage({
 
             <button
               onClick={() => window.print()}
-              title="Stampa Diario PDF"
+              title="Stampa o Salva il Diario in Formato PDF"
+              aria-label="Stampa Diario PDF"
               className="w-10 h-10 flex items-center justify-center rounded-full text-secondary hover:text-primary hover:bg-surface-container active:scale-95 transition-all"
             >
               <span className="material-symbols-outlined text-[22px]">print</span>
@@ -590,6 +600,7 @@ export default function PazienteDiarioPage({
       <NotificheModal
         isOpen={isNotificheOpen}
         onClose={() => setIsNotificheOpen(false)}
+        onRead={() => setUnreadCount(0)}
         pazienteId={paziente.id}
       />
     </div>
