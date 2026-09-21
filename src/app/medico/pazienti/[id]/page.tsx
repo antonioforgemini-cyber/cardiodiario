@@ -7,6 +7,7 @@ import { NuovaNotaModal } from "@/components/modals/NuovaNotaModal";
 import { NuovoCicloModal } from "@/components/modals/NuovoCicloModal";
 import { GestioneCicloModal } from "@/components/modals/GestioneCicloModal";
 import { SchedaCredenzialiModal } from "@/components/modals/SchedaCredenzialiModal";
+import { ReportClinicoModal } from "@/components/modals/ReportClinicoModal";
 import { classifyBloodPressure } from "@/lib/guidelines";
 import {
   ResponsiveContainer,
@@ -37,6 +38,7 @@ export default function PazienteDetailPage({
   const [isCicloModalOpen, setIsCicloModalOpen] = useState(false);
   const [isGestioneCicloOpen, setIsGestioneCicloOpen] = useState(false);
   const [isCredenzialiOpen, setIsCredenzialiOpen] = useState(false);
+  const [isReportOpen, setIsReportOpen] = useState(false);
 
   const loadData = async () => {
     try {
@@ -114,7 +116,7 @@ export default function PazienteDetailPage({
             Scheda Credenziali
           </button>
           <button
-            onClick={() => window.print()}
+            onClick={() => setIsReportOpen(true)}
             className="px-4 py-2 rounded-xl bg-primary hover:bg-primary/90 text-on-primary text-xs font-bold flex items-center gap-1.5 shadow-sm"
           >
             <span className="material-symbols-outlined text-sm">print</span>
@@ -476,6 +478,17 @@ export default function PazienteDetailPage({
         isOpen={isCredenzialiOpen}
         onClose={() => setIsCredenzialiOpen(false)}
         paziente={paziente}
+      />
+
+      <ReportClinicoModal
+        isOpen={isReportOpen}
+        onClose={() => setIsReportOpen(false)}
+        paziente={paziente}
+        ciclo={activeCiclo}
+        misurazioni={misurazioni}
+        averages={averages}
+        noteTerapia={noteTerapia}
+        medicoNome="Dott. Valerio Marchi"
       />
     </div>
   );

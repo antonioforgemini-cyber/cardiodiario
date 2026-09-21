@@ -10,6 +10,7 @@ import { OnboardingModal } from "@/components/modals/OnboardingModal";
 import { ConclusioneCicloModal } from "@/components/modals/ConclusioneCicloModal";
 import { NoteTerapiaModal } from "@/components/modals/NoteTerapiaModal";
 import { NotificheModal } from "@/components/modals/NotificheModal";
+import { ReportClinicoModal } from "@/components/modals/ReportClinicoModal";
 import { classifyBloodPressure } from "@/lib/guidelines";
 
 export default function PazienteDiarioPage({
@@ -36,6 +37,7 @@ export default function PazienteDiarioPage({
   const [isConclusioneOpen, setIsConclusioneOpen] = useState(false);
   const [isNoteOpen, setIsNoteOpen] = useState(false);
   const [isNotificheOpen, setIsNotificheOpen] = useState(false);
+  const [isReportOpen, setIsReportOpen] = useState(false);
 
   const scrollContainerRef = React.useRef<HTMLDivElement>(null);
 
@@ -84,7 +86,7 @@ export default function PazienteDiarioPage({
     );
   }
 
-  const { activeCiclo, paziente, misurazioni, noteTerapia } = data;
+  const { activeCiclo, paziente, misurazioni, noteTerapia, averages } = data;
   const totalDays = (activeCiclo?.durataSettimane || 2) * 7;
   const currentActiveDay = 11; // 11 of 14 for Giuseppe Bianchi
   const braccioRef = (activeCiclo?.braccioRiferimento || "DX") as "DX" | "SX";
@@ -167,7 +169,7 @@ export default function PazienteDiarioPage({
             </button>
 
             <button
-              onClick={() => window.print()}
+              onClick={() => setIsReportOpen(true)}
               title="Stampa o Salva il Diario in Formato PDF"
               aria-label="Stampa Diario PDF"
               className="w-10 h-10 flex items-center justify-center rounded-full text-secondary hover:text-primary hover:bg-surface-container active:scale-95 transition-all"
@@ -587,7 +589,10 @@ export default function PazienteDiarioPage({
       <ConclusioneCicloModal
         isOpen={isConclusioneOpen}
         onClose={() => setIsConclusioneOpen(false)}
-        onDownloadPdf={() => window.print()}
+        onDownloadPdf={() => {
+          setIsConclusioneOpen(false);
+          setIsReportOpen(true);
+        }}
         pazienteNome={paziente.nome}
       />
 
@@ -602,6 +607,17 @@ export default function PazienteDiarioPage({
         onClose={() => setIsNotificheOpen(false)}
         onRead={() => setUnreadCount(0)}
         pazienteId={paziente.id}
+      />
+
+      <ReportClinicoModal
+        isOpen={isReportOpen}
+        onClose={() => setIsReportOpen(false)}
+        paziente={paziente}
+        ciclo={activeCiclo}
+        misurazioni={misurazioni}
+        averages={averages || { avgMax: 125, avgMin: 80, avgBpm: 72, targetRate: 90, totalCount: misurazioni.length }}
+        noteTerapia={noteTerapia}
+        medicoNome="Dott. Valerio Marchi"
       />
     </div>
   );

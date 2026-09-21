@@ -67,3 +67,92 @@
   -webkit-font-smoothing: antialiased;
   vertical-align: middle;
 }
+
+/* ----------------------------------------------------
+ * PRINT STYLES: A4 CLINICAL REPORT & MEDICAL DOSSIER
+ * ---------------------------------------------------- */
+@media print {
+  /* Hide the entire application except the active report portal */
+  body.printing-report > *:not(#report-modal-portal) {
+    display: none !important;
+  }
+
+  body.printing-report #report-modal-portal {
+    display: block !important;
+    position: static !important;
+    width: 100% !important;
+    background: #ffffff !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+  }
+
+  body.printing-report #report-modal-portal .no-print {
+    display: none !important;
+  }
+
+  body.printing-report #report-modal-portal .printable-sheet {
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Printing Credenziali Card */
+  body.printing-credenziali > *:not(#credenziali-modal-portal) {
+    display: none !important;
+  }
+
+  body.printing-credenziali #credenziali-modal-portal {
+    display: flex !important;
+    position: static !important;
+    width: 100% !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  body.printing-credenziali #credenziali-modal-portal .no-print {
+    display: none !important;
+  }
+
+  body.printing-credenziali #credenziali-modal-portal .printable-credenziali-card {
+    box-shadow: none !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 12px !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+  }
+
+  @page {
+    size: A4 portrait;
+    margin: 10mm 12mm 12mm 12mm;
+  }
+
+  html, body {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    font-size: 11pt !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .page-break-avoid {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  tr {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+}

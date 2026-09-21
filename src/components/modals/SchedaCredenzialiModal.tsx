@@ -1,6 +1,7 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { Logo } from "@/components/Logo";
 
 interface SchedaCredenzialiModalProps {
@@ -19,17 +20,47 @@ export const SchedaCredenzialiModal: React.FC<SchedaCredenzialiModalProps> = ({
   onClose,
   paziente,
 }) => {
-  if (!isOpen) return null;
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handlePrint = () => {
+    document.body.classList.add("printing-credenziali");
     window.print();
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-inverse-surface/40 backdrop-blur-sm animate-in fade-in duration-200">
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const beforePrint = () => {
+      document.body.classList.add("printing-credenziali");
+    };
+    const afterPrint = () => {
+      document.body.classList.remove("printing-credenziali");
+    };
+
+    window.addEventListener("beforeprint", beforePrint);
+    window.addEventListener("afterprint", afterPrint);
+
+    return () => {
+      window.removeEventListener("beforeprint", beforePrint);
+      window.removeEventListener("afterprint", afterPrint);
+      document.body.classList.remove("printing-credenziali");
+    };
+  }, [isOpen]);
+
+  if (!isOpen || !mounted) return null;
+
+  const content = (
+    <div
+      id="credenziali-modal-portal"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-inverse-surface/40 backdrop-blur-sm animate-in fade-in duration-200"
+    >
       <div className="bg-surface-container-lowest w-full max-w-lg rounded-3xl shadow-2xl border border-surface-variant/50 overflow-hidden flex flex-col">
         {/* Printable Area */}
-        <div id="printable-card" className="p-8 space-y-6 bg-white text-on-surface">
+        <div id="printable-card" className="printable-credenziali-card p-8 space-y-6 bg-white text-on-surface">
           {/* Header */}
           <div className="flex items-center justify-between border-b pb-4 border-surface-variant/40">
             <Logo size={44} showText={true} subtitle="Studio Medico Specialistico" />
@@ -81,7 +112,7 @@ export const SchedaCredenzialiModal: React.FC<SchedaCredenzialiModalProps> = ({
         </div>
 
         {/* Modal Controls (Not Printed) */}
-        <div className="p-4 bg-surface-container flex items-center justify-between border-t border-surface-variant/40">
+        <div className="p-4 bg-surface-container flex items-center justify-between border-t border-surface-variant/40 no-print">
           <button
             type="button"
             onClick={onClose}
@@ -103,4 +134,6 @@ export const SchedaCredenzialiModal: React.FC<SchedaCredenzialiModalProps> = ({
       </div>
     </div>
   );
+
+  return createPortal(content, document.body);
 };
