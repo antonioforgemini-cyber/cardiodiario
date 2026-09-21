@@ -95,7 +95,7 @@ export default function PazientiListPage() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="h-11 px-3 bg-surface-container-low rounded-xl text-xs font-semibold border border-surface-variant/40 focus:outline-none focus:ring-1 focus:ring-primary"
+            className="h-11 pl-3.5 pr-9 bg-surface-container-low rounded-xl text-xs font-semibold text-on-surface border border-surface-variant/40 focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
           >
             <option value="all">Tutti i pazienti ({pazienti.length})</option>
             <option value="in corso">Ciclo In Corso</option>

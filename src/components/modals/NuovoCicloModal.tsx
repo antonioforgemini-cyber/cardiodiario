@@ -84,7 +84,7 @@ export const NuovoCicloModal: React.FC<NuovoCicloModalProps> = ({
             <select
               value={durataSettimane}
               onChange={(e) => setDurataSettimane(Number(e.target.value))}
-              className="w-full h-11 px-3 mt-1 bg-surface-container-low rounded-xl text-sm border border-surface-variant/50 focus:ring-2 focus:ring-primary focus:outline-none"
+              className="w-full h-11 pl-3.5 pr-9 mt-1 bg-surface-container-low rounded-xl text-sm border border-surface-variant/50 focus:ring-2 focus:ring-primary focus:outline-none cursor-pointer"
             >
               <option value={1}>1 Settimana (7 Giorni)</option>
               <option value={2}>2 Settimane (14 Giorni - Standard)</option>
