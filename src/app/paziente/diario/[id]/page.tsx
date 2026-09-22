@@ -26,8 +26,8 @@ export default function PazienteDiarioPage({
   const [loading, setLoading] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
 
-  // Active selected day in the horizontal calendar (default to Day 11)
-  const [selectedDay, setSelectedDay] = useState<number>(11);
+  // Active selected day in the horizontal calendar
+  const [selectedDay, setSelectedDay] = useState<number>(1);
 
   // Modals
   const [measurementModalOpen, setMeasurementModalOpen] = useState(false);
@@ -58,6 +58,13 @@ export default function PazienteDiarioPage({
       const pId = JSON.parse(stored).id;
       const res = await getPazienteDettaglioClinico(pId);
       setData(res);
+      if (res?.activeCiclo) {
+        const total = (res.activeCiclo.durataSettimane || 1) * 7;
+        const elapsed = res.activeCiclo.dataInizioEffettiva
+          ? Math.min(Math.max(1, Math.floor((Date.now() - new Date(res.activeCiclo.dataInizioEffettiva).getTime()) / (1000 * 60 * 60 * 24)) + 1), total)
+          : 1;
+        setSelectedDay(elapsed);
+      }
       const comms = await getComunicazioniPaziente(pId);
       setUnreadCount(comms.filter((c: any) => !c.letta).length);
     } catch (e) {
@@ -92,7 +99,15 @@ export default function PazienteDiarioPage({
 
   const { activeCiclo, paziente, misurazioni, noteTerapia, averages } = data;
   const totalDays = (activeCiclo?.durataSettimane || 2) * 7;
-  const currentActiveDay = 11; // 11 of 14 for Giuseppe Bianchi
+  const currentActiveDay = activeCiclo?.dataInizioEffettiva
+    ? Math.min(
+        Math.max(
+          1,
+          Math.floor((Date.now() - new Date(activeCiclo.dataInizioEffettiva).getTime()) / (1000 * 60 * 60 * 24)) + 1
+        ),
+        totalDays
+      )
+    : 1;
   const braccioRef = (activeCiclo?.braccioRiferimento || "DX") as "DX" | "SX";
   const currentWeek = Math.ceil(selectedDay / 7);
   const totalWeeks = Math.ceil(totalDays / 7);

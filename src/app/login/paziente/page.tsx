@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Logo } from "@/components/Logo";
@@ -8,8 +8,8 @@ import { loginPaziente } from "@/db/actions";
 
 export default function LoginPazientePage() {
   const router = useRouter();
-  const [cf, setCf] = useState("BNCGPP58A01H501U"); // Pre-filled test patient Giuseppe Bianchi
-  const [pin, setPin] = useState("123456"); // Pre-filled test PIN
+  const [cf, setCf] = useState("");
+  const [pin, setPin] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showPwaBanner, setShowPwaBanner] = useState(true);
@@ -23,6 +23,25 @@ export default function LoginPazientePage() {
   const handleBackspace = () => {
     setPin((prev) => prev.slice(0, -1));
   };
+
+  // Allow physical keyboard entry for PIN when not typing in the CF field
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeEl = document.activeElement;
+      if (activeEl?.tagName === "INPUT" || activeEl?.tagName === "TEXTAREA") {
+        return;
+      }
+      if (/^[0-9]$/.test(e.key)) {
+        if (pin.length < 6) {
+          setPin((prev) => (prev.length < 6 ? prev + e.key : prev));
+        }
+      } else if (e.key === "Backspace") {
+        setPin((prev) => prev.slice(0, -1));
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [pin]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -129,7 +148,7 @@ export default function LoginPazientePage() {
                 maxLength={16}
                 value={cf}
                 onChange={(e) => setCf(e.target.value.toUpperCase())}
-                placeholder="BNC GPP 58A01 H501U"
+                placeholder="ES. RSSMRA80A01H501U"
                 className="w-full h-14 px-4 text-base font-mono font-bold tracking-wider text-on-surface bg-surface-container-low rounded-xl focus:bg-surface-bright focus:outline-none focus:ring-2 focus:ring-primary uppercase placeholder:text-outline placeholder:font-normal placeholder:tracking-normal transition-all"
               />
             </div>

@@ -19,7 +19,7 @@ export const NuovoPazienteModal: React.FC<NuovoPazienteModalProps> = ({
   const [nome, setNome] = useState("");
   const [cognome, setCognome] = useState("");
   const [cf, setCf] = useState("");
-  const [dataNascita, setDataNascita] = useState("1970-01-01");
+  const [dataNascita, setDataNascita] = useState("");
   const [telefono, setTelefono] = useState("");
   const [email, setEmail] = useState("");
   const [pin, setPin] = useState(() => Math.floor(100000 + Math.random() * 900000).toString());
@@ -36,7 +36,7 @@ export const NuovoPazienteModal: React.FC<NuovoPazienteModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!nome || !cognome || !cf || !telefono || !pin) {
+    if (!nome || !cognome || !cf || !telefono || !pin || !dataNascita) {
       setError("Compila tutti i campi obbligatori contrassegnati con *.");
       return;
     }
