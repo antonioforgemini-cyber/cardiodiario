@@ -61,7 +61,7 @@ export default function DoctorDashboardPage() {
     );
   }
 
-  const { stats, pazienti } = data;
+  const { stats, pazienti, trendData = [], distributionData = [] } = data;
 
   const filteredPatients = pazienti.filter((p: any) => {
     const matchesSearch =
@@ -70,22 +70,6 @@ export default function DoctorDashboardPage() {
       statusFilter === "all" || p.cicloStato === statusFilter;
     return matchesSearch && matchesStatus;
   });
-
-  // Mock trend data for executive chart
-  const trendData = [
-    { day: "G1", sistolica: 138, diastolica: 86, targetMax: 140, targetMin: 90 },
-    { day: "G3", sistolica: 135, diastolica: 84, targetMax: 140, targetMin: 90 },
-    { day: "G5", sistolica: 132, diastolica: 82, targetMax: 140, targetMin: 90 },
-    { day: "G7", sistolica: 128, diastolica: 80, targetMax: 140, targetMin: 90 },
-    { day: "G9", sistolica: 142, diastolica: 91, targetMax: 140, targetMin: 90 },
-    { day: "G11", sistolica: 130, diastolica: 82, targetMax: 140, targetMin: 90 },
-  ];
-
-  const distributionData = [
-    { fascia: "Mattina", mediaMax: 134, mediaMin: 84 },
-    { fascia: "Pomeriggio", mediaMax: 131, mediaMin: 82 },
-    { fascia: "Sera", mediaMax: 127, mediaMin: 80 },
-  ];
 
   return (
     <div className="p-8 space-y-8 max-w-7xl mx-auto">
@@ -217,26 +201,34 @@ export default function DoctorDashboardPage() {
             </div>
           </div>
 
-          <div className="h-64 w-full pt-4">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={trendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e4e0d8" vertical={false} />
-                <XAxis dataKey="day" stroke="#74796e" fontSize={12} tickLine={false} />
-                <YAxis stroke="#74796e" fontSize={12} domain={[60, 160]} tickLine={false} />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "#ffffff",
-                    borderRadius: "12px",
-                    border: "1px solid #c4c8bc",
-                    fontSize: "12px",
-                  }}
-                />
-                <ReferenceLine y={140} stroke="#b83230" strokeDasharray="4 4" label={{ value: "Target Max 140", fill: "#b83230", fontSize: 10, position: "insideTopRight" }} />
-                <ReferenceLine y={90} stroke="#b83230" strokeDasharray="4 4" label={{ value: "Target Min 90", fill: "#b83230", fontSize: 10, position: "insideBottomRight" }} />
-                <Line type="monotone" dataKey="sistolica" stroke="#4a7c59" strokeWidth={3} dot={{ r: 4, fill: "#4a7c59" }} activeDot={{ r: 6 }} />
-                <Line type="monotone" dataKey="diastolica" stroke="#705c30" strokeWidth={3} dot={{ r: 4, fill: "#705c30" }} activeDot={{ r: 6 }} />
-              </LineChart>
-            </ResponsiveContainer>
+          <div className="h-64 w-full pt-4 flex items-center justify-center">
+            {trendData && trendData.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={trendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e4e0d8" vertical={false} />
+                  <XAxis dataKey="day" stroke="#74796e" fontSize={12} tickLine={false} />
+                  <YAxis stroke="#74796e" fontSize={12} domain={[60, 160]} tickLine={false} />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#ffffff",
+                      borderRadius: "12px",
+                      border: "1px solid #c4c8bc",
+                      fontSize: "12px",
+                    }}
+                  />
+                  <ReferenceLine y={140} stroke="#b83230" strokeDasharray="4 4" label={{ value: "Target Max 140", fill: "#b83230", fontSize: 10, position: "insideTopRight" }} />
+                  <ReferenceLine y={90} stroke="#b83230" strokeDasharray="4 4" label={{ value: "Target Min 90", fill: "#b83230", fontSize: 10, position: "insideBottomRight" }} />
+                  <Line type="monotone" dataKey="sistolica" stroke="#4a7c59" strokeWidth={3} dot={{ r: 4, fill: "#4a7c59" }} activeDot={{ r: 6 }} />
+                  <Line type="monotone" dataKey="diastolica" stroke="#705c30" strokeWidth={3} dot={{ r: 4, fill: "#705c30" }} activeDot={{ r: 6 }} />
+                </LineChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="flex flex-col items-center justify-center text-center p-6 text-on-surface-variant">
+                <span className="material-symbols-outlined text-3xl mb-2 text-outline">show_chart</span>
+                <p className="text-sm font-semibold text-on-surface">Nessun dato di andamento disponibile</p>
+                <p className="text-xs max-w-xs mt-1">I grafici di coorte si popoleranno automaticamente non appena i pazienti registreranno le prime misurazioni.</p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -251,24 +243,32 @@ export default function DoctorDashboardPage() {
             </p>
           </div>
 
-          <div className="h-64 w-full pt-4">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={distributionData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e4e0d8" vertical={false} />
-                <XAxis dataKey="fascia" stroke="#74796e" fontSize={12} tickLine={false} />
-                <YAxis stroke="#74796e" fontSize={12} domain={[60, 160]} tickLine={false} />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "#ffffff",
-                    borderRadius: "12px",
-                    border: "1px solid #c4c8bc",
-                    fontSize: "12px",
-                  }}
-                />
-                <Bar dataKey="mediaMax" fill="#4a7c59" name="Media Max" radius={[6, 6, 0, 0]} />
-                <Bar dataKey="mediaMin" fill="#c4a66a" name="Media Min" radius={[6, 6, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+          <div className="h-64 w-full pt-4 flex items-center justify-center">
+            {distributionData && distributionData.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={distributionData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e4e0d8" vertical={false} />
+                  <XAxis dataKey="fascia" stroke="#74796e" fontSize={12} tickLine={false} />
+                  <YAxis stroke="#74796e" fontSize={12} domain={[60, 160]} tickLine={false} />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#ffffff",
+                      borderRadius: "12px",
+                      border: "1px solid #c4c8bc",
+                      fontSize: "12px",
+                    }}
+                  />
+                  <Bar dataKey="mediaMax" fill="#4a7c59" name="Media Max" radius={[6, 6, 0, 0]} />
+                  <Bar dataKey="mediaMin" fill="#c4a66a" name="Media Min" radius={[6, 6, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="flex flex-col items-center justify-center text-center p-6 text-on-surface-variant">
+                <span className="material-symbols-outlined text-3xl mb-2 text-outline">bar_chart</span>
+                <p className="text-sm font-semibold text-on-surface">Nessun dato per fascia oraria</p>
+                <p className="text-xs max-w-xs mt-1">I valori medi per mattina, pomeriggio e sera appariranno non appena verranno acquisite le letture.</p>
+              </div>
+            )}
           </div>
         </div>
       </div>

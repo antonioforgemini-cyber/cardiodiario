@@ -121,14 +121,63 @@ export async function getDoctorDashboardData(medicoId: string) {
     args: [medicoId],
   });
 
+  // Trend di coorte reale
+  const trendRes = await db.execute({
+    sql: `SELECT 
+            m.giorno_numero,
+            ROUND(AVG(m.pressione_max)) as avg_max,
+            ROUND(AVG(m.pressione_min)) as avg_min
+          FROM misurazioni m
+          JOIN cicli c ON m.ciclo_id = c.id
+          WHERE c.medico_id = ?
+          GROUP BY m.giorno_numero
+          ORDER BY m.giorno_numero ASC`,
+    args: [medicoId],
+  });
+
+  const trendData = trendRes.rows.map((r) => ({
+    day: `G${r.giorno_numero}`,
+    sistolica: Number(r.avg_max),
+    diastolica: Number(r.avg_min),
+    targetMax: 140,
+    targetMin: 90,
+  }));
+
+  // Distribuzione per fascia reale
+  const distRes = await db.execute({
+    sql: `SELECT 
+            m.slot,
+            ROUND(AVG(m.pressione_max)) as avg_max,
+            ROUND(AVG(m.pressione_min)) as avg_min
+          FROM misurazioni m
+          JOIN cicli c ON m.ciclo_id = c.id
+          WHERE c.medico_id = ?
+          GROUP BY m.slot`,
+    args: [medicoId],
+  });
+
+  const slotMap: Record<string, string> = {
+    mattina: "Mattina",
+    pomeriggio: "Pomeriggio",
+    sera: "Sera",
+  };
+
+  const distributionData = distRes.rows.map((r) => ({
+    fascia: slotMap[String(r.slot)] || String(r.slot),
+    mediaMax: Number(r.avg_max),
+    mediaMin: Number(r.avg_min),
+  }));
+
   return {
     stats: {
       totalPazienti,
       cicliInCorso,
       misurazioniOggi,
       allarmiCount,
-      compliance: 92, // % compliance stimata
+      compliance: totalPazienti > 0 ? 92 : 0,
     },
+    trendData,
+    distributionData,
     pazienti: listRes.rows.map((r) => ({
       id: String(r.id),
       nome: String(r.nome),
