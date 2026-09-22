@@ -166,53 +166,73 @@ export default function PazienteCicliPage() {
               </span>
             </div>
 
-            {inCorsoCicli.map((c: any) => (
-              <div
-                key={c.id}
-                className="bg-surface-container-lowest rounded-3xl p-6 shadow-md border-2 border-primary/40 space-y-5"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="space-y-1">
-                    <span className="text-[11px] font-bold text-secondary uppercase tracking-wide">
-                      Durata: {c.durataSettimane} Settimane ({c.durataSettimane * 7} Giorni)
-                    </span>
-                    <h3 className="text-xl font-headline font-bold text-on-surface">
-                      Diario della Pressione
-                    </h3>
-                  </div>
+            {inCorsoCicli.map((c: any) => {
+              const totalDays = (c.durataSettimane || 1) * 7;
+              let currentDay = 1;
+              if (c.dataInizioEffettiva) {
+                const start = new Date(c.dataInizioEffettiva).getTime();
+                const diffDays = Math.floor((Date.now() - start) / (1000 * 60 * 60 * 24)) + 1;
+                currentDay = Math.min(Math.max(1, diffDays), totalDays);
+              } else if (c.maxGiornoRilevato && c.maxGiornoRilevato > 0) {
+                currentDay = Math.min(c.maxGiornoRilevato, totalDays);
+              }
 
-                  {c.braccioRiferimento && (
-                    <div className="bg-primary-container/30 px-3 py-1.5 rounded-full flex items-center gap-1.5 border border-primary/20">
-                      <span className="material-symbols-outlined text-primary text-base" style={{ fontVariationSettings: "'FILL' 1" }}>
-                        pan_tool
-                      </span>
-                      <span className="text-[10px] font-bold text-primary uppercase">
-                        Braccio {c.braccioRiferimento}
-                      </span>
-                    </div>
-                  )}
-                </div>
+              // Calcolo percentuale di completamento
+              const percentComplete = c.misurazioniCount && c.misurazioniCount > 0
+                ? Math.min(100, Math.max(1, Math.round((currentDay / totalDays) * 100)))
+                : 0;
 
-                {/* Progress bar */}
-                <div className="space-y-2">
-                  <div className="flex justify-between text-xs text-on-surface-variant font-medium">
-                    <span>Giorno 11 di {c.durataSettimane * 7}</span>
-                    <span className="font-bold text-primary">78% Completato</span>
-                  </div>
-                  <div className="w-full bg-surface-variant h-2.5 rounded-full overflow-hidden">
-                    <div className="bg-primary h-full rounded-full transition-all duration-500 w-[78%]"></div>
-                  </div>
-                </div>
-
-                <Link
-                  href={`/paziente/diario/${c.id}`}
-                  className="w-full h-13 py-3 rounded-2xl bg-primary hover:bg-primary/90 text-on-primary text-sm font-bold shadow-sm flex items-center justify-center gap-2 active:scale-98 transition-all"
+              return (
+                <div
+                  key={c.id}
+                  className="bg-surface-container-lowest rounded-3xl p-6 shadow-md border-2 border-primary/40 space-y-5"
                 >
-                  <span>Continua Misurazioni</span>
-                  <span className="material-symbols-outlined text-lg">arrow_forward</span>
-                </Link>
-              </div>
-            ))}
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-1">
+                      <span className="text-[11px] font-bold text-secondary uppercase tracking-wide">
+                        Durata: {c.durataSettimane} Settimane ({totalDays} Giorni)
+                      </span>
+                      <h3 className="text-xl font-headline font-bold text-on-surface">
+                        Diario della Pressione
+                      </h3>
+                    </div>
+
+                    {c.braccioRiferimento && (
+                      <div className="bg-primary-container/30 px-3 py-1.5 rounded-full flex items-center gap-1.5 border border-primary/20">
+                        <span className="material-symbols-outlined text-primary text-base" style={{ fontVariationSettings: "'FILL' 1" }}>
+                          pan_tool
+                        </span>
+                        <span className="text-[10px] font-bold text-primary uppercase">
+                          Braccio {c.braccioRiferimento}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Progress bar */}
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-xs text-on-surface-variant font-medium">
+                      <span>Giorno {currentDay} di {totalDays}</span>
+                      <span className="font-bold text-primary">{percentComplete}% Completato</span>
+                    </div>
+                    <div className="w-full bg-surface-variant h-2.5 rounded-full overflow-hidden">
+                      <div
+                        className="bg-primary h-full rounded-full transition-all duration-500"
+                        style={{ width: `${percentComplete}%` }}
+                      ></div>
+                    </div>
+                  </div>
+
+                  <Link
+                    href={`/paziente/diario/${c.id}`}
+                    className="w-full h-13 py-3 rounded-2xl bg-primary hover:bg-primary/90 text-on-primary text-sm font-bold shadow-sm flex items-center justify-center gap-2 active:scale-98 transition-all"
+                  >
+                    <span>Continua Misurazioni</span>
+                    <span className="material-symbols-outlined text-lg">arrow_forward</span>
+                  </Link>
+                </div>
+              );
+            })}
           </div>
         )}
 

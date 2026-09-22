@@ -257,14 +257,19 @@ export async function getPazienteDettaglioClinico(pazienteId: string) {
 
   // Ciclo attivo o più recente
   const cicliRes = await db.execute({
-    sql: `SELECT * FROM cicli WHERE paziente_id = ?
+    sql: `SELECT 
+            c.*,
+            (SELECT COUNT(*) FROM misurazioni m WHERE m.ciclo_id = c.id) as misurazioni_count,
+            (SELECT MAX(m.giorno_numero) FROM misurazioni m WHERE m.ciclo_id = c.id) as max_giorno_rilevato
+          FROM cicli c
+          WHERE c.paziente_id = ?
           ORDER BY 
-            CASE stato 
+            CASE c.stato 
               WHEN 'in corso' THEN 1 
               WHEN 'da iniziare' THEN 2 
               WHEN 'in pausa' THEN 3 
               ELSE 4 
-            END, data_creazione DESC`,
+            END, c.data_creazione DESC`,
     args: [pazienteId],
   });
 
@@ -277,6 +282,8 @@ export async function getPazienteDettaglioClinico(pazienteId: string) {
     dataInizioEffettiva: c.data_inizio_effettiva ? String(c.data_inizio_effettiva) : null,
     dataFinePrevista: c.data_fine_prevista ? String(c.data_fine_prevista) : null,
     noteCiclo: c.note_ciclo ? String(c.note_ciclo) : null,
+    misurazioniCount: Number(c.misurazioni_count || 0),
+    maxGiornoRilevato: c.max_giorno_rilevato ? Number(c.max_giorno_rilevato) : 0,
   }));
 
   const activeCiclo = allCicli[0] || null;

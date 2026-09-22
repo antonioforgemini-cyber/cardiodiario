@@ -60,10 +60,13 @@ export default function PazienteDiarioPage({
       setData(res);
       if (res?.activeCiclo) {
         const total = (res.activeCiclo.durataSettimane || 1) * 7;
+        const maxMis = res.misurazioni && res.misurazioni.length > 0
+          ? Math.max(...res.misurazioni.map((m: any) => m.giornoNumero || 1))
+          : 1;
         const elapsed = res.activeCiclo.dataInizioEffettiva
           ? Math.min(Math.max(1, Math.floor((Date.now() - new Date(res.activeCiclo.dataInizioEffettiva).getTime()) / (1000 * 60 * 60 * 24)) + 1), total)
-          : 1;
-        setSelectedDay(elapsed);
+          : maxMis;
+        setSelectedDay(Math.max(elapsed, maxMis));
       }
       const comms = await getComunicazioniPaziente(pId);
       setUnreadCount(comms.filter((c: any) => !c.letta).length);
