@@ -9,6 +9,7 @@ import { OnboardingModal } from "@/components/modals/OnboardingModal";
 import MisurazioneInizialeModal from "@/components/modals/MisurazioneInizialeModal";
 import { NoteTerapiaModal } from "@/components/modals/NoteTerapiaModal";
 import { NotificheModal } from "@/components/modals/NotificheModal";
+import { calculateCurrentActiveDay } from "@/lib/dateUtils";
 
 export default function PazienteCicliPage() {
   const router = useRouter();
@@ -168,14 +169,11 @@ export default function PazienteCicliPage() {
 
             {inCorsoCicli.map((c: any) => {
               const totalDays = (c.durataSettimane || 1) * 7;
-              let currentDay = 1;
-              if (c.dataInizioEffettiva) {
-                const start = new Date(c.dataInizioEffettiva).getTime();
-                const diffDays = Math.floor((Date.now() - start) / (1000 * 60 * 60 * 24)) + 1;
-                currentDay = Math.min(Math.max(1, diffDays), totalDays);
-              } else if (c.maxGiornoRilevato && c.maxGiornoRilevato > 0) {
-                currentDay = Math.min(c.maxGiornoRilevato, totalDays);
-              }
+              const currentDay = calculateCurrentActiveDay(
+                c.dataInizioEffettiva,
+                totalDays,
+                c.maxGiornoRilevato || 1
+              );
 
               // Calcolo percentuale di completamento
               const percentComplete = c.misurazioniCount && c.misurazioniCount > 0

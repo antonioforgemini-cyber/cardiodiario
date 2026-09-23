@@ -12,6 +12,7 @@ import { NoteTerapiaModal } from "@/components/modals/NoteTerapiaModal";
 import { NotificheModal } from "@/components/modals/NotificheModal";
 import { ReportClinicoModal } from "@/components/modals/ReportClinicoModal";
 import { classifyBloodPressure } from "@/lib/guidelines";
+import { calculateCurrentActiveDay, getDateForCycleDay, formatLocalDate } from "@/lib/dateUtils";
 
 export default function PazienteDiarioPage({
   params,
@@ -63,10 +64,8 @@ export default function PazienteDiarioPage({
         const maxMis = res.misurazioni && res.misurazioni.length > 0
           ? Math.max(...res.misurazioni.map((m: any) => m.giornoNumero || 1))
           : 1;
-        const elapsed = res.activeCiclo.dataInizioEffettiva
-          ? Math.min(Math.max(1, Math.floor((Date.now() - new Date(res.activeCiclo.dataInizioEffettiva).getTime()) / (1000 * 60 * 60 * 24)) + 1), total)
-          : maxMis;
-        setSelectedDay(Math.max(elapsed, maxMis));
+        const activeDay = calculateCurrentActiveDay(res.activeCiclo.dataInizioEffettiva, total, maxMis);
+        setSelectedDay(activeDay);
       }
       const comms = await getComunicazioniPaziente(pId);
       setUnreadCount(comms.filter((c: any) => !c.letta).length);
@@ -102,15 +101,14 @@ export default function PazienteDiarioPage({
 
   const { activeCiclo, paziente, misurazioni, noteTerapia, averages } = data;
   const totalDays = (activeCiclo?.durataSettimane || 2) * 7;
-  const currentActiveDay = activeCiclo?.dataInizioEffettiva
-    ? Math.min(
-        Math.max(
-          1,
-          Math.floor((Date.now() - new Date(activeCiclo.dataInizioEffettiva).getTime()) / (1000 * 60 * 60 * 24)) + 1
-        ),
-        totalDays
-      )
+  const maxDayRecorded = misurazioni && misurazioni.length > 0
+    ? Math.max(...misurazioni.map((m: any) => m.giornoNumero || 1))
     : 1;
+  const currentActiveDay = calculateCurrentActiveDay(
+    activeCiclo?.dataInizioEffettiva,
+    totalDays,
+    maxDayRecorded
+  );
   const braccioRef = (activeCiclo?.braccioRiferimento || "DX") as "DX" | "SX";
   const currentWeek = Math.ceil(selectedDay / 7);
   const totalWeeks = Math.ceil(totalDays / 7);
@@ -121,15 +119,13 @@ export default function PazienteDiarioPage({
   const misPomeriggio = dayMisurazioni.find((m: any) => m.slot === "pomeriggio");
   const misSera = dayMisurazioni.find((m: any) => m.slot === "sera");
 
-  // Calculate actual date for the selected day
-  const startDate = activeCiclo?.dataInizioEffettiva ? new Date(activeCiclo.dataInizioEffettiva) : new Date();
-  const selectedDate = new Date(startDate);
-  selectedDate.setDate(startDate.getDate() + (selectedDay - 1));
-  const selectedDateStr = selectedDate.toISOString().split("T")[0];
+  // Calculate actual date for the selected day in local calendar time
+  const selectedDate = getDateForCycleDay(activeCiclo?.dataInizioEffettiva, selectedDay);
+  const selectedDateStr = formatLocalDate(selectedDate);
 
   const handleOpenSlot = (slot: "mattina" | "pomeriggio" | "sera", existing?: any) => {
     if (selectedDay > currentActiveDay) {
-      alert("Non puoi inserire misurazioni per giornate future.");
+      alert(`Il Giorno ${selectedDay} è una data futura rispetto al piano clinico attuale (oggi è il Giorno ${currentActiveDay}). Non è possibile registrare misurazioni anticipate.`);
       return;
     }
     setSelectedSlotForModal(slot);
@@ -327,8 +323,7 @@ export default function PazienteDiarioPage({
               const isFuture = dayNum > currentActiveDay;
 
               // Compute date for this day
-              const d = new Date(startDate);
-              d.setDate(startDate.getDate() + (dayNum - 1));
+              const d = getDateForCycleDay(activeCiclo?.dataInizioEffettiva, dayNum);
               const dayOfWeek = d.toLocaleDateString("it-IT", { weekday: "short" });
               const dayOfMonth = d.getDate();
 
