@@ -258,7 +258,7 @@ export const NuovaMisurazioneModal: React.FC<NuovaMisurazioneModalProps> = ({
                     value={pressioneMax}
                     onChange={(e) => setPressioneMax(e.target.value)}
                     placeholder="120"
-                    className="w-full h-16 px-3 text-2xl font-mono font-bold text-center bg-surface-container-low rounded-xl border border-surface-variant/40 focus:ring-2 focus:ring-primary focus:outline-none"
+                    className="w-full h-16 px-3 text-2xl font-mono font-bold text-center bg-surface-container-low rounded-xl border border-surface-variant/40 focus:ring-2 focus:ring-primary focus:outline-none placeholder:text-outline-variant/60 placeholder:font-normal"
                   />
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-secondary font-semibold">mmHg</span>
                 </div>
@@ -273,7 +273,7 @@ export const NuovaMisurazioneModal: React.FC<NuovaMisurazioneModalProps> = ({
                     value={pressioneMin}
                     onChange={(e) => setPressioneMin(e.target.value)}
                     placeholder="80"
-                    className="w-full h-16 px-3 text-2xl font-mono font-bold text-center bg-surface-container-low rounded-xl border border-surface-variant/40 focus:ring-2 focus:ring-primary focus:outline-none"
+                    className="w-full h-16 px-3 text-2xl font-mono font-bold text-center bg-surface-container-low rounded-xl border border-surface-variant/40 focus:ring-2 focus:ring-primary focus:outline-none placeholder:text-outline-variant/60 placeholder:font-normal"
                   />
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-secondary font-semibold">mmHg</span>
                 </div>
@@ -305,7 +305,7 @@ export const NuovaMisurazioneModal: React.FC<NuovaMisurazioneModalProps> = ({
                   value={bpm}
                   onChange={(e) => setBpm(e.target.value)}
                   placeholder="70"
-                  className="w-full h-11 px-3 text-sm font-mono font-bold bg-surface-container-low rounded-xl border border-surface-variant/40 focus:ring-2 focus:ring-primary focus:outline-none"
+                  className="w-full h-11 px-3 text-sm font-mono font-bold bg-surface-container-low rounded-xl border border-surface-variant/40 focus:ring-2 focus:ring-primary focus:outline-none placeholder:text-outline-variant/60 placeholder:font-normal"
                 />
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] text-secondary">bpm</span>
               </div>
@@ -319,7 +319,7 @@ export const NuovaMisurazioneModal: React.FC<NuovaMisurazioneModalProps> = ({
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
                 placeholder="es. Nessun sintomo, misurazione prima di pranzo..."
-                className="w-full p-2.5 mt-1 bg-surface-container-low rounded-xl text-xs border border-surface-variant/40 focus:ring-2 focus:ring-primary focus:outline-none"
+                className="w-full p-2.5 mt-1 bg-surface-container-low rounded-xl text-xs border border-surface-variant/40 focus:ring-2 focus:ring-primary focus:outline-none placeholder:text-outline-variant/70 placeholder:font-normal"
               />
             </div>
 

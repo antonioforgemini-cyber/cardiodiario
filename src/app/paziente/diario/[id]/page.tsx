@@ -296,15 +296,12 @@ export default function PazienteDiarioPage({
                       el.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
                     }
                   }}
-                  className={`flex-1 py-1.5 px-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1 ${
+                  className={`flex-1 py-2 px-1.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center text-center leading-snug ${
                     isWeekActive
                       ? "bg-primary text-white shadow-sm ring-1 ring-primary"
                       : "bg-surface-container-low text-secondary hover:bg-surface-container hover:text-on-surface border border-surface-variant/40"
                   }`}
                 >
-                  <span className="material-symbols-outlined text-sm">
-                    {isWeekActive ? "check_circle" : "calendar_view_week"}
-                  </span>
                   <span>Settimana {wNum} (G{startDayOfW}–G{endDayOfW})</span>
                 </button>
               );

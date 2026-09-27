@@ -165,7 +165,7 @@ export default function MisurazioneInizialeModal({
                     value={maxDx}
                     onChange={(e) => setMaxDx(e.target.value)}
                     placeholder="es. 135"
-                    className="w-full h-14 px-3 text-xl font-mono font-bold bg-surface-container-low rounded-xl text-center border border-surface-variant/40 focus:ring-2 focus:ring-primary focus:outline-none"
+                    className="w-full h-14 px-3 text-xl font-mono font-bold bg-surface-container-low rounded-xl text-center border border-surface-variant/40 focus:ring-2 focus:ring-primary focus:outline-none placeholder:text-outline-variant/60 placeholder:font-normal"
                   />
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-secondary font-semibold">mmHg</span>
                 </div>
@@ -180,7 +180,7 @@ export default function MisurazioneInizialeModal({
                     value={minDx}
                     onChange={(e) => setMinDx(e.target.value)}
                     placeholder="es. 85"
-                    className="w-full h-14 px-3 text-xl font-mono font-bold bg-surface-container-low rounded-xl text-center border border-surface-variant/40 focus:ring-2 focus:ring-primary focus:outline-none"
+                    className="w-full h-14 px-3 text-xl font-mono font-bold bg-surface-container-low rounded-xl text-center border border-surface-variant/40 focus:ring-2 focus:ring-primary focus:outline-none placeholder:text-outline-variant/60 placeholder:font-normal"
                   />
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-secondary font-semibold">mmHg</span>
                 </div>
@@ -194,7 +194,7 @@ export default function MisurazioneInizialeModal({
                 value={bpmDx}
                 onChange={(e) => setBpmDx(e.target.value)}
                 placeholder="es. 72"
-                className="w-full h-11 px-3 mt-1 bg-surface-container-low rounded-xl text-center font-mono border border-surface-variant/40 focus:ring-2 focus:ring-primary focus:outline-none"
+                className="w-full h-11 px-3 mt-1 bg-surface-container-low rounded-xl text-center font-mono border border-surface-variant/40 focus:ring-2 focus:ring-primary focus:outline-none placeholder:text-outline-variant/60 placeholder:font-normal"
               />
             </div>
 
@@ -231,7 +231,7 @@ export default function MisurazioneInizialeModal({
                     value={maxSx}
                     onChange={(e) => setMaxSx(e.target.value)}
                     placeholder="es. 128"
-                    className="w-full h-14 px-3 text-xl font-mono font-bold bg-surface-container-low rounded-xl text-center border border-surface-variant/40 focus:ring-2 focus:ring-primary focus:outline-none"
+                    className="w-full h-14 px-3 text-xl font-mono font-bold bg-surface-container-low rounded-xl text-center border border-surface-variant/40 focus:ring-2 focus:ring-primary focus:outline-none placeholder:text-outline-variant/60 placeholder:font-normal"
                   />
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-secondary font-semibold">mmHg</span>
                 </div>
@@ -246,7 +246,7 @@ export default function MisurazioneInizialeModal({
                     value={minSx}
                     onChange={(e) => setMinSx(e.target.value)}
                     placeholder="es. 82"
-                    className="w-full h-14 px-3 text-xl font-mono font-bold bg-surface-container-low rounded-xl text-center border border-surface-variant/40 focus:ring-2 focus:ring-primary focus:outline-none"
+                    className="w-full h-14 px-3 text-xl font-mono font-bold bg-surface-container-low rounded-xl text-center border border-surface-variant/40 focus:ring-2 focus:ring-primary focus:outline-none placeholder:text-outline-variant/60 placeholder:font-normal"
                   />
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-secondary font-semibold">mmHg</span>
                 </div>
@@ -260,7 +260,7 @@ export default function MisurazioneInizialeModal({
                 value={bpmSx}
                 onChange={(e) => setBpmSx(e.target.value)}
                 placeholder="es. 70"
-                className="w-full h-11 px-3 mt-1 bg-surface-container-low rounded-xl text-center font-mono border border-surface-variant/40 focus:ring-2 focus:ring-primary focus:outline-none"
+                className="w-full h-11 px-3 mt-1 bg-surface-container-low rounded-xl text-center font-mono border border-surface-variant/40 focus:ring-2 focus:ring-primary focus:outline-none placeholder:text-outline-variant/60 placeholder:font-normal"
               />
             </div>
 
