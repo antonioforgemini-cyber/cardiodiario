@@ -74,24 +74,24 @@ export default function ComunicazioniPage() {
   }
 
   return (
-    <div className="p-8 space-y-8 max-w-5xl mx-auto">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8 max-w-5xl mx-auto">
       {/* Header */}
-      <div className="border-b border-surface-variant/40 pb-6">
-        <span className="text-xs font-bold text-primary tracking-wider uppercase">
+      <div className="border-b border-surface-variant/40 pb-5 sm:pb-6">
+        <span className="text-[11px] sm:text-xs font-bold text-primary tracking-wider uppercase">
           Centro Notifiche • Web Push API
         </span>
-        <h1 className="text-3xl font-headline font-bold text-on-surface tracking-tight mt-1">
+        <h1 className="text-2xl sm:text-3xl font-headline font-bold text-on-surface tracking-tight mt-1">
           Invio Notifiche & Comunicazioni
         </h1>
-        <p className="text-sm text-on-surface-variant">
+        <p className="text-xs sm:text-sm text-on-surface-variant">
           Invia messaggi push direttamente sugli smartphone dei tuoi pazienti per promemoria o istruzioni cliniche.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
         {/* Form Column */}
-        <div className="lg:col-span-2 bg-surface-container-lowest p-6 rounded-3xl border border-surface-variant/50 shadow-sm space-y-5">
-          <h2 className="text-lg font-headline font-bold text-on-surface">
+        <div className="lg:col-span-2 bg-surface-container-lowest p-5 sm:p-6 rounded-3xl border border-surface-variant/50 shadow-sm space-y-5">
+          <h2 className="text-base sm:text-lg font-headline font-bold text-on-surface">
             Nuova Notifica Push
           </h2>
 
@@ -116,7 +116,7 @@ export default function ComunicazioniPage() {
               <label className="text-xs font-bold text-on-surface uppercase tracking-wider block">
                 Destinatari della Notifica
               </label>
-              <div className="flex items-center gap-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2.5 sm:gap-4">
                 <label className="flex items-center gap-2 text-sm font-semibold cursor-pointer">
                   <input
                     type="radio"

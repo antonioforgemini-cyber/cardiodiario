@@ -68,9 +68,9 @@ export default function PazienteDetailPage({
 
   if (!data) {
     return (
-      <div className="p-8 text-center space-y-4">
+      <div className="p-4 sm:p-8 text-center space-y-4 max-w-md mx-auto my-12">
         <h2 className="text-xl font-bold text-error">Paziente non trovato</h2>
-        <Link href="/medico/pazienti" className="text-primary underline">
+        <Link href="/medico/pazienti" className="text-primary underline text-sm font-semibold">
           Torna all&apos;elenco pazienti
         </Link>
       </div>
@@ -96,53 +96,53 @@ export default function PazienteDetailPage({
   ];
 
   return (
-    <div className="p-8 space-y-8 max-w-7xl mx-auto">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8 max-w-7xl mx-auto">
       {/* Navigation Breadcrumb */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <Link
           href="/medico/pazienti"
-          className="inline-flex items-center gap-2 text-xs font-bold text-secondary hover:text-primary transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs font-bold text-secondary hover:text-primary transition-colors"
         >
           <span className="material-symbols-outlined text-sm">arrow_back</span>
-          Torna all&apos;Elenco Pazienti
+          <span>Torna all&apos;Elenco Pazienti</span>
         </Link>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 w-full sm:w-auto">
           <button
             onClick={() => setIsCredenzialiOpen(true)}
-            className="px-3.5 py-2 rounded-xl bg-surface-container hover:bg-surface-container-high text-xs font-bold text-on-surface flex items-center gap-1.5 shadow-sm"
+            className="flex-1 sm:flex-none justify-center px-3.5 py-2 rounded-xl bg-surface-container hover:bg-surface-container-high text-xs font-bold text-on-surface flex items-center gap-1.5 shadow-sm transition-colors"
           >
             <span className="material-symbols-outlined text-sm">badge</span>
-            Scheda Credenziali
+            <span>Scheda Credenziali</span>
           </button>
           <button
             onClick={() => setIsReportOpen(true)}
-            className="px-4 py-2 rounded-xl bg-primary hover:bg-primary/90 text-on-primary text-xs font-bold flex items-center gap-1.5 shadow-sm"
+            className="flex-1 sm:flex-none justify-center px-4 py-2 rounded-xl bg-primary hover:bg-primary/90 text-on-primary text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors"
           >
             <span className="material-symbols-outlined text-sm">print</span>
-            Stampa Report PDF
+            <span>Stampa Report PDF</span>
           </button>
         </div>
       </div>
 
       {/* Patient Header Profile */}
-      <div className="bg-surface-container-lowest p-6 rounded-3xl border border-surface-variant/50 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div className="flex items-center gap-5">
-          <div className="w-16 h-16 rounded-2xl bg-primary-container/30 text-primary flex items-center justify-center font-headline font-bold text-2xl">
+      <div className="bg-surface-container-lowest p-5 sm:p-6 rounded-3xl border border-surface-variant/50 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-5 sm:gap-6">
+        <div className="flex items-start sm:items-center gap-4 sm:gap-5">
+          <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-primary-container/30 text-primary flex items-center justify-center font-headline font-bold text-xl sm:text-2xl shrink-0">
             {paziente.nome.charAt(0)}{paziente.cognome.charAt(0)}
           </div>
-          <div className="space-y-1">
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-headline font-bold text-on-surface">
+          <div className="space-y-1 min-w-0">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+              <h1 className="text-xl sm:text-2xl font-headline font-bold text-on-surface truncate">
                 {paziente.cognome} {paziente.nome}
               </h1>
               {activeCiclo && (
-                <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-primary-container/40 text-primary">
+                <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-primary-container/40 text-primary shrink-0">
                   Ciclo {activeCiclo.stato}
                 </span>
               )}
             </div>
-            <div className="flex flex-wrap items-center gap-4 text-xs text-on-surface-variant">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-on-surface-variant">
               <span>CF: <strong className="font-mono text-on-surface">{paziente.codiceFiscale}</strong></span>
               <span>Nascita: <strong className="text-on-surface">{paziente.dataNascita}</strong></span>
               <span>Tel: <strong className="text-on-surface">{paziente.telefono}</strong></span>
@@ -151,14 +151,14 @@ export default function PazienteDetailPage({
         </div>
 
         {/* Reference Arm and Cycle Control */}
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 pt-3 md:pt-0 border-t md:border-t-0 border-surface-variant/40">
           {activeCiclo?.braccioRiferimento && (
-            <div className="flex items-center gap-2 bg-primary-container/25 px-4 py-2 rounded-2xl border border-primary/20">
-              <span className="material-symbols-outlined text-primary text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>
+            <div className="flex items-center gap-2 bg-primary-container/25 px-3 sm:px-4 py-1.5 sm:py-2 rounded-2xl border border-primary/20">
+              <span className="material-symbols-outlined text-primary text-lg sm:text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>
                 pan_tool
               </span>
               <div className="flex flex-col">
-                <span className="text-[10px] font-bold text-secondary uppercase">Braccio di Riferimento</span>
+                <span className="text-[9px] sm:text-[10px] font-bold text-secondary uppercase">Braccio di Riferimento</span>
                 <span className="text-xs font-extrabold text-primary">
                   {activeCiclo.braccioRiferimento === "DX" ? "DESTRO (DX)" : "SINISTRO (SX)"}
                 </span>
@@ -169,18 +169,18 @@ export default function PazienteDetailPage({
           {activeCiclo ? (
             <button
               onClick={() => setIsGestioneCicloOpen(true)}
-              className="px-4 py-2 rounded-xl bg-surface-container hover:bg-surface-container-high text-xs font-bold text-on-surface flex items-center gap-1.5"
+              className="px-3.5 sm:px-4 py-2 rounded-xl bg-surface-container hover:bg-surface-container-high text-xs font-bold text-on-surface flex items-center gap-1.5 transition-colors"
             >
               <span className="material-symbols-outlined text-sm">tune</span>
-              Gestisci Ciclo
+              <span>Gestisci Ciclo</span>
             </button>
           ) : (
             <button
               onClick={() => setIsCicloModalOpen(true)}
-              className="px-4 py-2 rounded-xl bg-primary text-on-primary text-xs font-bold flex items-center gap-1.5 shadow-sm"
+              className="px-4 py-2 rounded-xl bg-primary text-on-primary text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors"
             >
               <span className="material-symbols-outlined text-sm">add</span>
-              Avvia Nuovo Ciclo
+              <span>Avvia Nuovo Ciclo</span>
             </button>
           )}
         </div>
@@ -394,7 +394,8 @@ export default function PazienteDetailPage({
           </span>
         </div>
 
-        <div className="overflow-x-auto">
+        {/* Desktop Table View */}
+        <div className="hidden sm:block overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
               <tr className="border-b border-surface-variant/40 text-[11px] font-bold text-secondary uppercase tracking-wider">
@@ -444,6 +445,65 @@ export default function PazienteDetailPage({
               })}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile Measurement Cards View */}
+        <div className="block sm:hidden space-y-3">
+          {misurazioni.map((m: any) => {
+            const cat = classifyBloodPressure(m.pressioneMax, m.pressioneMin);
+            return (
+              <div
+                key={m.id}
+                className="p-4 rounded-2xl bg-surface-container-low/60 border border-surface-variant/40 space-y-2.5"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="w-7 h-7 rounded-lg bg-surface-container flex items-center justify-center font-bold text-xs text-on-surface">
+                      G{m.giornoNumero}
+                    </span>
+                    <span className="text-xs font-semibold capitalize text-on-surface">
+                      {m.slot}
+                    </span>
+                    <span className="text-[11px] text-secondary">
+                      ({m.dataRilevazione} {m.oraRilevazione})
+                    </span>
+                  </div>
+                  <span className="text-[11px] font-medium text-secondary">
+                    {m.braccio}
+                  </span>
+                </div>
+
+                <div className="flex items-baseline justify-between pt-1">
+                  <div>
+                    <span className="text-xl font-bold font-headline text-on-surface">
+                      {m.pressioneMax} / {m.pressioneMin}
+                    </span>
+                    <span className="text-xs text-secondary ml-1">mmHg</span>
+                    {m.bpm && (
+                      <span className="text-xs text-secondary ml-2 font-medium">
+                        • {m.bpm} bpm
+                      </span>
+                    )}
+                  </div>
+                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${cat.badgeClass}`}>
+                    {cat.category}
+                  </span>
+                </div>
+
+                {m.note && (
+                  <p className="text-xs text-secondary italic bg-surface-container/50 p-2 rounded-xl border border-surface-variant/30">
+                    &quot;{m.note}&quot;
+                  </p>
+                )}
+              </div>
+            );
+          })}
+
+          {misurazioni.length === 0 && (
+            <p className="text-xs text-secondary italic text-center py-4">
+              Nessuna misurazione ancora registrata per questo ciclo.
+            </p>
+          )}
         </div>
       </div>
 

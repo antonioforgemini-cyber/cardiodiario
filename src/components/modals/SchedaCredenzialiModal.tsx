@@ -56,15 +56,20 @@ export const SchedaCredenzialiModal: React.FC<SchedaCredenzialiModalProps> = ({
   const content = (
     <div
       id="credenziali-modal-portal"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-inverse-surface/40 backdrop-blur-sm animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-inverse-surface/40 backdrop-blur-sm animate-in fade-in duration-200"
     >
-      <div className="bg-surface-container-lowest w-full max-w-lg rounded-3xl shadow-2xl border border-surface-variant/50 overflow-hidden flex flex-col">
+      <div className="bg-surface-container-lowest w-full max-w-lg rounded-t-3xl sm:rounded-3xl shadow-2xl border-t sm:border border-surface-variant/50 overflow-hidden max-h-[90vh] flex flex-col animate-in slide-in-from-bottom-6 sm:slide-in-from-bottom-0 duration-300">
+        {/* Mobile drag handle */}
+        <div className="sm:hidden pt-3 pb-1 flex justify-center flex-shrink-0 no-print">
+          <div className="w-12 h-1.5 bg-outline/25 rounded-full" />
+        </div>
+
         {/* Printable Area */}
-        <div id="printable-card" className="printable-credenziali-card p-8 space-y-6 bg-white text-on-surface">
+        <div id="printable-card" className="printable-credenziali-card p-4 sm:p-8 space-y-4 sm:space-y-6 bg-white text-on-surface overflow-y-auto flex-1">
           {/* Header */}
-          <div className="flex items-center justify-between border-b pb-4 border-surface-variant/40">
-            <Logo size={44} showText={true} subtitle="Studio Medico Specialistico" />
-            <div className="text-right text-xs text-secondary">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b pb-4 border-surface-variant/40">
+            <Logo size={40} showText={true} subtitle="Studio Medico Specialistico" />
+            <div className="text-left sm:text-right text-xs text-secondary">
               <p className="font-bold text-on-surface">Dott.ssa Ivana Pariggiano</p>
               <p>Dirigente Medico Cardiologia • A.O. Caserta</p>
             </div>
@@ -74,7 +79,7 @@ export const SchedaCredenzialiModal: React.FC<SchedaCredenzialiModalProps> = ({
             <span className="text-xs font-bold uppercase tracking-wider text-primary bg-primary-container/30 px-3 py-1 rounded-full inline-block">
               Scheda di Accesso Personale
             </span>
-            <h2 className="text-2xl font-headline font-bold text-on-surface pt-1">
+            <h2 className="text-xl sm:text-2xl font-headline font-bold text-on-surface pt-1">
               {paziente.nome} {paziente.cognome}
             </h2>
             <p className="text-xs text-on-surface-variant">
@@ -83,18 +88,18 @@ export const SchedaCredenzialiModal: React.FC<SchedaCredenzialiModalProps> = ({
           </div>
 
           {/* Credentials Box */}
-          <div className="p-6 rounded-2xl bg-surface-container-low border border-surface-variant/60 space-y-4">
+          <div className="p-4 sm:p-6 rounded-2xl bg-surface-container-low border border-surface-variant/60 space-y-4">
             <div className="flex items-center justify-between border-b border-surface-variant/40 pb-3">
               <span className="text-xs font-bold text-secondary uppercase">Codice Fiscale</span>
-              <span className="text-base font-mono font-bold text-on-surface">{paziente.codiceFiscale}</span>
+              <span className="text-sm sm:text-base font-mono font-bold text-on-surface break-all">{paziente.codiceFiscale}</span>
             </div>
 
-            <div className="flex items-center justify-between pt-1">
+            <div className="flex items-center justify-between pt-1 gap-2">
               <div>
                 <span className="text-xs font-bold text-secondary uppercase block">PIN Personale (6 cifre)</span>
                 <span className="text-xs text-on-surface-variant">Da digitare ad ogni accesso</span>
               </div>
-              <span className="text-3xl font-mono font-extrabold text-primary tracking-widest bg-white px-4 py-1.5 rounded-xl border border-primary/30 shadow-sm">
+              <span className="text-2xl sm:text-3xl font-mono font-extrabold text-primary tracking-widest bg-white px-3 sm:px-4 py-1.5 rounded-xl border border-primary/30 shadow-sm flex-shrink-0">
                 {paziente.pin}
               </span>
             </div>
@@ -112,7 +117,7 @@ export const SchedaCredenzialiModal: React.FC<SchedaCredenzialiModalProps> = ({
         </div>
 
         {/* Modal Controls (Not Printed) */}
-        <div className="p-4 bg-surface-container flex items-center justify-between border-t border-surface-variant/40 no-print">
+        <div className="p-3 sm:p-4 bg-surface-container flex items-center justify-between border-t border-surface-variant/40 no-print flex-shrink-0">
           <button
             type="button"
             onClick={onClose}
@@ -124,7 +129,7 @@ export const SchedaCredenzialiModal: React.FC<SchedaCredenzialiModalProps> = ({
             <button
               type="button"
               onClick={handlePrint}
-              className="px-5 py-2 rounded-xl bg-primary text-on-primary text-sm font-bold flex items-center gap-2 shadow-sm hover:bg-primary/90"
+              className="px-4 sm:px-5 py-2 rounded-xl bg-primary text-on-primary text-sm font-bold flex items-center gap-2 shadow-sm hover:bg-primary/90"
             >
               <span className="material-symbols-outlined text-base">print</span>
               Stampa Scheda

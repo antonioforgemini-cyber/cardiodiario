@@ -72,42 +72,42 @@ export default function DoctorDashboardPage() {
   });
 
   return (
-    <div className="p-8 space-y-8 max-w-7xl mx-auto">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8 max-w-7xl mx-auto">
       {/* Top Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-surface-variant/40 pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-surface-variant/40 pb-5 sm:pb-6">
         <div>
-          <span className="text-xs font-bold text-primary tracking-wider uppercase">
+          <span className="text-[11px] sm:text-xs font-bold text-primary tracking-wider uppercase">
             CardioDiario • Portale Specialista
           </span>
-          <h1 className="text-3xl font-headline font-bold text-on-surface tracking-tight mt-1">
+          <h1 className="text-2xl sm:text-3xl font-headline font-bold text-on-surface tracking-tight mt-1">
             Cruscotto Medico Esecutivo
           </h1>
-          <p className="text-sm text-on-surface-variant">
+          <p className="text-xs sm:text-sm text-on-surface-variant">
             Dott.ssa Ivana Pariggiano • A.O. Sant&apos;Anna e San Sebastiano, Caserta
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5 sm:gap-3 w-full sm:w-auto">
           <button
             onClick={() => setIsBroadcastOpen(true)}
-            className="px-4 py-2.5 rounded-xl bg-surface-container-lowest hover:bg-surface-container text-on-surface text-sm font-semibold border border-surface-variant/50 shadow-sm flex items-center gap-2"
+            className="flex-1 sm:flex-none justify-center px-3.5 sm:px-4 py-2.5 rounded-xl bg-surface-container-lowest hover:bg-surface-container text-on-surface text-xs sm:text-sm font-semibold border border-surface-variant/50 shadow-sm flex items-center gap-2 transition-colors"
           >
-            <span className="material-symbols-outlined text-primary text-xl">campaign</span>
+            <span className="material-symbols-outlined text-primary text-lg sm:text-xl">campaign</span>
             <span>Invia Notifica</span>
           </button>
           <button
             onClick={() => setIsNewPatientOpen(true)}
-            className="px-5 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-on-primary text-sm font-bold shadow-sm flex items-center gap-2"
+            className="flex-1 sm:flex-none justify-center px-4 sm:px-5 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-on-primary text-xs sm:text-sm font-bold shadow-sm flex items-center gap-2 transition-colors"
           >
-            <span className="material-symbols-outlined text-xl">person_add</span>
+            <span className="material-symbols-outlined text-lg sm:text-xl">person_add</span>
             <span>Nuovo Paziente</span>
           </button>
         </div>
       </div>
 
-      {/* 4 KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        <div className="bg-surface-container-lowest p-6 rounded-3xl border border-surface-variant/50 shadow-sm flex flex-col justify-between">
+      {/* 4 KPI Cards - Horizontal Snap Slider on mobile, Grid on desktop */}
+      <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-4 overflow-x-auto snap-x snap-mandatory gap-3 sm:gap-5 pb-2 sm:pb-0 -mx-4 px-4 sm:mx-0 sm:px-0 scrollbar-none">
+        <div className="flex-shrink-0 w-[240px] sm:w-auto snap-start bg-surface-container-lowest p-5 sm:p-6 rounded-3xl border border-surface-variant/50 shadow-sm flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-secondary uppercase tracking-wider">
               Pazienti Censiti
@@ -124,7 +124,7 @@ export default function DoctorDashboardPage() {
           </div>
         </div>
 
-        <div className="bg-surface-container-lowest p-6 rounded-3xl border border-surface-variant/50 shadow-sm flex flex-col justify-between">
+        <div className="flex-shrink-0 w-[240px] sm:w-auto snap-start bg-surface-container-lowest p-5 sm:p-6 rounded-3xl border border-surface-variant/50 shadow-sm flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-secondary uppercase tracking-wider">
               Cicli In Corso
@@ -141,7 +141,7 @@ export default function DoctorDashboardPage() {
           </div>
         </div>
 
-        <div className="bg-surface-container-lowest p-6 rounded-3xl border border-surface-variant/50 shadow-sm flex flex-col justify-between">
+        <div className="flex-shrink-0 w-[240px] sm:w-auto snap-start bg-surface-container-lowest p-5 sm:p-6 rounded-3xl border border-surface-variant/50 shadow-sm flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-secondary uppercase tracking-wider">
               Misurazioni Oggi
@@ -158,7 +158,7 @@ export default function DoctorDashboardPage() {
           </div>
         </div>
 
-        <div className="bg-surface-container-lowest p-6 rounded-3xl border border-surface-variant/50 shadow-sm flex flex-col justify-between">
+        <div className="flex-shrink-0 w-[240px] sm:w-auto snap-start bg-surface-container-lowest p-5 sm:p-6 rounded-3xl border border-surface-variant/50 shadow-sm flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-secondary uppercase tracking-wider">
               Allarmi Pressori
@@ -286,14 +286,14 @@ export default function DoctorDashboardPage() {
           </div>
 
           {/* Search and Filters */}
-          <div className="flex items-center gap-3">
-            <div className="relative">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 w-full sm:w-auto">
+            <div className="relative flex-1 sm:flex-none">
               <input
                 type="text"
                 placeholder="Cerca paziente o CF..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="h-10 pl-9 pr-4 bg-surface-container-low rounded-xl text-xs font-medium border border-surface-variant/40 focus:outline-none focus:ring-1 focus:ring-primary w-52 sm:w-64"
+                className="h-10 pl-9 pr-4 bg-surface-container-low rounded-xl text-xs font-medium border border-surface-variant/40 focus:outline-none focus:ring-1 focus:ring-primary w-full sm:w-64"
               />
               <span className="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-outline text-lg">
                 search
@@ -303,7 +303,7 @@ export default function DoctorDashboardPage() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="h-10 pl-3.5 pr-9 bg-surface-container-low rounded-xl text-xs font-semibold text-on-surface border border-surface-variant/40 focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
+              className="h-10 pl-3.5 pr-9 bg-surface-container-low rounded-xl text-xs font-semibold text-on-surface border border-surface-variant/40 focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer w-full sm:w-auto"
             >
               <option value="all">Tutti gli stati</option>
               <option value="in corso">In Corso</option>
@@ -313,8 +313,8 @@ export default function DoctorDashboardPage() {
           </div>
         </div>
 
-        {/* Table */}
-        <div className="overflow-x-auto">
+        {/* Desktop Table View (hidden on mobile, visible from sm up) */}
+        <div className="hidden sm:block overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
               <tr className="border-b border-surface-variant/40 text-[11px] font-bold text-secondary uppercase tracking-wider">
@@ -385,6 +385,71 @@ export default function DoctorDashboardPage() {
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile Cards View (visible on mobile only, hidden on sm and up) */}
+        <div className="block sm:hidden space-y-3">
+          {filteredPatients.map((p: any) => {
+            let badgeClass = "bg-surface-container text-on-surface-variant";
+            if (p.cicloStato === "in corso") badgeClass = "bg-primary-container/40 text-primary font-bold";
+            if (p.cicloStato === "da iniziare") badgeClass = "bg-secondary-container text-tertiary font-bold";
+            if (p.cicloStato === "in pausa") badgeClass = "bg-error-container/40 text-error font-bold";
+
+            return (
+              <div
+                key={p.id}
+                className="p-4 rounded-2xl bg-surface-container-low/60 border border-surface-variant/40 space-y-3"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <Link
+                      href={`/medico/pazienti/${p.id}`}
+                      className="font-headline font-bold text-sm text-on-surface hover:text-primary hover:underline block"
+                    >
+                      {p.cognome} {p.nome}
+                    </Link>
+                    <span className="font-mono text-xs text-on-surface-variant">
+                      {p.codiceFiscale}
+                    </span>
+                  </div>
+                  <span className={`px-2.5 py-0.5 rounded-full text-[11px] capitalize shrink-0 ${badgeClass}`}>
+                    {p.cicloStato}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between text-xs pt-2 border-t border-surface-variant/30 text-on-surface-variant">
+                  <div>
+                    <span className="text-[11px] text-secondary block">Ultima Rilevazione</span>
+                    {p.ultimoMax && p.ultimoMin ? (
+                      <span className="font-bold text-on-surface text-sm">
+                        {p.ultimoMax}/{p.ultimoMin} <span className="text-xs font-normal text-secondary">mmHg</span>
+                      </span>
+                    ) : (
+                      <span className="text-outline">Nessuna</span>
+                    )}
+                  </div>
+
+                  <Link
+                    href={`/medico/pazienti/${p.id}`}
+                    className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:bg-primary-container/20 px-3 py-1.5 rounded-lg transition-colors border border-primary/20 bg-primary-container/10"
+                  >
+                    <span>Apri Diario</span>
+                    <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                  </Link>
+                </div>
+              </div>
+            );
+          })}
+
+          {filteredPatients.length === 0 && (
+            <div className="py-8 text-center bg-surface-container-low/40 rounded-2xl p-6">
+              <span className="material-symbols-outlined text-outline text-3xl mb-1">person_off</span>
+              <p className="text-sm font-semibold text-on-surface">Nessun paziente presente</p>
+              <p className="text-xs text-on-surface-variant mt-1">
+                Clicca su &quot;Nuovo Paziente&quot; per registrare il primo paziente.
+              </p>
+            </div>
+          )}
         </div>
       </div>
 

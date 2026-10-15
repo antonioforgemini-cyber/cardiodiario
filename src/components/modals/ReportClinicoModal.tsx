@@ -175,54 +175,54 @@ export const ReportClinicoModal: React.FC<ReportClinicoModalProps> = ({
       className="fixed inset-0 z-[9999] flex flex-col bg-slate-900/80 backdrop-blur-md overflow-y-auto animate-in fade-in duration-200"
     >
       {/* Top Floating Toolbar (Hidden during actual print) */}
-      <div className="sticky top-0 z-50 w-full bg-surface-container-lowest/95 backdrop-blur border-b border-surface-variant/40 px-6 py-3.5 shadow-md flex items-center justify-between no-print">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-            <span className="material-symbols-outlined text-[20px]">description</span>
+      <div className="sticky top-0 z-50 w-full bg-surface-container-lowest/95 backdrop-blur border-b border-surface-variant/40 px-3 sm:px-6 py-2.5 sm:py-3.5 shadow-md flex items-center justify-between gap-2 no-print">
+        <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center flex-shrink-0">
+            <span className="material-symbols-outlined text-[18px] sm:text-[20px]">description</span>
           </div>
-          <div>
-            <h2 className="text-sm font-bold text-on-surface">Anteprima Referto Clinico A4</h2>
-            <p className="text-[11px] text-on-surface-variant">
+          <div className="min-w-0">
+            <h2 className="text-xs sm:text-sm font-bold text-on-surface truncate">Anteprima Referto A4</h2>
+            <p className="text-[10px] sm:text-[11px] text-on-surface-variant hidden sm:block">
               Pronto per la stampa cartacea o il salvataggio in PDF (Formato A4)
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 flex-shrink-0">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 rounded-xl text-xs font-semibold text-secondary hover:bg-surface-container-high transition-colors"
+            className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs font-semibold text-secondary hover:bg-surface-container-high transition-colors"
           >
-            Chiudi Anteprima
+            Chiudi
           </button>
           <button
             type="button"
             onClick={handlePrint}
-            className="px-5 py-2 rounded-xl bg-primary hover:bg-primary/90 text-on-primary text-xs font-bold flex items-center gap-2 shadow-sm transition-all active:scale-95"
+            className="px-3 sm:px-5 py-1.5 sm:py-2 rounded-xl bg-primary hover:bg-primary/90 text-on-primary text-xs font-bold flex items-center gap-1.5 sm:gap-2 shadow-sm transition-all active:scale-95"
           >
-            <span className="material-symbols-outlined text-base">print</span>
-            Stampa / Salva in PDF
+            <span className="material-symbols-outlined text-sm sm:text-base">print</span>
+            <span>Stampa / PDF</span>
           </button>
         </div>
       </div>
 
       {/* Main Preview Container */}
-      <div className="flex-1 py-8 px-4 flex justify-center items-start">
+      <div className="flex-1 py-4 sm:py-8 px-2 sm:px-4 flex justify-center items-start overflow-x-hidden">
         {/* The Printable A4 Sheet */}
         <div
           id="printable-report"
-          className="printable-sheet w-full max-w-[820px] bg-white text-slate-900 p-10 md:p-12 shadow-2xl rounded-2xl border border-slate-200 transition-all font-sans"
+          className="printable-sheet w-full max-w-[820px] bg-white text-slate-900 p-4 sm:p-10 md:p-12 shadow-2xl rounded-2xl border border-slate-200 transition-all font-sans"
         >
           {/* 1. Official Header */}
-          <div className="flex items-start justify-between border-b-2 border-primary/30 pb-5 mb-6">
+          <div className="flex flex-col sm:flex-row items-start justify-between gap-3 border-b-2 border-primary/30 pb-5 mb-6">
             <div className="space-y-1">
-              <Logo size={42} showText={true} subtitle="Monitoraggio Pressorio Domiciliare (HBPM)" />
+              <Logo size={40} showText={true} subtitle="Monitoraggio Pressorio Domiciliare (HBPM)" />
               <p className="text-[11px] text-slate-500 font-medium pt-1">
                 Studio Medico Specialistico • Dipartimento di Cardiologia Clinica
               </p>
             </div>
-            <div className="text-right text-xs text-slate-600 space-y-0.5">
+            <div className="text-left sm:text-right text-xs text-slate-600 space-y-0.5">
               <p className="font-bold text-slate-900 text-sm">{medicoNome}</p>
               <p className="text-[11px]">Dirigente Medico Cardiologia • A.O. Sant&apos;Anna e San Sebastiano, Caserta</p>
               <p className="text-[11px] pt-1">
@@ -291,7 +291,7 @@ export const ReportClinicoModal: React.FC<ReportClinicoModalProps> = ({
               </span>
             </div>
 
-            <div className="grid grid-cols-4 gap-3 text-center">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 text-center">
               <div className="bg-slate-50 border border-slate-200 rounded-xl p-3">
                 <p className="text-[10px] font-semibold text-slate-500 uppercase">Sistolica Media (MAX)</p>
                 <p className="text-2xl font-bold text-slate-900 mt-0.5">{averages.avgMax} <span className="text-xs font-normal text-slate-500">mmHg</span></p>
@@ -438,7 +438,7 @@ export const ReportClinicoModal: React.FC<ReportClinicoModalProps> = ({
               Diario Cronologico Completo delle Misurazioni
             </h4>
 
-            <div className="border border-slate-200 rounded-xl overflow-hidden">
+            <div className="border border-slate-200 rounded-xl overflow-x-auto">
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
                   <tr className="bg-slate-100 border-b border-slate-200 text-slate-700 text-[11px] font-bold">

@@ -46,27 +46,32 @@ export const GestioneCicloModal: React.FC<GestioneCicloModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-inverse-surface/40 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-surface-container-lowest w-full max-w-md rounded-3xl shadow-2xl border border-surface-variant/50 overflow-hidden flex flex-col">
-        <div className="p-6 pb-4 border-b border-surface-variant/40 flex items-center justify-between">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-inverse-surface/40 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="bg-surface-container-lowest w-full max-w-md rounded-t-3xl sm:rounded-3xl shadow-2xl border-t sm:border border-surface-variant/50 overflow-hidden max-h-[88vh] sm:max-h-[90vh] flex flex-col animate-in slide-in-from-bottom-6 sm:slide-in-from-bottom-0 duration-300">
+        {/* Mobile drag handle */}
+        <div className="sm:hidden pt-3 pb-1 flex justify-center flex-shrink-0">
+          <div className="w-12 h-1.5 bg-outline/25 rounded-full" />
+        </div>
+
+        <div className="p-4 sm:p-6 pb-3 sm:pb-4 border-b border-surface-variant/40 flex items-center justify-between flex-shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-secondary-container text-tertiary flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-secondary-container text-tertiary flex items-center justify-center flex-shrink-0">
               <span className="material-symbols-outlined text-2xl">settings</span>
             </div>
             <div>
-              <h2 className="text-xl font-headline font-bold text-on-surface">Gestione Ciclo di Controllo</h2>
+              <h2 className="text-lg sm:text-xl font-headline font-bold text-on-surface leading-tight">Gestione Ciclo</h2>
               <p className="text-xs text-on-surface-variant">Stato attuale: <strong className="uppercase">{currentStato}</strong></p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full flex items-center justify-center text-outline hover:bg-surface-container"
+            className="w-8 h-8 rounded-full flex items-center justify-center text-outline hover:bg-surface-container flex-shrink-0"
           >
             <span className="material-symbols-outlined text-xl">close</span>
           </button>
         </div>
 
-        <div className="p-6 space-y-4">
+        <div className="p-4 sm:p-6 space-y-4 overflow-y-auto flex-1">
           {error && (
             <div className="p-3 rounded-xl bg-error-container text-on-error-container text-xs flex items-center gap-2">
               <span className="material-symbols-outlined text-error text-base">error</span>
@@ -151,7 +156,7 @@ export const GestioneCicloModal: React.FC<GestioneCicloModalProps> = ({
           </div>
         </div>
 
-        <div className="p-4 bg-surface-container border-t border-surface-variant/40 flex justify-end">
+        <div className="p-3 sm:p-4 bg-surface-container border-t border-surface-variant/40 flex justify-end flex-shrink-0">
           <button
             type="button"
             onClick={onClose}
