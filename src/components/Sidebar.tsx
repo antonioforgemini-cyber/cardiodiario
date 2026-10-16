@@ -2,12 +2,25 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Logo } from "./Logo";
+import { logout } from "@/db/actions";
+import { GestioneBiometriaModal } from "./modals/GestioneBiometriaModal";
 
 export const Sidebar: React.FC = () => {
   const pathname = usePathname();
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
+  const [isBioOpen, setIsBioOpen] = useState(false);
+
+  const handleLogout = async () => {
+    setIsOpen(false);
+    try {
+      localStorage.removeItem("medico_user");
+    } catch {}
+    await logout();
+    router.push("/login/medico");
+  };
 
   // Close drawer on page navigation
   useEffect(() => {
@@ -141,6 +154,18 @@ export const Sidebar: React.FC = () => {
               </Link>
             );
           })}
+
+          <button
+            type="button"
+            onClick={() => {
+              setIsOpen(false);
+              setIsBioOpen(true);
+            }}
+            className="w-full flex items-center gap-3.5 px-4 py-3 rounded-xl font-medium text-sm text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all duration-200"
+          >
+            <span className="material-symbols-outlined text-[22px]">fingerprint</span>
+            <span>Accesso Rapido</span>
+          </button>
         </nav>
 
         {/* Doctor User Footer */}
@@ -164,17 +189,19 @@ export const Sidebar: React.FC = () => {
               <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
               Studio Attivo
             </span>
-            <Link
-              href="/login/medico"
-              onClick={() => setIsOpen(false)}
+            <button
+              type="button"
+              onClick={handleLogout}
               className="text-error hover:underline flex items-center gap-1 font-medium"
             >
               <span className="material-symbols-outlined text-[16px]">logout</span>
               Esci
-            </Link>
+            </button>
           </div>
         </div>
       </aside>
+
+      <GestioneBiometriaModal isOpen={isBioOpen} onClose={() => setIsBioOpen(false)} />
     </>
   );
 };

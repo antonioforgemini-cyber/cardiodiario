@@ -3,6 +3,7 @@
 import React, { useEffect, useState, use } from "react";
 import Link from "next/link";
 import { getPazienteDettaglioClinico } from "@/db/actions";
+import { contaPasskeyPaziente, resetPasskeyPaziente } from "@/db/passkey-actions";
 import { NuovaNotaModal } from "@/components/modals/NuovaNotaModal";
 import { NuovoCicloModal } from "@/components/modals/NuovoCicloModal";
 import { GestioneCicloModal } from "@/components/modals/GestioneCicloModal";
@@ -32,6 +33,8 @@ export default function PazienteDetailPage({
 
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [passkeyCount, setPasskeyCount] = useState<number>(0);
+  const [resettingPasskeys, setResettingPasskeys] = useState(false);
 
   // Modals
   const [isNotaModalOpen, setIsNotaModalOpen] = useState(false);
@@ -42,12 +45,29 @@ export default function PazienteDetailPage({
 
   const loadData = async () => {
     try {
-      const res = await getPazienteDettaglioClinico(pazienteId);
+      const [res, pkCount] = await Promise.all([
+        getPazienteDettaglioClinico(pazienteId),
+        contaPasskeyPaziente(pazienteId).catch(() => 0),
+      ]);
       setData(res);
+      setPasskeyCount(pkCount);
     } catch (e) {
       console.error(e);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleResetPasskeys = async () => {
+    if (!confirm("Rimuovere tutti gli accessi biometrici (impronta / Face ID) di questo paziente? Dovrà rientrare con il PIN.")) {
+      return;
+    }
+    setResettingPasskeys(true);
+    try {
+      await resetPasskeyPaziente(pazienteId);
+      setPasskeyCount(0);
+    } finally {
+      setResettingPasskeys(false);
     }
   };
 
@@ -146,6 +166,27 @@ export default function PazienteDetailPage({
               <span>CF: <strong className="font-mono text-on-surface">{paziente.codiceFiscale}</strong></span>
               <span>Nascita: <strong className="text-on-surface">{paziente.dataNascita}</strong></span>
               <span>Tel: <strong className="text-on-surface">{paziente.telefono}</strong></span>
+              <span className="inline-flex items-center gap-1.5">
+                <span className="material-symbols-outlined text-sm text-primary">fingerprint</span>
+                <span>
+                  Biometria:{" "}
+                  <strong className="text-on-surface">
+                    {passkeyCount === 0
+                      ? "non attiva"
+                      : `${passkeyCount} dispositiv${passkeyCount === 1 ? "o" : "i"}`}
+                  </strong>
+                </span>
+                {passkeyCount > 0 && (
+                  <button
+                    type="button"
+                    onClick={handleResetPasskeys}
+                    disabled={resettingPasskeys}
+                    className="ml-1 text-[11px] font-bold text-error hover:underline disabled:opacity-50"
+                  >
+                    {resettingPasskeys ? "Reset..." : "Reset accessi"}
+                  </button>
+                )}
+              </span>
             </div>
           </div>
         </div>

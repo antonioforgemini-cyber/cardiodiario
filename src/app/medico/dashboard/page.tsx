@@ -32,7 +32,7 @@ export default function DoctorDashboardPage() {
 
   const loadData = async () => {
     try {
-      const res = await getDoctorDashboardData("med-1");
+      const res = await getDoctorDashboardData();
       setData(res);
     } catch (e) {
       console.error(e);
@@ -45,8 +45,9 @@ export default function DoctorDashboardPage() {
     loadData();
   }, []);
 
-  const handlePatientCreated = (id: string) => {
+  const handlePatientCreated = (created: any) => {
     setIsNewPatientOpen(false);
+    setCreatedPatient(created);
     loadData();
   };
 

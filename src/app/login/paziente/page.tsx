@@ -3,8 +3,12 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { platformAuthenticatorIsAvailable } from "@simplewebauthn/browser";
 import { Logo } from "@/components/Logo";
 import { loginPaziente } from "@/db/actions";
+import { BiometricLoginButton } from "@/components/BiometricLoginButton";
+import { AttivaBiometriaSheet } from "@/components/AttivaBiometriaSheet";
+import { biometriaGiaAttiva, promptRifiutatoDiRecente } from "@/lib/biometria-client";
 
 export default function LoginPazientePage() {
   const router = useRouter();
@@ -13,6 +17,7 @@ export default function LoginPazientePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showPwaBanner, setShowPwaBanner] = useState(true);
+  const [showEnrollSheet, setShowEnrollSheet] = useState(false);
 
   const handleKeypadPress = (digit: string) => {
     if (pin.length < 6) {
@@ -59,9 +64,19 @@ export default function LoginPazientePage() {
 
     try {
       const res = await loginPaziente(cf, pin);
-      if (res.success && res.user) {
-        localStorage.setItem("paziente_user", JSON.stringify(res.user));
-        router.push("/paziente/cicli");
+      if (res.success) {
+        try {
+          localStorage.removeItem("paziente_user");
+        } catch {}
+        const canPrompt =
+          !biometriaGiaAttiva() &&
+          !promptRifiutatoDiRecente() &&
+          (await platformAuthenticatorIsAvailable().catch(() => false));
+        if (canPrompt) {
+          setShowEnrollSheet(true);
+        } else {
+          router.push("/paziente/cicli");
+        }
       } else {
         setError(res.error || "Credenziali non valide. Verifica la scheda del medico.");
       }
@@ -129,6 +144,20 @@ export default function LoginPazientePage() {
             <span>{error}</span>
           </div>
         )}
+
+        {/* Biometric Quick Access */}
+        <div className="space-y-3">
+          <BiometricLoginButton
+            ruolo="paziente"
+            onError={setError}
+            className="w-full h-14 rounded-2xl bg-secondary-container hover:bg-secondary-container/80 text-on-secondary-container font-bold text-base shadow-sm border border-primary/25 flex items-center justify-center gap-2.5 active:scale-98 transition-all disabled:opacity-60"
+          />
+          <div className="flex items-center gap-3 text-xs text-outline">
+            <div className="h-px flex-1 bg-surface-variant/60" />
+            <span>oppure con Codice Fiscale e PIN</span>
+            <div className="h-px flex-1 bg-surface-variant/60" />
+          </div>
+        </div>
 
         {/* Main Access Form */}
         <form onSubmit={handleSubmit} className="bg-surface-container-lowest rounded-2xl p-5 shadow-sm space-y-5 border border-surface-variant/40">
@@ -259,6 +288,14 @@ export default function LoginPazientePage() {
           </div>
         </div>
       </main>
+
+      <AttivaBiometriaSheet
+        isOpen={showEnrollSheet}
+        onDone={() => {
+          setShowEnrollSheet(false);
+          router.push("/paziente/cicli");
+        }}
+      />
     </div>
   );
 }

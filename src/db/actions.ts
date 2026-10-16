@@ -3,6 +3,17 @@
 import { db } from "./index";
 import { seedDb } from "./seed";
 import { isCriticalValue } from "@/lib/guidelines";
+import { hashSecret, verifySecret, generatePin } from "@/lib/crypto";
+import { createSession, destroySession, getSession } from "@/lib/session";
+import {
+  requireMedico,
+  requirePaziente,
+  requireAccessoPaziente,
+  requireAccessoCiclo,
+  requireAccessoMisurazione,
+  assertPazienteDelMedico,
+} from "@/lib/auth-guards";
+import { isBloccato, registraTentativoFallito, azzeraTentativi, MESSAGGIO_BLOCCO } from "@/lib/rate-limit";
 
 // Helper to ensure DB is initialized and seeded
 async function ensureDb() {
@@ -14,64 +25,136 @@ async function ensureDb() {
 // ------------------------------------
 export async function loginMedico(email: string, password: string) {
   await ensureDb();
+  const cleanEmail = email.trim().toLowerCase();
+  const chiave = `med:${cleanEmail}`;
+
+  if (await isBloccato(chiave)) {
+    return { success: false, error: MESSAGGIO_BLOCCO };
+  }
+
   const res = await db.execute({
-    sql: "SELECT id, nome, cognome, email, specializzazione FROM medici WHERE email = ? AND password_hash = ?",
-    args: [email.trim().toLowerCase(), password],
+    sql: "SELECT id, password_hash FROM medici WHERE email = ?",
+    args: [cleanEmail],
   });
-  if (res.rows.length === 0) {
+  const medico = res.rows[0];
+  if (!medico || !(await verifySecret(password, String(medico.password_hash)))) {
+    await registraTentativoFallito(chiave);
     return { success: false, error: "Email o password non corretti." };
   }
-  const medico = res.rows[0];
-  return {
-    success: true,
-    user: {
-      id: String(medico.id),
-      nome: String(medico.nome),
-      cognome: String(medico.cognome),
-      email: String(medico.email),
-      specializzazione: medico.specializzazione ? String(medico.specializzazione) : null,
-      role: "medico" as const,
-    },
-  };
+
+  await azzeraTentativi(chiave);
+  await createSession("medico", String(medico.id));
+  return { success: true, role: "medico" as const };
 }
 
 export async function loginPaziente(codiceFiscale: string, pin: string) {
   await ensureDb();
   const cleanCf = codiceFiscale.trim().toUpperCase();
   const cleanPin = pin.trim();
+  const chiave = `paz:${cleanCf}`;
+
+  if (await isBloccato(chiave)) {
+    return { success: false, error: MESSAGGIO_BLOCCO };
+  }
+
+  // Lo stesso CF può esistere presso medici diversi: si verifica il PIN su ciascun candidato
+  const res = await db.execute({
+    sql: "SELECT id, pin_hash FROM pazienti WHERE codice_fiscale = ?",
+    args: [cleanCf],
+  });
+
+  let pazienteId: string | null = null;
+  for (const row of res.rows) {
+    if (await verifySecret(cleanPin, String(row.pin_hash))) {
+      pazienteId = String(row.id);
+      break;
+    }
+  }
+
+  if (!pazienteId) {
+    await registraTentativoFallito(chiave);
+    return { success: false, error: "Codice Fiscale o PIN non corretti. Controlla la scheda rilasciata dal medico." };
+  }
+
+  await azzeraTentativi(chiave);
+  await createSession("paziente", pazienteId);
+  return { success: true, role: "paziente" as const };
+}
+
+export async function logout() {
+  await destroySession();
+  return { success: true };
+}
+
+/** Utente della sessione corrente (sostituisce la lettura da localStorage). */
+export async function getUtenteCorrente() {
+  await ensureDb();
+  const s = await getSession();
+  if (!s) return null;
+
+  if (s.role === "medico") {
+    const res = await db.execute({
+      sql: "SELECT id, nome, cognome, email, specializzazione FROM medici WHERE id = ?",
+      args: [s.id],
+    });
+    const m = res.rows[0];
+    if (!m) return null;
+    return {
+      role: "medico" as const,
+      id: String(m.id),
+      nome: String(m.nome),
+      cognome: String(m.cognome),
+      email: String(m.email),
+      specializzazione: m.specializzazione ? String(m.specializzazione) : null,
+    };
+  }
 
   const res = await db.execute({
     sql: `SELECT p.id, p.nome, p.cognome, p.codice_fiscale, p.medico_id, m.nome as medico_nome, m.cognome as medico_cognome
           FROM pazienti p
           JOIN medici m ON p.medico_id = m.id
-          WHERE p.codice_fiscale = ? AND p.pin_hash = ?`,
-    args: [cleanCf, cleanPin],
+          WHERE p.id = ?`,
+    args: [s.id],
   });
-
-  if (res.rows.length === 0) {
-    return { success: false, error: "Codice Fiscale o PIN non corretti. Controlla la scheda rilasciata dal medico." };
-  }
-
-  const paziente = res.rows[0];
+  const p = res.rows[0];
+  if (!p) return null;
   return {
-    success: true,
-    user: {
-      id: String(paziente.id),
-      nome: String(paziente.nome),
-      cognome: String(paziente.cognome),
-      codiceFiscale: String(paziente.codice_fiscale),
-      medicoId: String(paziente.medico_id),
-      medicoNomeCompleto: `Dott.ssa ${paziente.medico_nome} ${paziente.medico_cognome}`,
-      role: "paziente" as const,
-    },
+    role: "paziente" as const,
+    id: String(p.id),
+    nome: String(p.nome),
+    cognome: String(p.cognome),
+    codiceFiscale: String(p.codice_fiscale),
+    medicoId: String(p.medico_id),
+    medicoNomeCompleto: `Dott.ssa ${p.medico_nome} ${p.medico_cognome}`,
   };
+}
+
+/**
+ * Genera un nuovo PIN per il paziente, lo salva come hash e invalida
+ * tutte le sessioni attive del paziente. Il PIN in chiaro viene restituito
+ * una sola volta per essere copiato/condiviso dal medico.
+ */
+export async function rigeneraPinPaziente(pazienteId: string) {
+  const s = await requireMedico();
+  await assertPazienteDelMedico(pazienteId, s.id);
+
+  const pin = generatePin();
+  await db.execute({
+    sql: `UPDATE pazienti
+          SET pin_hash = ?, sessione_versione = COALESCE(sessione_versione, 0) + 1
+          WHERE id = ?`,
+    args: [await hashSecret(pin), pazienteId],
+  });
+  return { success: true, pin };
 }
 
 // ------------------------------------
 // MEDICO: DASHBOARD & PAZIENTI
 // ------------------------------------
-export async function getDoctorDashboardData(medicoId: string) {
+export async function getDoctorDashboardData(_medicoIdIgnorato?: string) {
   await ensureDb();
+  // L'id del medico viene sempre dalla sessione, mai dal client
+  const medicoId = (await requireMedico()).id;
 
   // Pazienti count
   const pazRes = await db.execute({
@@ -197,7 +280,7 @@ export async function getDoctorDashboardData(medicoId: string) {
 }
 
 export async function createPaziente(data: {
-  medicoId: string;
+  medicoId?: string; // ignorato: il medico è quello della sessione
   nome: string;
   cognome: string;
   codiceFiscale: string;
@@ -209,22 +292,27 @@ export async function createPaziente(data: {
   durataSettimanePrimoCiclo?: number;
 }) {
   await ensureDb();
+  const medicoId = (await requireMedico()).id;
   const id = `paz-${Date.now()}`;
   const cleanCf = data.codiceFiscale.trim().toUpperCase();
+  const cleanPin = data.pin.trim();
+  if (!/^\d{6}$/.test(cleanPin)) {
+    return { success: false as const, error: "Il PIN deve essere di 6 cifre." };
+  }
 
   await db.execute({
     sql: `INSERT INTO pazienti (id, medico_id, nome, cognome, codice_fiscale, data_nascita, telefono, email, pin_hash, note_anamnesi)
           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     args: [
       id,
-      data.medicoId,
+      medicoId,
       data.nome.trim(),
       data.cognome.trim(),
       cleanCf,
       data.dataNascita,
       data.telefono.trim(),
       data.email?.trim() || null,
-      data.pin.trim(),
+      await hashSecret(cleanPin),
       data.noteAnamnesi?.trim() || null,
     ],
   });
@@ -234,11 +322,11 @@ export async function createPaziente(data: {
     await db.execute({
       sql: `INSERT INTO cicli (id, paziente_id, medico_id, durata_settimane, stato, note_ciclo)
             VALUES (?, ?, ?, ?, 'da iniziare', 'Primo ciclo diagnostico.')`,
-      args: [cicloId, id, data.medicoId, data.durataSettimanePrimoCiclo],
+      args: [cicloId, id, medicoId, data.durataSettimanePrimoCiclo],
     });
   }
 
-  return { success: true, pazienteId: id };
+  return { success: true as const, pazienteId: id };
 }
 
 // ------------------------------------
@@ -246,6 +334,7 @@ export async function createPaziente(data: {
 // ------------------------------------
 export async function getPazienteDettaglioClinico(pazienteId: string) {
   await ensureDb();
+  await requireAccessoPaziente(pazienteId);
 
   // Paziente
   const pazRes = await db.execute({
@@ -382,7 +471,6 @@ export async function getPazienteDettaglioClinico(pazienteId: string) {
       dataNascita: String(p.data_nascita),
       telefono: String(p.telefono),
       email: p.email ? String(p.email) : null,
-      pin: String(p.pin_hash),
       noteAnamnesi: p.note_anamnesi ? String(p.note_anamnesi) : null,
     },
     activeCiclo,
@@ -397,8 +485,10 @@ export async function getPazienteDettaglioClinico(pazienteId: string) {
 // ------------------------------------
 // CICLI MANAGEMENT (MEDICO & PAZIENTE)
 // ------------------------------------
-export async function createNuovoCiclo(pazienteId: string, medicoId: string, durataSettimane: number, note?: string) {
+export async function createNuovoCiclo(pazienteId: string, _medicoIdIgnorato: string | undefined, durataSettimane: number, note?: string) {
   await ensureDb();
+  const medicoId = (await requireMedico()).id;
+  await assertPazienteDelMedico(pazienteId, medicoId);
   const id = `ciclo-${Date.now()}`;
   await db.execute({
     sql: `INSERT INTO cicli (id, paziente_id, medico_id, durata_settimane, stato, note_ciclo)
@@ -410,6 +500,7 @@ export async function createNuovoCiclo(pazienteId: string, medicoId: string, dur
 
 export async function updateStatoCiclo(cicloId: string, stato: "in corso" | "in pausa" | "annullato" | "concluso") {
   await ensureDb();
+  await requireAccessoCiclo(cicloId);
   await db.execute({
     sql: "UPDATE cicli SET stato = ? WHERE id = ?",
     args: [stato, cicloId],
@@ -419,6 +510,7 @@ export async function updateStatoCiclo(cicloId: string, stato: "in corso" | "in 
 
 export async function deleteCiclo(cicloId: string) {
   await ensureDb();
+  await requireAccessoCiclo(cicloId);
   await db.execute({
     sql: "DELETE FROM cicli WHERE id = ?",
     args: [cicloId],
@@ -442,6 +534,8 @@ export async function startCicloBilaterale(data: {
   slotAssegnato: "mattina" | "pomeriggio" | "sera";
 }) {
   await ensureDb();
+  await requireAccessoCiclo(data.cicloId);
+  data = { ...data, pazienteId: await getPazienteIdDelCiclo(data.cicloId) };
 
   const now = new Date();
   const startDateStr = now.toISOString().split("T")[0];
@@ -513,6 +607,11 @@ export async function startCicloBilaterale(data: {
   return { success: true };
 }
 
+async function getPazienteIdDelCiclo(cicloId: string): Promise<string> {
+  const res = await db.execute({ sql: "SELECT paziente_id FROM cicli WHERE id = ?", args: [cicloId] });
+  return String(res.rows[0].paziente_id);
+}
+
 // ------------------------------------
 // MISURAZIONI QUOTIDIANE
 // ------------------------------------
@@ -531,6 +630,9 @@ export async function saveMisurazioneGiornaliera(data: {
   note?: string;
 }) {
   await ensureDb();
+  await requireAccessoCiclo(data.cicloId);
+  if (data.id) await requireAccessoMisurazione(data.id);
+  data = { ...data, pazienteId: await getPazienteIdDelCiclo(data.cicloId) };
   const isCritica = isCriticalValue(data.pressioneMax, data.pressioneMin) ? 1 : 0;
 
   if (data.id) {
@@ -587,6 +689,7 @@ export async function saveMisurazioneGiornaliera(data: {
 
 export async function deleteMisurazione(id: string) {
   await ensureDb();
+  await requireAccessoMisurazione(id);
   await db.execute({
     sql: "DELETE FROM misurazioni WHERE id = ?",
     args: [id],
@@ -597,8 +700,10 @@ export async function deleteMisurazione(id: string) {
 // ------------------------------------
 // NOTE DI TERAPIA
 // ------------------------------------
-export async function addNotaTerapia(pazienteId: string, medicoId: string, testo: string, visibilePaziente: boolean) {
+export async function addNotaTerapia(pazienteId: string, _medicoIdIgnorato: string | undefined, testo: string, visibilePaziente: boolean) {
   await ensureDb();
+  const medicoId = (await requireMedico()).id;
+  await assertPazienteDelMedico(pazienteId, medicoId);
   const id = `nota-${Date.now()}`;
   await db.execute({
     sql: `INSERT INTO note_terapia (id, paziente_id, medico_id, testo, visibile_paziente)
@@ -612,29 +717,32 @@ export async function addNotaTerapia(pazienteId: string, medicoId: string, testo
 // COMUNICAZIONI & NOTIFICHE PUSH
 // ------------------------------------
 export async function sendComunicazione(data: {
-  medicoId: string;
+  medicoId?: string; // ignorato: il medico è quello della sessione
   titolo: string;
   messaggio: string;
   inviatoATutti: boolean;
   destinatariIds: string[];
 }) {
   await ensureDb();
+  const medicoId = (await requireMedico()).id;
   const comId = `com-${Date.now()}`;
+
+  // Solo pazienti di questo medico possono essere destinatari
+  const allPaz = await db.execute({
+    sql: "SELECT id FROM pazienti WHERE medico_id = ?",
+    args: [medicoId],
+  });
+  const mieiPazienti = new Set(allPaz.rows.map((r) => String(r.id)));
 
   await db.execute({
     sql: `INSERT INTO comunicazioni (id, medico_id, titolo, messaggio, inviato_a_tutti)
           VALUES (?, ?, ?, ?, ?)`,
-    args: [comId, data.medicoId, data.titolo.trim(), data.messaggio.trim(), data.inviatoATutti ? 1 : 0],
+    args: [comId, medicoId, data.titolo.trim(), data.messaggio.trim(), data.inviatoATutti ? 1 : 0],
   });
 
-  let recipientIds = data.destinatariIds;
-  if (data.inviatoATutti) {
-    const allPaz = await db.execute({
-      sql: "SELECT id FROM pazienti WHERE medico_id = ?",
-      args: [data.medicoId],
-    });
-    recipientIds = allPaz.rows.map((r) => String(r.id));
-  }
+  const recipientIds = data.inviatoATutti
+    ? [...mieiPazienti]
+    : data.destinatariIds.filter((id) => mieiPazienti.has(id));
 
   for (const pId of recipientIds) {
     await db.execute({
@@ -649,6 +757,11 @@ export async function sendComunicazione(data: {
 
 export async function getComunicazioniPaziente(pazienteId: string) {
   await ensureDb();
+  await requireAccessoPaziente(pazienteId);
+  return listaComunicazioni(pazienteId);
+}
+
+async function listaComunicazioni(pazienteId: string) {
   const res = await db.execute({
     sql: `SELECT c.id, c.titolo, c.messaggio, c.created_at, 
                  COALESCE(cd.letta, 0) as letta, 
@@ -656,9 +769,10 @@ export async function getComunicazioniPaziente(pazienteId: string) {
           FROM comunicazioni c
           JOIN medici m ON c.medico_id = m.id
           LEFT JOIN comunicazione_destinatari cd ON c.id = cd.comunicazione_id AND cd.paziente_id = ?
-          WHERE c.inviato_a_tutti = 1 OR cd.paziente_id = ?
+          WHERE (c.inviato_a_tutti = 1 AND c.medico_id = (SELECT medico_id FROM pazienti WHERE id = ?))
+             OR cd.paziente_id = ?
           ORDER BY c.created_at DESC`,
-    args: [pazienteId, pazienteId],
+    args: [pazienteId, pazienteId, pazienteId],
   });
 
   return res.rows.map((r) => ({
@@ -671,10 +785,11 @@ export async function getComunicazioniPaziente(pazienteId: string) {
   }));
 }
 
-export async function markComunicazioniAsRead(pazienteId: string) {
+export async function markComunicazioniAsRead(_pazienteIdIgnorato?: string) {
   await ensureDb();
-  // Get all communication IDs for this patient
-  const comms = await getComunicazioniPaziente(pazienteId);
+  // Solo il paziente stesso può segnare come lette le proprie comunicazioni
+  const pazienteId = (await requirePaziente()).id;
+  const comms = await listaComunicazioni(pazienteId);
   for (const c of comms) {
     await db.execute({
       sql: `INSERT INTO comunicazione_destinatari (comunicazione_id, paziente_id, letta, letta_il)

@@ -125,4 +125,49 @@ export async function initDb() {
       PRIMARY KEY(comunicazione_id, paziente_id)
     );
   `);
+
+  // ------------------------------------
+  // SICUREZZA: tentativi di login falliti (rate limiting)
+  // ------------------------------------
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS login_tentativi (
+      chiave TEXT NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
+  await db.execute(`CREATE INDEX IF NOT EXISTS idx_login_tentativi ON login_tentativi(chiave, created_at);`);
+
+  // ------------------------------------
+  // SICUREZZA: credenziali biometriche (WebAuthn / Passkey)
+  // ------------------------------------
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS webauthn_credenziali (
+      id TEXT PRIMARY KEY,
+      ruolo TEXT CHECK(ruolo IN ('paziente', 'medico')) NOT NULL,
+      utente_id TEXT NOT NULL,
+      public_key TEXT NOT NULL,
+      counter INTEGER NOT NULL DEFAULT 0,
+      transports TEXT,
+      nome_dispositivo TEXT,
+      backed_up BOOLEAN DEFAULT 0,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      last_used_at DATETIME
+    );
+  `);
+  await db.execute(`CREATE INDEX IF NOT EXISTS idx_webauthn_utente ON webauthn_credenziali(ruolo, utente_id);`);
+
+  // ------------------------------------
+  // MIGRAZIONI COLONNE (idempotenti)
+  // ------------------------------------
+  // sessione_versione: incrementata per invalidare tutte le sessioni attive dell'utente
+  await addColumnIfMissing("pazienti", "sessione_versione", "INTEGER NOT NULL DEFAULT 0");
+  await addColumnIfMissing("medici", "sessione_versione", "INTEGER NOT NULL DEFAULT 0");
+}
+
+async function addColumnIfMissing(table: string, column: string, definition: string) {
+  const info = await db.execute(`PRAGMA table_info(${table})`);
+  const exists = info.rows.some((r) => String(r.name) === column);
+  if (!exists) {
+    await db.execute(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
+  }
 }

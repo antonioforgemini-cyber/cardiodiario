@@ -3,8 +3,12 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { platformAuthenticatorIsAvailable } from "@simplewebauthn/browser";
 import { Logo } from "@/components/Logo";
 import { loginMedico } from "@/db/actions";
+import { BiometricLoginButton } from "@/components/BiometricLoginButton";
+import { AttivaBiometriaSheet } from "@/components/AttivaBiometriaSheet";
+import { biometriaGiaAttiva, promptRifiutatoDiRecente } from "@/lib/biometria-client";
 
 export default function LoginMedicoPage() {
   const router = useRouter();
@@ -12,6 +16,7 @@ export default function LoginMedicoPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showEnrollSheet, setShowEnrollSheet] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,9 +29,19 @@ export default function LoginMedicoPage() {
 
     try {
       const res = await loginMedico(email, password);
-      if (res.success && res.user) {
-        localStorage.setItem("medico_user", JSON.stringify(res.user));
-        router.push("/medico/dashboard");
+      if (res.success) {
+        try {
+          localStorage.removeItem("medico_user");
+        } catch {}
+        const canPrompt =
+          !biometriaGiaAttiva() &&
+          !promptRifiutatoDiRecente() &&
+          (await platformAuthenticatorIsAvailable().catch(() => false));
+        if (canPrompt) {
+          setShowEnrollSheet(true);
+        } else {
+          router.push("/medico/dashboard");
+        }
       } else {
         setError(res.error || "Credenziali non valide.");
       }
@@ -53,6 +68,19 @@ export default function LoginMedicoPage() {
             <span>{error}</span>
           </div>
         )}
+
+        <div className="space-y-3">
+          <BiometricLoginButton
+            ruolo="medico"
+            onError={setError}
+            className="w-full h-12 rounded-xl bg-secondary-container hover:bg-secondary-container/80 text-on-secondary-container font-bold text-sm shadow-sm border border-primary/25 flex items-center justify-center gap-2 transition-all disabled:opacity-60"
+          />
+          <div className="flex items-center gap-3 text-xs text-outline">
+            <div className="h-px flex-1 bg-surface-variant/60" />
+            <span>oppure con email e password</span>
+            <div className="h-px flex-1 bg-surface-variant/60" />
+          </div>
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1.5">
@@ -114,6 +142,14 @@ export default function LoginMedicoPage() {
           </Link>
         </div>
       </div>
+
+      <AttivaBiometriaSheet
+        isOpen={showEnrollSheet}
+        onDone={() => {
+          setShowEnrollSheet(false);
+          router.push("/medico/dashboard");
+        }}
+      />
     </div>
   );
 }

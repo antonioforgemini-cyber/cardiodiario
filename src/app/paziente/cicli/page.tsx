@@ -4,11 +4,12 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Logo } from "@/components/Logo";
-import { getPazienteDettaglioClinico, getComunicazioniPaziente } from "@/db/actions";
+import { getPazienteDettaglioClinico, getComunicazioniPaziente, getUtenteCorrente, logout } from "@/db/actions";
 import { OnboardingModal } from "@/components/modals/OnboardingModal";
 import MisurazioneInizialeModal from "@/components/modals/MisurazioneInizialeModal";
 import { NoteTerapiaModal } from "@/components/modals/NoteTerapiaModal";
 import { NotificheModal } from "@/components/modals/NotificheModal";
+import { GestioneBiometriaModal } from "@/components/modals/GestioneBiometriaModal";
 import { calculateCurrentActiveDay } from "@/lib/dateUtils";
 
 export default function PazienteCicliPage() {
@@ -24,6 +25,7 @@ export default function PazienteCicliPage() {
   const [selectedCicloForStart, setSelectedCicloForStart] = useState<string | null>(null);
   const [isNoteOpen, setIsNoteOpen] = useState(false);
   const [isNotificheOpen, setIsNotificheOpen] = useState(false);
+  const [isBioOpen, setIsBioOpen] = useState(false);
 
   const loadData = async (pazienteId: string) => {
     try {
@@ -39,14 +41,19 @@ export default function PazienteCicliPage() {
   };
 
   useEffect(() => {
-    const stored = localStorage.getItem("paziente_user");
-    if (!stored) {
-      router.push("/login/paziente");
-      return;
-    }
-    const u = JSON.parse(stored);
-    setUser(u);
-    loadData(u.id);
+    (async () => {
+      try {
+        const u = await getUtenteCorrente();
+        if (!u || u.role !== "paziente") {
+          router.push("/login/paziente");
+          return;
+        }
+        setUser(u);
+        await loadData(u.id);
+      } catch {
+        router.push("/login/paziente");
+      }
+    })();
   }, []);
 
   const handleStartCycle = (cicloId: string) => {
@@ -97,7 +104,16 @@ export default function PazienteCicliPage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setIsBioOpen(true)}
+              title="Accesso rapido con impronta o Face ID"
+              aria-label="Accesso rapido"
+              className="w-10 h-10 flex items-center justify-center rounded-full text-on-surface hover:bg-surface-container active:scale-95 transition-all"
+            >
+              <span className="material-symbols-outlined text-[22px]">fingerprint</span>
+            </button>
+
             <button
               onClick={() => setIsNotificheOpen(true)}
               title={unreadCount > 0 ? `Centro Notifiche (${unreadCount} nuove)` : "Centro Notifiche (Nessuna nuova notifica)"}
@@ -122,8 +138,11 @@ export default function PazienteCicliPage() {
             </button>
 
             <button
-              onClick={() => {
-                localStorage.removeItem("paziente_user");
+              onClick={async () => {
+                try {
+                  localStorage.removeItem("paziente_user");
+                } catch {}
+                await logout();
                 router.push("/login/paziente");
               }}
               title="Disconnetti (Esci dal diario)"
@@ -346,6 +365,8 @@ export default function PazienteCicliPage() {
         onRead={() => setUnreadCount(0)}
         pazienteId={user.id}
       />
+
+      <GestioneBiometriaModal isOpen={isBioOpen} onClose={() => setIsBioOpen(false)} />
     </div>
   );
 }

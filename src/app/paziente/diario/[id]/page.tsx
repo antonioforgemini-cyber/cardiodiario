@@ -4,7 +4,7 @@ import React, { useEffect, useState, use } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Logo } from "@/components/Logo";
-import { getPazienteDettaglioClinico, getComunicazioniPaziente } from "@/db/actions";
+import { getPazienteDettaglioClinico, getComunicazioniPaziente, getUtenteCorrente } from "@/db/actions";
 import { NuovaMisurazioneModal } from "@/components/modals/NuovaMisurazioneModal";
 import { OnboardingModal } from "@/components/modals/OnboardingModal";
 import { ConclusioneCicloModal } from "@/components/modals/ConclusioneCicloModal";
@@ -51,12 +51,12 @@ export default function PazienteDiarioPage({
 
   const loadData = async () => {
     try {
-      const stored = localStorage.getItem("paziente_user");
-      if (!stored) {
+      const u = await getUtenteCorrente();
+      if (!u || u.role !== "paziente") {
         router.push("/login/paziente");
         return;
       }
-      const pId = JSON.parse(stored).id;
+      const pId = u.id;
       const res = await getPazienteDettaglioClinico(pId);
       setData(res);
       if (res?.activeCiclo) {

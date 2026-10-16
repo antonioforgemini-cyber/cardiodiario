@@ -203,11 +203,11 @@ export default function PazientiListPage() {
       <NuovoPazienteModal
         isOpen={isNewPatientOpen}
         onClose={() => setIsNewPatientOpen(false)}
-        onSuccess={() => {
+        onSuccess={(created) => {
           setIsNewPatientOpen(false);
+          setSelectedForCredenziali(created);
           loadData();
         }}
-        medicoId="med-1"
       />
 
       {selectedForCredenziali && (
@@ -215,10 +215,11 @@ export default function PazientiListPage() {
           isOpen={true}
           onClose={() => setSelectedForCredenziali(null)}
           paziente={{
+            id: selectedForCredenziali.id,
             nome: selectedForCredenziali.nome,
             cognome: selectedForCredenziali.cognome,
             codiceFiscale: selectedForCredenziali.codiceFiscale,
-            pin: "•••••• (Vedi scheda originale o rigenera)",
+            pin: selectedForCredenziali.pin,
           }}
         />
       )}

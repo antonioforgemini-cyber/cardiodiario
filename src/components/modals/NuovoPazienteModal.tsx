@@ -3,18 +3,25 @@
 import React, { useState } from "react";
 import { createPaziente } from "@/db/actions";
 
+export interface NuovoPazienteCreato {
+  id: string;
+  nome: string;
+  cognome: string;
+  codiceFiscale: string;
+  pin: string;
+}
+
 interface NuovoPazienteModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: (pazienteId: string) => void;
-  medicoId: string;
+  onSuccess: (paziente: NuovoPazienteCreato) => void;
+  medicoId?: string;
 }
 
 export const NuovoPazienteModal: React.FC<NuovoPazienteModalProps> = ({
   isOpen,
   onClose,
   onSuccess,
-  medicoId,
 }) => {
   const [nome, setNome] = useState("");
   const [cognome, setCognome] = useState("");
@@ -23,6 +30,7 @@ export const NuovoPazienteModal: React.FC<NuovoPazienteModalProps> = ({
   const [telefono, setTelefono] = useState("");
   const [email, setEmail] = useState("");
   const [pin, setPin] = useState(() => Math.floor(100000 + Math.random() * 900000).toString());
+  const [copiedPin, setCopiedPin] = useState(false);
   const [durataSettimane, setDurataSettimane] = useState(2);
   const [noteAnamnesi, setNoteAnamnesi] = useState("");
   const [loading, setLoading] = useState(false);
@@ -32,6 +40,15 @@ export const NuovoPazienteModal: React.FC<NuovoPazienteModalProps> = ({
 
   const generateNewPin = () => {
     setPin(Math.floor(100000 + Math.random() * 900000).toString());
+    setCopiedPin(false);
+  };
+
+  const handleCopyPin = async () => {
+    try {
+      await navigator.clipboard.writeText(pin);
+      setCopiedPin(true);
+      setTimeout(() => setCopiedPin(false), 2000);
+    } catch {}
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -50,7 +67,6 @@ export const NuovoPazienteModal: React.FC<NuovoPazienteModalProps> = ({
 
     try {
       const res = await createPaziente({
-        medicoId,
         nome,
         cognome,
         codiceFiscale: cf,
@@ -63,9 +79,15 @@ export const NuovoPazienteModal: React.FC<NuovoPazienteModalProps> = ({
       });
 
       if (res.success) {
-        onSuccess(res.pazienteId);
+        onSuccess({
+          id: res.pazienteId,
+          nome: nome.trim(),
+          cognome: cognome.trim(),
+          codiceFiscale: cf.trim().toUpperCase(),
+          pin: pin.trim(),
+        });
       } else {
-        setError("Errore durante il salvataggio del paziente.");
+        setError(res.error || "Errore durante il salvataggio del paziente.");
       }
     } catch {
       setError("Si è verificato un errore nel salvataggio.");
@@ -185,7 +207,7 @@ export const NuovoPazienteModal: React.FC<NuovoPazienteModalProps> = ({
           </div>
 
           {/* Generated PIN Box */}
-          <div className="p-4 rounded-2xl bg-secondary-container/50 border border-secondary/20 flex items-center justify-between">
+          <div className="p-4 rounded-2xl bg-secondary-container/50 border border-secondary/20 flex items-center justify-between gap-2">
             <div>
               <span className="text-xs font-bold text-on-secondary-container block">
                 PIN di Accesso Generato (6 cifre)
@@ -193,16 +215,29 @@ export const NuovoPazienteModal: React.FC<NuovoPazienteModalProps> = ({
               <span className="text-2xl font-mono font-extrabold text-primary tracking-widest">
                 {pin}
               </span>
-              <p className="text-[11px] text-secondary">Verrà inserito nella scheda credenziali da stampare.</p>
+              <p className="text-[11px] text-secondary">Verrà mostrato nella scheda credenziali appena creato il paziente.</p>
             </div>
-            <button
-              type="button"
-              onClick={generateNewPin}
-              className="px-3 py-1.5 rounded-xl bg-surface-container-lowest text-xs font-bold text-primary hover:bg-surface-container flex items-center gap-1.5 shadow-sm"
-            >
-              <span className="material-symbols-outlined text-sm">refresh</span>
-              Rigenera
-            </button>
+            <div className="flex items-center gap-1.5 flex-shrink-0">
+              <button
+                type="button"
+                onClick={handleCopyPin}
+                title="Copia PIN"
+                className="px-3 py-1.5 rounded-xl bg-surface-container-lowest text-xs font-bold text-primary hover:bg-surface-container flex items-center gap-1 shadow-sm"
+              >
+                <span className="material-symbols-outlined text-sm">
+                  {copiedPin ? "check" : "content_copy"}
+                </span>
+                {copiedPin ? "Copiato" : "Copia PIN"}
+              </button>
+              <button
+                type="button"
+                onClick={generateNewPin}
+                className="px-3 py-1.5 rounded-xl bg-surface-container-lowest text-xs font-bold text-primary hover:bg-surface-container flex items-center gap-1 shadow-sm"
+              >
+                <span className="material-symbols-outlined text-sm">refresh</span>
+                Rigenera
+              </button>
+            </div>
           </div>
 
           {/* First Cycle Duration */}
