@@ -69,18 +69,11 @@ export default function LoginMedicoPage() {
           </div>
         )}
 
-        <div className="space-y-3">
-          <BiometricLoginButton
-            ruolo="medico"
-            onError={setError}
-            className="w-full h-12 rounded-xl bg-secondary-container hover:bg-secondary-container/80 text-on-secondary-container font-bold text-sm shadow-sm border border-primary/25 flex items-center justify-center gap-2 transition-all disabled:opacity-60"
-          />
-          <div className="flex items-center gap-3 text-xs text-outline">
-            <div className="h-px flex-1 bg-surface-variant/60" />
-            <span>oppure con email e password</span>
-            <div className="h-px flex-1 bg-surface-variant/60" />
-          </div>
-        </div>
+        <BiometricLoginButton
+          ruolo="medico"
+          onError={setError}
+          className="w-full h-12 rounded-xl bg-secondary-container hover:bg-secondary-container/80 text-on-secondary-container font-bold text-sm shadow-sm border border-primary/25 flex items-center justify-center gap-2 transition-all disabled:opacity-60"
+        />
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1.5">

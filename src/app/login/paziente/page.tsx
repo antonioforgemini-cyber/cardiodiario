@@ -145,19 +145,12 @@ export default function LoginPazientePage() {
           </div>
         )}
 
-        {/* Biometric Quick Access */}
-        <div className="space-y-3">
-          <BiometricLoginButton
-            ruolo="paziente"
-            onError={setError}
-            className="w-full h-14 rounded-2xl bg-secondary-container hover:bg-secondary-container/80 text-on-secondary-container font-bold text-base shadow-sm border border-primary/25 flex items-center justify-center gap-2.5 active:scale-98 transition-all disabled:opacity-60"
-          />
-          <div className="flex items-center gap-3 text-xs text-outline">
-            <div className="h-px flex-1 bg-surface-variant/60" />
-            <span>oppure con Codice Fiscale e PIN</span>
-            <div className="h-px flex-1 bg-surface-variant/60" />
-          </div>
-        </div>
+        {/* Biometric Quick Access (shown only if already enrolled on this device) */}
+        <BiometricLoginButton
+          ruolo="paziente"
+          onError={setError}
+          className="w-full h-14 rounded-2xl bg-secondary-container hover:bg-secondary-container/80 text-on-secondary-container font-bold text-base shadow-sm border border-primary/25 flex items-center justify-center gap-2.5 active:scale-98 transition-all disabled:opacity-60"
+        />
 
         {/* Main Access Form */}
         <form onSubmit={handleSubmit} className="bg-surface-container-lowest rounded-2xl p-5 shadow-sm space-y-5 border border-surface-variant/40">

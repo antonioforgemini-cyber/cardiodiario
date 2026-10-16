@@ -118,19 +118,37 @@ export async function passkeyVerificaRegistrazione(risposta: RegistrationRespons
     ],
   });
 
-  return { success: true as const };
+  return { success: true as const, credentialId: credential.id };
 }
 
 // ------------------------------------
 // ACCESSO (nessuna sessione richiesta)
 // ------------------------------------
-export async function passkeyOpzioniAccesso() {
+export async function passkeyOpzioniAccesso(credentialIdHint?: string) {
   await seedDb();
   const { rpID } = await getRelyingParty();
+
+  let allowCredentials: { id: string; transports?: never }[] | undefined;
+  if (credentialIdHint) {
+    const existing = await db.execute({
+      sql: "SELECT id, transports FROM webauthn_credenziali WHERE id = ?",
+      args: [credentialIdHint],
+    });
+    if (existing.rows.length > 0) {
+      const r = existing.rows[0];
+      allowCredentials = [
+        {
+          id: String(r.id),
+          transports: (r.transports ? JSON.parse(String(r.transports)) : undefined) as never,
+        },
+      ];
+    }
+  }
+
   const options = await generateAuthenticationOptions({
     rpID,
     userVerification: "required",
-    // allowCredentials vuoto = passkey "scopribili": il telefono propone l'account da solo
+    allowCredentials,
   });
   await salvaChallenge(options.challenge, "accesso");
   return options;

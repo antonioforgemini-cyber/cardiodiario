@@ -12,7 +12,7 @@ export async function attivaBiometriaSuQuestoDispositivo(): Promise<string | nul
     const risposta = await startRegistration({ optionsJSON });
     const res = await passkeyVerificaRegistrazione(risposta);
     if (!res.success) return res.error;
-    segnaBiometriaAttiva();
+    segnaBiometriaAttiva(res.credentialId || risposta.id);
     return null;
   } catch (e) {
     if (e instanceof WebAuthnError && e.code === "ERROR_AUTHENTICATOR_PREVIOUSLY_REGISTERED") {
