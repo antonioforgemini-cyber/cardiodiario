@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { Logo } from "@/components/Logo";
+import { StethoscopeLoader } from "@/components/StethoscopeLoader";
 import { rigeneraPinPaziente } from "@/db/actions";
 
 interface SchedaCredenzialiModalProps {
@@ -117,6 +118,7 @@ export const SchedaCredenzialiModal: React.FC<SchedaCredenzialiModalProps> = ({
       id="credenziali-modal-portal"
       className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-inverse-surface/40 backdrop-blur-sm animate-in fade-in duration-200"
     >
+      {regenerating && <StethoscopeLoader overlay text="Rigenerazione PIN in corso..." />}
       <div className="bg-surface-container-lowest w-full max-w-lg rounded-t-3xl sm:rounded-3xl shadow-2xl border-t sm:border border-surface-variant/50 overflow-hidden max-h-[90vh] flex flex-col animate-in slide-in-from-bottom-6 sm:slide-in-from-bottom-0 duration-300">
         {/* Mobile drag handle */}
         <div className="sm:hidden pt-3 pb-1 flex justify-center flex-shrink-0 no-print">
@@ -127,10 +129,10 @@ export const SchedaCredenzialiModal: React.FC<SchedaCredenzialiModalProps> = ({
         <div id="printable-card" className="printable-credenziali-card p-4 sm:p-8 space-y-4 sm:space-y-6 bg-white text-on-surface overflow-y-auto flex-1">
           {/* Header */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b pb-4 border-surface-variant/40">
-            <Logo size={40} showText={true} subtitle="Studio Medico Specialistico" />
+            <Logo size={40} showText={true} subtitle="Diario Pressorio Personale" />
             <div className="text-left sm:text-right text-xs text-secondary">
               <p className="font-bold text-on-surface">Dott.ssa Ivana Pariggiano</p>
-              <p>Dirigente Medico Cardiologia • A.O. Caserta</p>
+              <p>Specialista in Cardiologia</p>
             </div>
           </div>
 

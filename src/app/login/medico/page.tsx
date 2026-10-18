@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { platformAuthenticatorIsAvailable } from "@simplewebauthn/browser";
 import { Logo } from "@/components/Logo";
+import { StethoscopeLoader } from "@/components/StethoscopeLoader";
 import { loginMedico } from "@/db/actions";
 import { BiometricLoginButton } from "@/components/BiometricLoginButton";
 import { AttivaBiometriaSheet } from "@/components/AttivaBiometriaSheet";
@@ -54,6 +55,7 @@ export default function LoginMedicoPage() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col justify-center items-center p-6">
+      {loading && <StethoscopeLoader overlay text="Accesso medico in corso..." />}
       <div className="w-full max-w-md bg-surface-container-lowest p-8 rounded-3xl border border-surface-variant/50 shadow-[0_4px_20px_rgba(46,50,48,0.06)] space-y-6">
         <div className="flex flex-col items-center text-center space-y-2">
           <Logo size={52} showText={true} subtitle="Portale Medico Specialista" />

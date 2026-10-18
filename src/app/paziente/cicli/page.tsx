@@ -4,12 +4,14 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Logo } from "@/components/Logo";
+import { StethoscopeLoader } from "@/components/StethoscopeLoader";
 import { getPazienteDettaglioClinico, getComunicazioniPaziente, getUtenteCorrente, logout } from "@/db/actions";
 import { OnboardingModal } from "@/components/modals/OnboardingModal";
 import MisurazioneInizialeModal from "@/components/modals/MisurazioneInizialeModal";
 import { NoteTerapiaModal } from "@/components/modals/NoteTerapiaModal";
 import { NotificheModal } from "@/components/modals/NotificheModal";
 import { GestioneBiometriaModal } from "@/components/modals/GestioneBiometriaModal";
+import { DisclaimerPazienteModal } from "@/components/modals/DisclaimerPazienteModal";
 import { calculateCurrentActiveDay } from "@/lib/dateUtils";
 
 export default function PazienteCicliPage() {
@@ -77,7 +79,7 @@ export default function PazienteCicliPage() {
   if (loading || !user) {
     return (
       <div className="flex items-center justify-center min-h-[70vh]">
-        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+        <StethoscopeLoader text="Caricamento dei tuoi diari..." />
       </div>
     );
   }
@@ -367,6 +369,12 @@ export default function PazienteCicliPage() {
       />
 
       <GestioneBiometriaModal isOpen={isBioOpen} onClose={() => setIsBioOpen(false)} />
+
+      <DisclaimerPazienteModal
+        isOpen={!user.disclaimerAccettato}
+        onAcceptSuccess={() => setUser({ ...user, disclaimerAccettato: true })}
+        onDeclineLogout={() => router.push("/login/paziente")}
+      />
     </div>
   );
 }

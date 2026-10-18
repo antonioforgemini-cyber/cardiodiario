@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { getComunicazioniPaziente, markComunicazioniAsRead } from "@/db/actions";
+import { StethoscopeLoader } from "@/components/StethoscopeLoader";
 
 interface NotificheModalProps {
   isOpen: boolean;
@@ -61,7 +62,9 @@ export const NotificheModal: React.FC<NotificheModalProps> = ({
 
         <div className="flex-1 overflow-y-auto space-y-3 pr-1">
           {loading ? (
-            <div className="py-8 text-center text-xs text-secondary">Caricamento notifiche...</div>
+            <div className="py-6 flex justify-center">
+              <StethoscopeLoader size="md" text="Caricamento notifiche..." />
+            </div>
           ) : comunicazioni.length === 0 ? (
             <div className="py-8 text-center space-y-2">
               <span className="material-symbols-outlined text-secondary text-3xl">notifications_paused</span>

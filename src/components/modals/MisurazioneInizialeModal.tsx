@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { startCicloBilaterale } from "@/db/actions";
+import { StethoscopeLoader } from "@/components/StethoscopeLoader";
 
 interface MisurazioneInizialeModalProps {
   isOpen: boolean;
@@ -117,6 +118,7 @@ export default function MisurazioneInizialeModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-inverse-surface/50 backdrop-blur-md animate-in fade-in duration-200">
+      {loading && <StethoscopeLoader overlay text="Avvio diario e salvataggio in corso..." />}
       <div className="bg-surface-container-lowest w-full max-w-lg rounded-3xl shadow-2xl border border-surface-variant/50 p-6 flex flex-col justify-between max-h-[90vh] overflow-y-auto">
         {/* Step Indicator Header */}
         <div className="flex items-center justify-between border-b border-surface-variant/40 pb-4">

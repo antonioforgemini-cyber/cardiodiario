@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { createPaziente } from "@/db/actions";
+import { StethoscopeLoader } from "@/components/StethoscopeLoader";
 
 export interface NuovoPazienteCreato {
   id: string;
@@ -98,6 +99,7 @@ export const NuovoPazienteModal: React.FC<NuovoPazienteModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-inverse-surface/40 backdrop-blur-sm animate-in fade-in duration-200">
+      {loading && <StethoscopeLoader overlay text="Salvataggio paziente in corso..." />}
       <div className="bg-surface-container-lowest w-full max-w-xl rounded-t-3xl sm:rounded-3xl shadow-2xl border-t sm:border border-surface-variant/50 overflow-hidden max-h-[88vh] sm:max-h-[90vh] flex flex-col animate-in slide-in-from-bottom-6 sm:slide-in-from-bottom-0 duration-300">
         {/* Mobile drag handle */}
         <div className="sm:hidden pt-3 pb-1 flex justify-center flex-shrink-0">

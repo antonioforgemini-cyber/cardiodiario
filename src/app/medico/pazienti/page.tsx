@@ -2,9 +2,11 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { getDoctorDashboardData } from "@/db/actions";
+import { getDoctorDashboardData, deletePaziente } from "@/db/actions";
+import { StethoscopeLoader } from "@/components/StethoscopeLoader";
 import { NuovoPazienteModal } from "@/components/modals/NuovoPazienteModal";
 import { SchedaCredenzialiModal } from "@/components/modals/SchedaCredenzialiModal";
+import { ConfermaEliminazioneModal } from "@/components/modals/ConfermaEliminazioneModal";
 
 export default function PazientiListPage() {
   const [data, setData] = useState<any>(null);
@@ -13,6 +15,8 @@ export default function PazientiListPage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [isNewPatientOpen, setIsNewPatientOpen] = useState(false);
   const [selectedForCredenziali, setSelectedForCredenziali] = useState<any>(null);
+  const [patientToDelete, setPatientToDelete] = useState<any>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const loadData = async () => {
     try {
@@ -29,13 +33,25 @@ export default function PazientiListPage() {
     loadData();
   }, []);
 
+  const handleConfirmDelete = async () => {
+    if (!patientToDelete) return;
+    setDeleting(true);
+    try {
+      await deletePaziente(patientToDelete.id);
+      setPatientToDelete(null);
+      await loadData();
+    } catch (err) {
+      console.error("Errore durante l'eliminazione del paziente:", err);
+      alert("Si è verificato un errore durante l'eliminazione del paziente.");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-sm font-semibold text-secondary">Caricamento anagrafica pazienti...</p>
-        </div>
+        <StethoscopeLoader text="Caricamento anagrafica pazienti..." />
       </div>
     );
   }
@@ -62,7 +78,7 @@ export default function PazientiListPage() {
             Gestione Pazienti dello Studio
           </h1>
           <p className="text-xs sm:text-sm text-on-surface-variant">
-            Censimento, rilascio credenziali e accesso immediato ai diari clinici.
+            Censimento, rilascio credenziali e accesso alle schede con i diari clinici di ogni paziente.
           </p>
         </div>
 
@@ -129,74 +145,84 @@ export default function PazientiListPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {filteredPatients.map((p: any) => {
             let badgeClass = "bg-surface-container text-on-surface-variant";
-          if (p.cicloStato === "in corso") badgeClass = "bg-primary-container/40 text-primary font-bold";
-          if (p.cicloStato === "da iniziare") badgeClass = "bg-secondary-container text-tertiary font-bold";
-          if (p.cicloStato === "in pausa") badgeClass = "bg-error-container/40 text-error font-bold";
+            if (p.cicloStato === "in corso") badgeClass = "bg-primary-container/40 text-primary font-bold";
+            if (p.cicloStato === "da iniziare") badgeClass = "bg-secondary-container text-tertiary font-bold";
+            if (p.cicloStato === "in pausa") badgeClass = "bg-error-container/40 text-error font-bold";
 
-          return (
-            <div
-              key={p.id}
-              className="bg-surface-container-lowest p-5 sm:p-6 rounded-3xl border border-surface-variant/50 shadow-sm flex flex-col justify-between hover:border-primary/40 hover:shadow-md transition-all space-y-4"
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-2xl bg-primary-container/30 text-primary flex items-center justify-center font-headline font-bold text-lg">
-                    {p.nome.charAt(0)}{p.cognome.charAt(0)}
+            return (
+              <div
+                key={p.id}
+                className="bg-surface-container-lowest p-5 sm:p-6 rounded-3xl border border-surface-variant/50 shadow-sm flex flex-col justify-between hover:border-primary/40 hover:shadow-md transition-all space-y-4"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-12 h-12 rounded-2xl bg-primary-container/30 text-primary flex items-center justify-center font-headline font-bold text-lg shrink-0">
+                      {p.nome.charAt(0)}{p.cognome.charAt(0)}
+                    </div>
+                    <div className="min-w-0">
+                      <span className="text-[10px] font-bold text-primary uppercase tracking-wider block">
+                        Scheda Paziente
+                      </span>
+                      <h3 className="font-headline font-bold text-base text-on-surface truncate">
+                        {p.cognome} {p.nome}
+                      </h3>
+                      <p className="text-xs font-mono text-secondary truncate">{p.codiceFiscale}</p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-headline font-bold text-base text-on-surface">
-                      {p.cognome} {p.nome}
-                    </h3>
-                    <p className="text-xs font-mono text-secondary">{p.codiceFiscale}</p>
+
+                  <button
+                    type="button"
+                    onClick={() => setPatientToDelete(p)}
+                    title="Elimina paziente"
+                    className="w-9 h-9 rounded-xl bg-error-container/30 hover:bg-error-container/60 text-error flex items-center justify-center transition-colors shrink-0"
+                  >
+                    <span className="material-symbols-outlined text-lg">delete</span>
+                  </button>
+                </div>
+
+                <div className="space-y-1.5 text-xs text-on-surface-variant bg-surface-container-low p-3.5 rounded-2xl">
+                  <div className="flex justify-between">
+                    <span className="text-secondary">Data di Nascita:</span>
+                    <span className="font-semibold text-on-surface">{p.dataNascita || "—"}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-secondary">Telefono:</span>
+                    <span className="font-semibold text-on-surface">{p.telefono || "—"}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-secondary">Diari Clinici:</span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-on-surface">{p.cicliCount ?? 0}</span>
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] capitalize ${badgeClass}`}>
+                        {p.cicloStato}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
-                <span className={`px-2.5 py-1 rounded-full text-[11px] capitalize ${badgeClass}`}>
-                  {p.cicloStato}
-                </span>
-              </div>
+                <div className="flex items-center justify-between pt-2 border-t border-surface-variant/30">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedForCredenziali(p)}
+                    className="text-xs font-semibold text-secondary hover:text-on-surface flex items-center gap-1"
+                  >
+                    <span className="material-symbols-outlined text-base">badge</span>
+                    <span>Scheda PIN</span>
+                  </button>
 
-              <div className="space-y-1.5 text-xs text-on-surface-variant bg-surface-container-low p-3 rounded-2xl">
-                <div className="flex justify-between">
-                  <span className="text-secondary">Telefono:</span>
-                  <span className="font-semibold text-on-surface">{p.telefono}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-secondary">Braccio Riferimento:</span>
-                  <span className="font-semibold text-on-surface">
-                    {p.braccioRiferimento ? `Braccio ${p.braccioRiferimento}` : "Da definire"}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-secondary">Ultima Rilevazione:</span>
-                  <span className="font-bold text-on-surface">
-                    {p.ultimoMax && p.ultimoMin ? `${p.ultimoMax}/${p.ultimoMin} mmHg` : "Nessuna"}
-                  </span>
+                  <Link
+                    href={`/medico/pazienti/${p.id}`}
+                    className="px-4 py-2 rounded-xl bg-primary hover:bg-primary/90 text-on-primary text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-sm">folder_shared</span>
+                    <span>Vedi Diari</span>
+                    <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                  </Link>
                 </div>
               </div>
-
-              <div className="flex items-center justify-between pt-2 border-t border-surface-variant/30">
-                <button
-                  type="button"
-                  onClick={() => setSelectedForCredenziali(p)}
-                  className="text-xs font-semibold text-secondary hover:text-on-surface flex items-center gap-1"
-                >
-                  <span className="material-symbols-outlined text-base">badge</span>
-                  <span>Scheda PIN</span>
-                </button>
-
-                <Link
-                  href={`/medico/pazienti/${p.id}`}
-                  className="px-4 py-2 rounded-xl bg-primary hover:bg-primary/90 text-on-primary text-xs font-bold flex items-center gap-1 shadow-sm"
-                >
-                  <span>Apri Diario</span>
-                  <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                </Link>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
       )}
 
       {/* Modals */}
@@ -223,6 +249,20 @@ export default function PazientiListPage() {
           }}
         />
       )}
+
+      <ConfermaEliminazioneModal
+        isOpen={!!patientToDelete}
+        onClose={() => setPatientToDelete(null)}
+        onConfirm={handleConfirmDelete}
+        loading={deleting}
+        title="Elimina Paziente"
+        description={
+          patientToDelete
+            ? `Sei sicuro di voler eliminare definitivamente il paziente ${patientToDelete.cognome} ${patientToDelete.nome} (${patientToDelete.codiceFiscale})? Verranno eliminati tutti i dati personali, i diari clinici, le misurazioni e le note associate. Questa operazione non è reversibile.`
+            : ""
+        }
+        confirmLabel="Elimina Paziente"
+      />
     </div>
   );
 }

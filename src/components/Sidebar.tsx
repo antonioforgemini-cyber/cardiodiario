@@ -179,7 +179,7 @@ export const Sidebar: React.FC = () => {
                 Dott.ssa Ivana Pariggiano
               </span>
               <span className="text-xs text-secondary truncate">
-                Cardiologia • A.O. Caserta
+                Specialista in Cardiologia
               </span>
             </div>
           </div>

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { saveMisurazioneGiornaliera, deleteMisurazione } from "@/db/actions";
 import { classifyBloodPressure, isCriticalValue } from "@/lib/guidelines";
 import { AlertCriticoModal } from "./AlertCriticoModal";
+import { StethoscopeLoader } from "@/components/StethoscopeLoader";
 
 interface NuovaMisurazioneModalProps {
   isOpen: boolean;
@@ -155,6 +156,7 @@ export const NuovaMisurazioneModal: React.FC<NuovaMisurazioneModalProps> = ({
   return (
     <>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-inverse-surface/40 backdrop-blur-sm animate-in fade-in duration-200">
+        {loading && <StethoscopeLoader overlay text="Salvataggio misurazione in corso..." />}
         <div className="bg-surface-container-lowest w-full max-w-lg rounded-3xl shadow-2xl border border-surface-variant/50 p-6 flex flex-col justify-between max-h-[92vh] overflow-y-auto">
           {/* Header */}
           <div className="flex items-center justify-between border-b border-surface-variant/40 pb-4">

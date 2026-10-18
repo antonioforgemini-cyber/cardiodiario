@@ -110,7 +110,7 @@ export async function getUtenteCorrente() {
   }
 
   const res = await db.execute({
-    sql: `SELECT p.id, p.nome, p.cognome, p.codice_fiscale, p.medico_id, m.nome as medico_nome, m.cognome as medico_cognome
+    sql: `SELECT p.id, p.nome, p.cognome, p.codice_fiscale, p.medico_id, p.disclaimer_accettato, m.nome as medico_nome, m.cognome as medico_cognome
           FROM pazienti p
           JOIN medici m ON p.medico_id = m.id
           WHERE p.id = ?`,
@@ -126,7 +126,20 @@ export async function getUtenteCorrente() {
     codiceFiscale: String(p.codice_fiscale),
     medicoId: String(p.medico_id),
     medicoNomeCompleto: `Dott.ssa ${p.medico_nome} ${p.medico_cognome}`,
+    disclaimerAccettato: Boolean(p.disclaimer_accettato),
   };
+}
+
+export async function accettaDisclaimerPaziente() {
+  await ensureDb();
+  const s = await requirePaziente();
+  await db.execute({
+    sql: `UPDATE pazienti
+          SET disclaimer_accettato = 1, disclaimer_accettato_il = CURRENT_TIMESTAMP
+          WHERE id = ?`,
+    args: [s.id],
+  });
+  return { success: true };
 }
 
 /**
@@ -155,68 +168,89 @@ export async function getDoctorDashboardData(_medicoIdIgnorato?: string) {
   await ensureDb();
   // L'id del medico viene sempre dalla sessione, mai dal client
   const medicoId = (await requireMedico()).id;
-
-  // Pazienti count
-  const pazRes = await db.execute({
-    sql: "SELECT COUNT(*) as count FROM pazienti WHERE medico_id = ?",
-    args: [medicoId],
-  });
-  const totalPazienti = Number(pazRes.rows[0]?.count || 0);
-
-  // Cicli in corso
-  const cicliRes = await db.execute({
-    sql: "SELECT COUNT(*) as count FROM cicli WHERE medico_id = ? AND stato = 'in corso'",
-    args: [medicoId],
-  });
-  const cicliInCorso = Number(cicliRes.rows[0]?.count || 0);
-
-  // Misurazioni oggi
   const todayStr = new Date().toISOString().split("T")[0];
-  const misOggiRes = await db.execute({
-    sql: `SELECT COUNT(*) as count FROM misurazioni m
-          JOIN cicli c ON m.ciclo_id = c.id
-          WHERE c.medico_id = ? AND m.data_rilevazione = ?`,
-    args: [medicoId, todayStr],
-  });
+
+  const [pazRes, cicliRes, misOggiRes, allarmiRes, listRes, trendRes, distRes] = await Promise.all([
+    // Pazienti count
+    db.execute({
+      sql: "SELECT COUNT(*) as count FROM pazienti WHERE medico_id = ?",
+      args: [medicoId],
+    }),
+    // Cicli in corso
+    db.execute({
+      sql: "SELECT COUNT(*) as count FROM cicli WHERE medico_id = ? AND stato = 'in corso'",
+      args: [medicoId],
+    }),
+    // Misurazioni oggi
+    db.execute({
+      sql: `SELECT COUNT(*) as count FROM misurazioni m
+            JOIN cicli c ON m.ciclo_id = c.id
+            WHERE c.medico_id = ? AND m.data_rilevazione = ?`,
+      args: [medicoId, todayStr],
+    }),
+    // Allarmi / Valori critici (ultimi 7 giorni)
+    db.execute({
+      sql: `SELECT COUNT(*) as count FROM misurazioni m
+            JOIN cicli c ON m.ciclo_id = c.id
+            WHERE c.medico_id = ? AND (m.pressione_max >= 160 OR m.pressione_min >= 100)`,
+      args: [medicoId],
+    }),
+    // Lista pazienti con ultimo stato ciclo e ultima misurazione (1 riga per paziente)
+    db.execute({
+      sql: `SELECT 
+              p.id, p.nome, p.cognome, p.codice_fiscale, p.telefono, p.data_nascita, p.email,
+              (SELECT COUNT(*) FROM cicli WHERE paziente_id = p.id) as cicli_count,
+              c.id as ciclo_id, c.stato as ciclo_stato, c.durata_settimane, c.braccio_riferimento,
+              (SELECT MAX(data_rilevazione) FROM misurazioni WHERE ciclo_id = c.id) as ultima_data,
+              (SELECT pressione_max FROM misurazioni WHERE ciclo_id = c.id ORDER BY data_rilevazione DESC, ora_rilevazione DESC LIMIT 1) as ultimo_max,
+              (SELECT pressione_min FROM misurazioni WHERE ciclo_id = c.id ORDER BY data_rilevazione DESC, ora_rilevazione DESC LIMIT 1) as ultimo_min
+            FROM pazienti p
+            LEFT JOIN cicli c ON c.id = (
+              SELECT c2.id FROM cicli c2
+              WHERE c2.paziente_id = p.id
+              ORDER BY CASE c2.stato
+                WHEN 'in corso' THEN 1
+                WHEN 'da iniziare' THEN 2
+                WHEN 'in pausa' THEN 3
+                ELSE 4
+              END, c2.data_creazione DESC
+              LIMIT 1
+            )
+            WHERE p.medico_id = ?
+            ORDER BY p.cognome ASC`,
+      args: [medicoId],
+    }),
+    // Trend di coorte reale
+    db.execute({
+      sql: `SELECT 
+              m.giorno_numero,
+              ROUND(AVG(m.pressione_max)) as avg_max,
+              ROUND(AVG(m.pressione_min)) as avg_min
+            FROM misurazioni m
+            JOIN cicli c ON m.ciclo_id = c.id
+            WHERE c.medico_id = ?
+            GROUP BY m.giorno_numero
+            ORDER BY m.giorno_numero ASC`,
+      args: [medicoId],
+    }),
+    // Distribuzione per fascia reale
+    db.execute({
+      sql: `SELECT 
+              m.slot,
+              ROUND(AVG(m.pressione_max)) as avg_max,
+              ROUND(AVG(m.pressione_min)) as avg_min
+            FROM misurazioni m
+            JOIN cicli c ON m.ciclo_id = c.id
+            WHERE c.medico_id = ?
+            GROUP BY m.slot`,
+      args: [medicoId],
+    }),
+  ]);
+
+  const totalPazienti = Number(pazRes.rows[0]?.count || 0);
+  const cicliInCorso = Number(cicliRes.rows[0]?.count || 0);
   const misurazioniOggi = Number(misOggiRes.rows[0]?.count || 0);
-
-  // Allarmi / Valori critici (ultimi 7 giorni)
-  const allarmiRes = await db.execute({
-    sql: `SELECT COUNT(*) as count FROM misurazioni m
-          JOIN cicli c ON m.ciclo_id = c.id
-          WHERE c.medico_id = ? AND (m.pressione_max >= 160 OR m.pressione_min >= 100)`,
-    args: [medicoId],
-  });
   const allarmiCount = Number(allarmiRes.rows[0]?.count || 0);
-
-  // Lista pazienti con ultimo stato ciclo e ultima misurazione
-  const listRes = await db.execute({
-    sql: `SELECT 
-            p.id, p.nome, p.cognome, p.codice_fiscale, p.telefono, p.data_nascita,
-            c.id as ciclo_id, c.stato as ciclo_stato, c.durata_settimane, c.braccio_riferimento,
-            (SELECT MAX(data_rilevazione) FROM misurazioni WHERE ciclo_id = c.id) as ultima_data,
-            (SELECT pressione_max FROM misurazioni WHERE ciclo_id = c.id ORDER BY data_rilevazione DESC, ora_rilevazione DESC LIMIT 1) as ultimo_max,
-            (SELECT pressione_min FROM misurazioni WHERE ciclo_id = c.id ORDER BY data_rilevazione DESC, ora_rilevazione DESC LIMIT 1) as ultimo_min
-          FROM pazienti p
-          LEFT JOIN cicli c ON c.paziente_id = p.id AND c.stato IN ('in corso', 'da iniziare', 'in pausa')
-          WHERE p.medico_id = ?
-          ORDER BY p.cognome ASC`,
-    args: [medicoId],
-  });
-
-  // Trend di coorte reale
-  const trendRes = await db.execute({
-    sql: `SELECT 
-            m.giorno_numero,
-            ROUND(AVG(m.pressione_max)) as avg_max,
-            ROUND(AVG(m.pressione_min)) as avg_min
-          FROM misurazioni m
-          JOIN cicli c ON m.ciclo_id = c.id
-          WHERE c.medico_id = ?
-          GROUP BY m.giorno_numero
-          ORDER BY m.giorno_numero ASC`,
-    args: [medicoId],
-  });
 
   const trendData = trendRes.rows.map((r) => ({
     day: `G${r.giorno_numero}`,
@@ -225,19 +259,6 @@ export async function getDoctorDashboardData(_medicoIdIgnorato?: string) {
     targetMax: 140,
     targetMin: 90,
   }));
-
-  // Distribuzione per fascia reale
-  const distRes = await db.execute({
-    sql: `SELECT 
-            m.slot,
-            ROUND(AVG(m.pressione_max)) as avg_max,
-            ROUND(AVG(m.pressione_min)) as avg_min
-          FROM misurazioni m
-          JOIN cicli c ON m.ciclo_id = c.id
-          WHERE c.medico_id = ?
-          GROUP BY m.slot`,
-    args: [medicoId],
-  });
 
   const slotMap: Record<string, string> = {
     mattina: "Mattina",
@@ -268,6 +289,8 @@ export async function getDoctorDashboardData(_medicoIdIgnorato?: string) {
       codiceFiscale: String(r.codice_fiscale),
       telefono: String(r.telefono),
       dataNascita: String(r.data_nascita),
+      email: r.email ? String(r.email) : null,
+      cicliCount: Number(r.cicli_count || 0),
       cicloId: r.ciclo_id ? String(r.ciclo_id) : null,
       cicloStato: r.ciclo_stato ? String(r.ciclo_stato) : "nessuno",
       durataSettimane: r.durata_settimane ? Number(r.durata_settimane) : 0,
@@ -329,38 +352,169 @@ export async function createPaziente(data: {
   return { success: true as const, pazienteId: id };
 }
 
+export async function deletePaziente(pazienteId: string) {
+  await ensureDb();
+  const s = await requireMedico();
+  await assertPazienteDelMedico(pazienteId, s.id);
+
+  await db.execute({
+    sql: "DELETE FROM misurazioni WHERE paziente_id = ?",
+    args: [pazienteId],
+  });
+  await db.execute({
+    sql: "DELETE FROM misurazioni_iniziali WHERE ciclo_id IN (SELECT id FROM cicli WHERE paziente_id = ?)",
+    args: [pazienteId],
+  });
+  await db.execute({
+    sql: "DELETE FROM cicli WHERE paziente_id = ?",
+    args: [pazienteId],
+  });
+  await db.execute({
+    sql: "DELETE FROM note_terapia WHERE paziente_id = ?",
+    args: [pazienteId],
+  });
+  await db.execute({
+    sql: "DELETE FROM comunicazione_destinatari WHERE paziente_id = ?",
+    args: [pazienteId],
+  });
+  await db.execute({
+    sql: "DELETE FROM push_subscriptions WHERE paziente_id = ?",
+    args: [pazienteId],
+  });
+  await db.execute({
+    sql: "DELETE FROM webauthn_credenziali WHERE ruolo = 'paziente' AND utente_id = ?",
+    args: [pazienteId],
+  });
+  await db.execute({
+    sql: "DELETE FROM pazienti WHERE id = ? AND medico_id = ?",
+    args: [pazienteId, s.id],
+  });
+
+  return { success: true };
+}
+
+// ------------------------------------
+// MEDICO: STAFF & PASSWORD
+// ------------------------------------
+export async function getProfiloMedico() {
+  await ensureDb();
+  const s = await requireMedico();
+
+  const [res, pkRes] = await Promise.all([
+    db.execute({
+      sql: "SELECT id, nome, cognome, email, specializzazione, telefono FROM medici WHERE id = ?",
+      args: [s.id],
+    }),
+    db.execute({
+      sql: "SELECT COUNT(*) as n FROM webauthn_credenziali WHERE ruolo = 'medico' AND utente_id = ?",
+      args: [s.id],
+    }),
+  ]);
+  const m = res.rows[0];
+  if (!m) return null;
+
+  return {
+    id: String(m.id),
+    nome: String(m.nome),
+    cognome: String(m.cognome),
+    email: String(m.email),
+    specializzazione: m.specializzazione ? String(m.specializzazione) : "Specialista in Cardiologia",
+    telefono: m.telefono ? String(m.telefono) : "—",
+    passkeyCount: Number(pkRes.rows[0]?.n ?? 0),
+  };
+}
+
+export async function changePasswordMedico(data: {
+  currentPassword: string;
+  newPassword: string;
+  revocaPasskey?: boolean;
+}) {
+  await ensureDb();
+  const s = await requireMedico();
+
+  const res = await db.execute({
+    sql: "SELECT password_hash FROM medici WHERE id = ?",
+    args: [s.id],
+  });
+  const medico = res.rows[0];
+  if (!medico) {
+    return { success: false as const, error: "Utente medico non trovato." };
+  }
+
+  const isCurrentValid = await verifySecret(data.currentPassword, String(medico.password_hash));
+  if (!isCurrentValid) {
+    return { success: false as const, error: "La password attuale non è corretta." };
+  }
+
+  const cleanNew = data.newPassword.trim();
+  if (cleanNew.length < 8) {
+    return { success: false as const, error: "La nuova password deve contenere almeno 8 caratteri." };
+  }
+
+  const newHash = await hashSecret(cleanNew);
+
+  await db.execute({
+    sql: `UPDATE medici
+          SET password_hash = ?, sessione_versione = COALESCE(sessione_versione, 0) + 1
+          WHERE id = ?`,
+    args: [newHash, s.id],
+  });
+
+  if (data.revocaPasskey) {
+    await db.execute({
+      sql: "DELETE FROM webauthn_credenziali WHERE ruolo = 'medico' AND utente_id = ?",
+      args: [s.id],
+    });
+  }
+
+  // Rigenera il token di sessione corrente con la nuova sessione_versione per non disconnettere il medico sul dispositivo in uso
+  await createSession("medico", s.id);
+
+  return { success: true as const };
+}
+
 // ------------------------------------
 // CLINICAL DETAIL (PATIENT DIARY & CHARTS)
 // ------------------------------------
-export async function getPazienteDettaglioClinico(pazienteId: string) {
+export async function getPazienteDettaglioClinico(pazienteId: string, cicloId?: string) {
   await ensureDb();
   await requireAccessoPaziente(pazienteId);
 
-  // Paziente
-  const pazRes = await db.execute({
-    sql: "SELECT * FROM pazienti WHERE id = ?",
-    args: [pazienteId],
-  });
+  const [pazRes, cicliRes, noteRes] = await Promise.all([
+    // Paziente
+    db.execute({
+      sql: "SELECT * FROM pazienti WHERE id = ?",
+      args: [pazienteId],
+    }),
+    // Cicli del paziente con statistiche sintetiche e ultima rilevazione
+    db.execute({
+      sql: `SELECT 
+              c.*,
+              (SELECT COUNT(*) FROM misurazioni m WHERE m.ciclo_id = c.id) as misurazioni_count,
+              (SELECT MAX(m.giorno_numero) FROM misurazioni m WHERE m.ciclo_id = c.id) as max_giorno_rilevato,
+              (SELECT MAX(m.data_rilevazione) FROM misurazioni m WHERE m.ciclo_id = c.id) as ultima_data,
+              (SELECT m.pressione_max FROM misurazioni m WHERE m.ciclo_id = c.id ORDER BY m.data_rilevazione DESC, m.ora_rilevazione DESC LIMIT 1) as ultimo_max,
+              (SELECT m.pressione_min FROM misurazioni m WHERE m.ciclo_id = c.id ORDER BY m.data_rilevazione DESC, m.ora_rilevazione DESC LIMIT 1) as ultimo_min
+            FROM cicli c
+            WHERE c.paziente_id = ?
+            ORDER BY 
+              CASE c.stato 
+                WHEN 'in corso' THEN 1 
+                WHEN 'da iniziare' THEN 2 
+                WHEN 'in pausa' THEN 3 
+                ELSE 4 
+              END, c.data_creazione DESC`,
+      args: [pazienteId],
+    }),
+    // Note di terapia
+    db.execute({
+      sql: `SELECT * FROM note_terapia WHERE paziente_id = ? ORDER BY created_at DESC`,
+      args: [pazienteId],
+    }),
+  ]);
+
   if (pazRes.rows.length === 0) return null;
   const p = pazRes.rows[0];
-
-  // Ciclo attivo o più recente
-  const cicliRes = await db.execute({
-    sql: `SELECT 
-            c.*,
-            (SELECT COUNT(*) FROM misurazioni m WHERE m.ciclo_id = c.id) as misurazioni_count,
-            (SELECT MAX(m.giorno_numero) FROM misurazioni m WHERE m.ciclo_id = c.id) as max_giorno_rilevato
-          FROM cicli c
-          WHERE c.paziente_id = ?
-          ORDER BY 
-            CASE c.stato 
-              WHEN 'in corso' THEN 1 
-              WHEN 'da iniziare' THEN 2 
-              WHEN 'in pausa' THEN 3 
-              ELSE 4 
-            END, c.data_creazione DESC`,
-    args: [pazienteId],
-  });
 
   const allCicli = cicliRes.rows.map((c) => ({
     id: String(c.id),
@@ -373,9 +527,12 @@ export async function getPazienteDettaglioClinico(pazienteId: string) {
     noteCiclo: c.note_ciclo ? String(c.note_ciclo) : null,
     misurazioniCount: Number(c.misurazioni_count || 0),
     maxGiornoRilevato: c.max_giorno_rilevato ? Number(c.max_giorno_rilevato) : 0,
+    ultimaData: c.ultima_data ? String(c.ultima_data) : null,
+    ultimoMax: c.ultimo_max !== null && c.ultimo_max !== undefined ? Number(c.ultimo_max) : null,
+    ultimoMin: c.ultimo_min !== null && c.ultimo_min !== undefined ? Number(c.ultimo_min) : null,
   }));
 
-  const activeCiclo = allCicli[0] || null;
+  const activeCiclo = (cicloId ? allCicli.find((c) => c.id === cicloId) : null) || allCicli[0] || null;
 
   // Misurazioni del ciclo attivo
   let misurazioni: any[] = [];
@@ -450,11 +607,6 @@ export async function getPazienteDettaglioClinico(pazienteId: string) {
     }
   }
 
-  // Note di terapia
-  const noteRes = await db.execute({
-    sql: `SELECT * FROM note_terapia WHERE paziente_id = ? ORDER BY created_at DESC`,
-    args: [pazienteId],
-  });
   const noteTerapia = noteRes.rows.map((n) => ({
     id: String(n.id),
     testo: String(n.testo),
@@ -472,6 +624,7 @@ export async function getPazienteDettaglioClinico(pazienteId: string) {
       telefono: String(p.telefono),
       email: p.email ? String(p.email) : null,
       noteAnamnesi: p.note_anamnesi ? String(p.note_anamnesi) : null,
+      disclaimerAccettato: Boolean(p.disclaimer_accettato),
     },
     activeCiclo,
     allCicli,
@@ -511,6 +664,14 @@ export async function updateStatoCiclo(cicloId: string, stato: "in corso" | "in 
 export async function deleteCiclo(cicloId: string) {
   await ensureDb();
   await requireAccessoCiclo(cicloId);
+  await db.execute({
+    sql: "DELETE FROM misurazioni WHERE ciclo_id = ?",
+    args: [cicloId],
+  });
+  await db.execute({
+    sql: "DELETE FROM misurazioni_iniziali WHERE ciclo_id = ?",
+    args: [cicloId],
+  });
   await db.execute({
     sql: "DELETE FROM cicli WHERE id = ?",
     args: [cicloId],

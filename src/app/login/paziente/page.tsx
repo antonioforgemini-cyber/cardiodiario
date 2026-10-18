@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { platformAuthenticatorIsAvailable } from "@simplewebauthn/browser";
 import { Logo } from "@/components/Logo";
+import { StethoscopeLoader } from "@/components/StethoscopeLoader";
 import { loginPaziente } from "@/db/actions";
 import { BiometricLoginButton } from "@/components/BiometricLoginButton";
 import { AttivaBiometriaSheet } from "@/components/AttivaBiometriaSheet";
@@ -89,6 +90,7 @@ export default function LoginPazientePage() {
 
   return (
     <div className="bg-surface font-body text-on-surface antialiased pt-safe pb-safe flex flex-col min-h-screen">
+      {loading && <StethoscopeLoader overlay text="Accesso al diario in corso..." />}
       <main className="flex-1 flex flex-col relative w-full max-w-md mx-auto px-5 py-6 space-y-6">
         {/* Header */}
         <header className="flex flex-col items-center text-center space-y-3">

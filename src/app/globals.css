@@ -68,6 +68,27 @@
   vertical-align: middle;
 }
 
+@keyframes stethoscope-fill {
+  0% {
+    clip-path: inset(100% 0 0 0);
+  }
+  75% {
+    clip-path: inset(0% 0 0 0);
+  }
+  90% {
+    clip-path: inset(0% 0 0 0);
+    opacity: 1;
+  }
+  100% {
+    clip-path: inset(0% 0 0 0);
+    opacity: 0.25;
+  }
+}
+
+.animate-stethoscope-fill {
+  animation: stethoscope-fill 1.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
 /* ----------------------------------------------------
  * PRINT STYLES: A4 CLINICAL REPORT & MEDICAL DOSSIER
  * ---------------------------------------------------- */

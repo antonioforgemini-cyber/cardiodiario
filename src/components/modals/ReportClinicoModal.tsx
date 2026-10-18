@@ -219,12 +219,12 @@ export const ReportClinicoModal: React.FC<ReportClinicoModalProps> = ({
             <div className="space-y-1">
               <Logo size={40} showText={true} subtitle="Monitoraggio Pressorio Domiciliare (HBPM)" />
               <p className="text-[11px] text-slate-500 font-medium pt-1">
-                Studio Medico Specialistico • Dipartimento di Cardiologia Clinica
+                Diario Personale di Monitoraggio Pressorio
               </p>
             </div>
             <div className="text-left sm:text-right text-xs text-slate-600 space-y-0.5">
               <p className="font-bold text-slate-900 text-sm">{medicoNome}</p>
-              <p className="text-[11px]">Dirigente Medico Cardiologia • A.O. Sant&apos;Anna e San Sebastiano, Caserta</p>
+              <p className="text-[11px]">Specialista in Cardiologia</p>
               <p className="text-[11px] pt-1">
                 <span className="text-slate-400">Data emissione:</span> <strong>{todayFormatted}</strong>
               </p>
@@ -521,19 +521,13 @@ export const ReportClinicoModal: React.FC<ReportClinicoModalProps> = ({
             )}
           </div>
 
-          {/* 7. Footer: Doctor Stamp, Signature & Legal Disclaimer */}
-          <div className="pt-4 border-t border-slate-200 flex items-end justify-between page-break-avoid text-xs">
-            <div className="space-y-1 text-slate-500 text-[10px] max-w-[360px]">
-              <p className="font-semibold text-slate-600">CardioDiario Platform • HBPM Report</p>
+          {/* 7. Footer: Legal Disclaimer */}
+          <div className="pt-4 border-t border-slate-200 flex items-center justify-between page-break-avoid text-xs">
+            <div className="space-y-1 text-slate-500 text-[10px]">
+              <p className="font-semibold text-slate-600">CardioDiario • Diario Personale delle Misurazioni (HBPM)</p>
               <p>
-                Documento clinico generato conformemente alle linee guida ESC/ESH per l&apos;automisurazione domiciliare della pressione arteriosa.
+                Riepilogo personale generato conformemente alle linee guida ESC/ESH per l&apos;automisurazione domiciliare della pressione arteriosa.
               </p>
-            </div>
-
-            <div className="text-center space-y-8 pr-4">
-              <p className="text-xs text-slate-700 font-semibold">Timbro e Firma del Medico Curante</p>
-              <div className="border-b border-slate-400 w-48 mx-auto"></div>
-              <p className="text-[11px] text-slate-500">{medicoNome}</p>
             </div>
           </div>
         </div>

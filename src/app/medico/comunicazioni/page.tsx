@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { getDoctorDashboardData, sendComunicazione } from "@/db/actions";
+import { StethoscopeLoader } from "@/components/StethoscopeLoader";
 
 export default function ComunicazioniPage() {
   const [pazienti, setPazienti] = useState<any[]>([]);
@@ -68,13 +69,14 @@ export default function ComunicazioniPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+        <StethoscopeLoader text="Caricamento centro notifiche..." />
       </div>
     );
   }
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8 max-w-5xl mx-auto">
+      {sending && <StethoscopeLoader overlay text="Trasmissione notifica in corso..." />}
       {/* Header */}
       <div className="border-b border-surface-variant/40 pb-5 sm:pb-6">
         <span className="text-[11px] sm:text-xs font-bold text-primary tracking-wider uppercase">

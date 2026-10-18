@@ -4,6 +4,7 @@ import React, { useEffect, useState, use } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Logo } from "@/components/Logo";
+import { StethoscopeLoader } from "@/components/StethoscopeLoader";
 import { getPazienteDettaglioClinico, getComunicazioniPaziente, getUtenteCorrente } from "@/db/actions";
 import { NuovaMisurazioneModal } from "@/components/modals/NuovaMisurazioneModal";
 import { OnboardingModal } from "@/components/modals/OnboardingModal";
@@ -11,6 +12,7 @@ import { ConclusioneCicloModal } from "@/components/modals/ConclusioneCicloModal
 import { NoteTerapiaModal } from "@/components/modals/NoteTerapiaModal";
 import { NotificheModal } from "@/components/modals/NotificheModal";
 import { ReportClinicoModal } from "@/components/modals/ReportClinicoModal";
+import { DisclaimerPazienteModal } from "@/components/modals/DisclaimerPazienteModal";
 import { classifyBloodPressure } from "@/lib/guidelines";
 import { calculateCurrentActiveDay, getDateForCycleDay, formatLocalDate } from "@/lib/dateUtils";
 
@@ -57,7 +59,7 @@ export default function PazienteDiarioPage({
         return;
       }
       const pId = u.id;
-      const res = await getPazienteDettaglioClinico(pId);
+      const res = await getPazienteDettaglioClinico(pId, cicloId);
       setData(res);
       if (res?.activeCiclo) {
         const total = (res.activeCiclo.durataSettimane || 1) * 7;
@@ -94,7 +96,7 @@ export default function PazienteDiarioPage({
   if (loading || !data) {
     return (
       <div className="flex items-center justify-center min-h-[70vh]">
-        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+        <StethoscopeLoader text="Caricamento diario..." />
       </div>
     );
   }
@@ -632,6 +634,14 @@ export default function PazienteDiarioPage({
         averages={averages || { avgMax: 125, avgMin: 80, avgBpm: 72, targetRate: 90, totalCount: misurazioni.length }}
         noteTerapia={noteTerapia}
         medicoNome="Dott.ssa Ivana Pariggiano"
+      />
+
+      <DisclaimerPazienteModal
+        isOpen={paziente.disclaimerAccettato === false}
+        onAcceptSuccess={() =>
+          setData({ ...data, paziente: { ...paziente, disclaimerAccettato: true } })
+        }
+        onDeclineLogout={() => router.push("/login/paziente")}
       />
     </div>
   );

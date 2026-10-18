@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { getDoctorDashboardData } from "@/db/actions";
+import { StethoscopeLoader } from "@/components/StethoscopeLoader";
 import { NuovoPazienteModal } from "@/components/modals/NuovoPazienteModal";
 import { SchedaCredenzialiModal } from "@/components/modals/SchedaCredenzialiModal";
 import { InvioComunicazioneModal } from "@/components/modals/InvioComunicazioneModal";
@@ -54,10 +55,7 @@ export default function DoctorDashboardPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-sm font-semibold text-secondary">Caricamento cruscotto clinico...</p>
-        </div>
+        <StethoscopeLoader text="Caricamento cruscotto clinico..." />
       </div>
     );
   }
@@ -84,7 +82,7 @@ export default function DoctorDashboardPage() {
             Cruscotto Medico Esecutivo
           </h1>
           <p className="text-xs sm:text-sm text-on-surface-variant">
-            Dott.ssa Ivana Pariggiano • A.O. Sant&apos;Anna e San Sebastiano, Caserta
+            Dott.ssa Ivana Pariggiano • Specialista in Cardiologia
           </p>
         </div>
 

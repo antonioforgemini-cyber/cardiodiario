@@ -5,6 +5,7 @@ import { browserSupportsWebAuthn } from "@simplewebauthn/browser";
 import { listaMiePasskey, eliminaMiaPasskey } from "@/db/passkey-actions";
 import { attivaBiometriaSuQuestoDispositivo } from "@/components/AttivaBiometriaSheet";
 import { dimenticaBiometria } from "@/lib/biometria-client";
+import { StethoscopeLoader } from "@/components/StethoscopeLoader";
 
 interface Dispositivo {
   id: string;
@@ -73,6 +74,7 @@ export const GestioneBiometriaModal: React.FC<GestioneBiometriaModalProps> = ({ 
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-inverse-surface/40 backdrop-blur-sm animate-in fade-in duration-200">
+      {busy && <StethoscopeLoader overlay text="Aggiornamento passkey in corso..." />}
       <div className="bg-surface-container-lowest w-full max-w-md rounded-t-3xl sm:rounded-3xl shadow-2xl border-t sm:border border-surface-variant/50 overflow-hidden max-h-[88vh] flex flex-col animate-in slide-in-from-bottom-6 duration-300">
         <div className="p-5 border-b border-surface-variant/40 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -103,7 +105,7 @@ export const GestioneBiometriaModal: React.FC<GestioneBiometriaModalProps> = ({ 
 
           {loading ? (
             <div className="flex justify-center py-6">
-              <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+              <StethoscopeLoader size="md" text="Caricamento dispositivi..." />
             </div>
           ) : items.length === 0 ? (
             <p className="text-sm text-on-surface-variant text-center py-4">
