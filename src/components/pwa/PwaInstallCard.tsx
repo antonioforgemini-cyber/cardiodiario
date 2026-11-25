@@ -4,11 +4,12 @@ import React, { useEffect, useState } from "react";
 import { Download, Share, PlusSquare, Smartphone, X } from "lucide-react";
 import { AppDialog } from "@/components/ui/AppDialog";
 import { isIosDevice, isRunningStandalone } from "@/lib/push-client";
-
-interface BeforeInstallPromptEvent extends Event {
-  prompt: () => Promise<void>;
-  userChoice: Promise<{ outcome: "accepted" | "dismissed"; platform: string }>;
-}
+import {
+  consumeDeferredInstallPrompt,
+  getInstallStoreSnapshot,
+  subscribeInstallStore,
+  type InstallStoreSnapshot,
+} from "@/lib/pwa-install-store";
 
 interface PwaInstallCardProps {
   compact?: boolean;
@@ -18,7 +19,10 @@ const DISMISS_KEY = "cd_pwa_banner_dismissed";
 
 export const PwaInstallCard: React.FC<PwaInstallCardProps> = ({ compact = false }) => {
   const [canInstallWebApi, setCanInstallWebApi] = useState(false);
-  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+  const [installSnapshot, setInstallSnapshot] = useState<InstallStoreSnapshot>({
+    hasPrompt: false,
+    installed: false,
+  });
   const [isIosSafariGuide, setIsIosSafariGuide] = useState(false);
   const [dismissed, setDismissed] = useState(false);
   const [installing, setInstalling] = useState(false);
@@ -36,7 +40,10 @@ export const PwaInstallCard: React.FC<PwaInstallCardProps> = ({ compact = false 
       }
     } catch {}
 
-    const navProto = typeof Navigator !== "undefined" ? (Navigator.prototype as Navigator & { install?: () => Promise<void> }) : null;
+    const navProto =
+      typeof Navigator !== "undefined"
+        ? (Navigator.prototype as Navigator & { install?: () => Promise<void> })
+        : null;
     const supportsWebInstall = Boolean(navProto && typeof navProto.install === "function");
     if (supportsWebInstall) {
       setCanInstallWebApi(true);
@@ -46,30 +53,24 @@ export const PwaInstallCard: React.FC<PwaInstallCardProps> = ({ compact = false 
       setIsIosSafariGuide(true);
     }
 
-    const onBeforeInstallPrompt = (event: Event) => {
-      event.preventDefault();
-      if (!supportsWebInstall) {
-        setDeferredPrompt(event as BeforeInstallPromptEvent);
+    setInstallSnapshot(getInstallStoreSnapshot());
+    const unsubscribe = subscribeInstallStore(() => {
+      const next = getInstallStoreSnapshot();
+      setInstallSnapshot(next);
+      if (next.installed) {
+        setCanInstallWebApi(false);
+        setIsIosSafariGuide(false);
+        setStatusMessage("Applicazione installata con successo.");
       }
-    };
+    });
 
-    const onAppInstalled = () => {
-      setDeferredPrompt(null);
-      setCanInstallWebApi(false);
-      setIsIosSafariGuide(false);
-      setStatusMessage("Applicazione installata con successo.");
-    };
-
-    window.addEventListener("beforeinstallprompt", onBeforeInstallPrompt);
-    window.addEventListener("appinstalled", onAppInstalled);
     return () => {
-      window.removeEventListener("beforeinstallprompt", onBeforeInstallPrompt);
-      window.removeEventListener("appinstalled", onAppInstalled);
+      unsubscribe();
     };
   }, []);
 
   if (dismissed) return null;
-  if (!canInstallWebApi && !deferredPrompt && !isIosSafariGuide) return null;
+  if (!canInstallWebApi && !installSnapshot.hasPrompt && !isIosSafariGuide) return null;
 
   const handleDismiss = () => {
     setDismissed(true);
@@ -81,7 +82,7 @@ export const PwaInstallCard: React.FC<PwaInstallCardProps> = ({ compact = false 
   const handleInstallClick = async () => {
     if (installing) return;
 
-    if (isIosSafariGuide && !canInstallWebApi && !deferredPrompt) {
+    if (isIosSafariGuide && !canInstallWebApi && !installSnapshot.hasPrompt) {
       setIosGuideOpen(true);
       return;
     }
@@ -95,16 +96,17 @@ export const PwaInstallCard: React.FC<PwaInstallCardProps> = ({ compact = false 
         await nav.install?.();
         setStatusMessage("CardioDiario è stato installato o aperto.");
         setCanInstallWebApi(false);
-      } else if (deferredPrompt) {
-        const promptEvent = deferredPrompt;
-        setDeferredPrompt(null);
-        await promptEvent.prompt();
-        const { outcome } = await promptEvent.userChoice;
-        setStatusMessage(
-          outcome === "accepted"
-            ? "Installazione completata!"
-            : "Installazione annullata. Puoi riprovare in seguito."
-        );
+      } else {
+        const promptEvent = consumeDeferredInstallPrompt();
+        if (promptEvent) {
+          await promptEvent.prompt();
+          const { outcome } = await promptEvent.userChoice;
+          setStatusMessage(
+            outcome === "accepted"
+              ? "Installazione completata!"
+              : "Installazione annullata. Puoi riprovare in seguito."
+          );
+        }
       }
     } catch (err) {
       if (err instanceof Error && err.name === "AbortError") {
@@ -160,7 +162,7 @@ export const PwaInstallCard: React.FC<PwaInstallCardProps> = ({ compact = false 
                 <span>
                   {installing
                     ? "Installazione..."
-                    : isIosSafariGuide && !canInstallWebApi && !deferredPrompt
+                    : isIosSafariGuide && !canInstallWebApi && !installSnapshot.hasPrompt
                     ? "Vedi come installare su iPhone"
                     : "Installa App Ora"}
                 </span>

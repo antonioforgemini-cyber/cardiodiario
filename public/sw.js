@@ -1,9 +1,8 @@
 // CardioDiario Service Worker — PWA App Shell + Safe Offline Fallback + Web Push
-const CACHE_NAME = "cardiodiario-v1";
+const CACHE_NAME = "cardiodiario-v2";
 const OFFLINE_URL = "/offline";
 const PRECACHE_URLS = [
   OFFLINE_URL,
-  "/manifest.json",
   "/icon.svg",
   "/icons/icon-192.png",
   "/icons/icon-512.png",
@@ -58,12 +57,11 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Asset statici versionati e risorse PWA: CacheFirst
+  // Asset statici versionati e icone PWA: CacheFirst
   const isImmutableAsset =
     url.pathname.startsWith("/_next/static/") ||
     url.pathname.startsWith("/icons/") ||
-    url.pathname === "/icon.svg" ||
-    url.pathname === "/manifest.json";
+    url.pathname === "/icon.svg";
 
   if (isImmutableAsset) {
     event.respondWith(

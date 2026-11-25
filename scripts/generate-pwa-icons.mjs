@@ -173,6 +173,11 @@ const targets = [
     opts: { roundedBg: true, opaqueBg: false, scale: 1, monochromeBadge: false },
   },
   {
+    name: "icon-maskable-192.png",
+    size: 192,
+    opts: { roundedBg: false, opaqueBg: true, scale: 0.72, monochromeBadge: false },
+  },
+  {
     name: "icon-maskable-512.png",
     size: 512,
     opts: { roundedBg: false, opaqueBg: true, scale: 0.72, monochromeBadge: false },
