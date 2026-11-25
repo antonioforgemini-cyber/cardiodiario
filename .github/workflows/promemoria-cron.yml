@@ -1,0 +1,40 @@
+name: Promemoria Pressione Web Push
+
+on:
+  schedule:
+    # Copre CET (UTC+1: 10, 15, 21) e CEST (UTC+2: 9, 14, 20) per le ore 11:00, 16:00 e 22:00 Europe/Rome.
+    # L'endpoint verifica l'ora esatta di Roma ed è idempotente via tabella promemoria_inviati.
+    - cron: "0 9,10,14,15,20,21 * * *"
+  workflow_dispatch:
+    inputs:
+      slot:
+        description: "Slot manuale opzionale (lascia vuoto per auto da orario Europe/Rome)"
+        required: false
+        type: choice
+        options:
+          - ""
+          - mattina
+          - pomeriggio
+          - sera
+
+jobs:
+  trigger-promemoria:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Chiama endpoint promemoria CardioDiario
+        env:
+          APP_URL: ${{ secrets.APP_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          MANUAL_SLOT: ${{ inputs.slot }}
+        run: |
+          if [ -z "$APP_URL" ] || [ -z "$CRON_SECRET" ]; then
+            echo "Errore: configura i secrets APP_URL e CRON_SECRET nelle impostazioni del repository GitHub."
+            exit 1
+          fi
+          BASE_URL="${APP_URL%/}"
+          QUERY=""
+          if [ -n "$MANUAL_SLOT" ]; then
+            QUERY="?slot=${MANUAL_SLOT}"
+          fi
+          curl --fail-with-body -sS -H "Authorization: Bearer ${CRON_SECRET}" "${BASE_URL}/api/cron/promemoria${QUERY}"
+          echo ""
