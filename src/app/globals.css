@@ -1,22 +1,57 @@
-@import url("https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400..700;1,7..72,400..700&family=Nunito+Sans:ital,opsz,wght@0,6..12,300..800;1,6..12,300..800&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200");
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  color-scheme: light;
+  accent-color: #4a7c59;
+  --scrollbar-thumb: #74796e;
+  --scrollbar-track: #f0ece4;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
 @layer base {
-  html, body {
+  html,
+  body {
     margin: 0;
     padding: 0;
     background-color: #faf6f0;
     color: #2e3230;
-    font-family: "Nunito Sans", sans-serif;
+    font-family: var(--font-nunito-sans), system-ui, -apple-system, sans-serif;
+    line-height: 1.6;
   }
 
   body {
     overscroll-behavior-y: none;
     -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  th {
+    text-wrap: balance;
+  }
+
+  p,
+  li {
+    text-wrap: pretty;
+  }
+
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  select,
+  textarea {
+    font-size: max(1rem, 1em);
+  }
+
+  textarea {
+    resize: vertical;
+  }
+
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 3px solid #4a7c59;
+    outline-offset: 2px;
   }
 
   .pb-safe {
@@ -28,21 +63,64 @@
   }
 }
 
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+@media (forced-colors: active) {
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 3px solid Highlight;
+    outline-offset: 2px;
+  }
 }
-::-webkit-scrollbar-track {
-  background: transparent;
+
+/* Visually hidden utility (stays visible when focused, e.g. skip-link) */
+.visually-hidden:where(:not(:focus-within, :active)) {
+  position: absolute !important;
+  clip-path: inset(50%) !important;
+  overflow: hidden !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: -1px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  white-space: nowrap !important;
 }
-::-webkit-scrollbar-thumb {
-  background: #c4c8bc;
-  border-radius: 9999px;
+
+.skip-link:focus-visible {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 200;
+  padding: 0.625rem 1rem;
+  border-radius: 0.75rem;
+  background: #4a7c59;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.875rem;
+  box-shadow: 0 8px 24px rgba(46, 50, 48, 0.2);
 }
-::-webkit-scrollbar-thumb:hover {
-  background: #74796e;
+
+/* Post-interaction form validation (never flag untouched required fields on load) */
+:is(input, select, textarea):not([type="range"]):not([type="checkbox"]):not([type="radio"]):is(:user-invalid, .user-invalid-fallback) {
+  border-color: #b83230 !important;
+  background-color: #fff6f5 !important;
 }
+
+/* Legacy WebKit scrollbar fallback only when standard scrollbar-color is unsupported */
+@supports not (scrollbar-color: auto) {
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #4a4e4a;
+  }
+}
+
 .scrollbar-none::-webkit-scrollbar {
   display: none;
 }
@@ -51,23 +129,7 @@
   scrollbar-width: none;
 }
 
-.material-symbols-outlined {
-  font-family: 'Material Symbols Outlined';
-  font-weight: normal;
-  font-style: normal;
-  font-size: 24px;
-  line-height: 1;
-  letter-spacing: normal;
-  text-transform: none;
-  display: inline-block;
-  white-space: nowrap;
-  word-wrap: normal;
-  direction: ltr;
-  -webkit-font-feature-settings: 'liga';
-  -webkit-font-smoothing: antialiased;
-  vertical-align: middle;
-}
-
+/* Stethoscope loader animation */
 @keyframes stethoscope-fill {
   0% {
     clip-path: inset(100% 0 0 0);
@@ -85,15 +147,297 @@
   }
 }
 
-.animate-stethoscope-fill {
-  animation: stethoscope-fill 1.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+@media (prefers-reduced-motion: no-preference) {
+  .animate-stethoscope-fill {
+    animation: stethoscope-fill 1.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-stethoscope-fill {
+    clip-path: inset(0% 0 0 0);
+    opacity: 0.85;
+  }
+  .animate-ping,
+  .animate-pulse,
+  .animate-bounce {
+    animation: none !important;
+  }
+}
+
+/* ----------------------------------------------------
+ * NATIVE TOP-LAYER <dialog> (AppDialog)
+ * ---------------------------------------------------- */
+dialog.app-dialog {
+  opacity: 0;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  overflow: visible;
+  transition-property: opacity, transform, display, overlay;
+  transition-duration: 0.22s;
+  transition-timing-function: ease-out;
+  transition-behavior: allow-discrete;
+}
+
+dialog.app-dialog:modal {
+  overscroll-behavior: contain;
+}
+
+dialog.app-dialog::backdrop {
+  background-color: rgb(46 50 48 / 0);
+  backdrop-filter: blur(0px);
+  overflow: hidden;
+  overscroll-behavior: contain;
+  transition-property: background-color, backdrop-filter, display, overlay;
+  transition-duration: 0.22s;
+  transition-timing-function: ease-out;
+  transition-behavior: allow-discrete;
+}
+
+dialog.app-dialog[open]:not([data-closing]) {
+  opacity: 1;
+  display: flex;
+}
+
+dialog.app-dialog[open]:not([data-closing])::backdrop {
+  background-color: rgb(46 50 48 / 0.45);
+  backdrop-filter: blur(4px);
+}
+
+@starting-style {
+  dialog.app-dialog[open]:not([data-closing]) {
+    opacity: 0;
+  }
+  dialog.app-dialog[open]:not([data-closing])::backdrop {
+    background-color: rgb(46 50 48 / 0);
+    backdrop-filter: blur(0px);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  dialog.app-dialog {
+    transform: translateY(10px) scale(0.985);
+  }
+  dialog.app-dialog[open]:not([data-closing]) {
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @starting-style {
+    dialog.app-dialog[open]:not([data-closing]) {
+      transform: translateY(10px) scale(0.985);
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  dialog.app-dialog,
+  dialog.app-dialog::backdrop {
+    transition-duration: 0.1s;
+  }
+}
+
+/* ----------------------------------------------------
+ * NATIVE MOBILE NAVIGATION DRAWER (Scroll-Snap + Top-Layer)
+ * ---------------------------------------------------- */
+dialog.app-drawer {
+  --drawer-width: min(19rem, 84dvw, 100dvw - 24px);
+  --drawer-backdrop: 0;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  overflow: visible;
+}
+
+dialog.app-drawer:modal {
+  overscroll-behavior: contain;
+}
+
+dialog.app-drawer::backdrop {
+  background: rgb(46 50 48);
+  opacity: calc(var(--drawer-backdrop) * 0.48);
+  overflow: hidden;
+  overscroll-behavior: contain;
+}
+
+.app-drawer-scroller {
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--drawer-width) 100%;
+  width: 100%;
+  height: 100%;
+  overflow-x: scroll;
+  overscroll-behavior: none;
+  scrollbar-width: none;
+  scroll-snap-type: x mandatory;
+}
+
+.app-drawer-scroller::-webkit-scrollbar {
+  display: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .app-drawer-scroller {
+    scroll-behavior: smooth;
+  }
+}
+
+.app-drawer-scroller::after {
+  content: "";
+  scroll-snap-align: end;
+  scroll-initial-target: nearest;
+}
+
+.app-drawer-sheet {
+  height: 100svh;
+  overflow-y: auto;
+  scroll-snap-align: start;
+  scrollbar-width: none;
+}
+
+@supports (animation-timeline: scroll()) {
+  @property --drawer-backdrop {
+    syntax: "<number>";
+    inherits: true;
+    initial-value: 0;
+  }
+
+  @keyframes fade-drawer-backdrop {
+    0% {
+      --drawer-backdrop: 1;
+    }
+    100% {
+      --drawer-backdrop: 0;
+    }
+  }
+
+  dialog.app-drawer {
+    timeline-scope: --drawer-fade;
+    animation: fade-drawer-backdrop linear both;
+    animation-timeline: --drawer-fade;
+  }
+
+  .app-drawer-scroller {
+    scroll-timeline: --drawer-fade x;
+  }
+}
+
+/* ----------------------------------------------------
+ * RESPONSIVE DATA TABLE (@container adaptive stack)
+ * ---------------------------------------------------- */
+.responsive-table-wrapper {
+  overflow-x: auto;
+  max-inline-size: 100%;
+  container-type: inline-size;
+}
+
+@container (width < 600px) {
+  .responsive-table-wrapper table,
+  .responsive-table-wrapper thead,
+  .responsive-table-wrapper tbody,
+  .responsive-table-wrapper tr,
+  .responsive-table-wrapper th,
+  .responsive-table-wrapper td {
+    display: block;
+  }
+
+  .responsive-table-wrapper thead {
+    display: none;
+  }
+
+  .responsive-table-wrapper tbody {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .responsive-table-wrapper tbody tr {
+    background: #f5f1ea;
+    border: 1px solid rgba(196, 200, 188, 0.5);
+    border-radius: 1rem;
+    padding: 0.875rem 1rem;
+  }
+
+  .responsive-table-wrapper tbody th[scope="row"] {
+    padding: 0 0 0.5rem 0;
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(196, 200, 188, 0.4);
+  }
+
+  .responsive-table-wrapper tbody td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.3rem 0;
+    text-align: right;
+  }
+
+  .responsive-table-wrapper tbody td[data-label]::before {
+    content: attr(data-label);
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #6b6358;
+    text-align: left;
+    flex-shrink: 0;
+  }
+
+  .responsive-table-wrapper tbody tr.responsive-empty-row td {
+    display: block;
+    text-align: center;
+    padding: 2rem 0.5rem;
+  }
+
+  .responsive-table-wrapper tbody tr.responsive-empty-row td::before {
+    content: none;
+  }
+}
+
+/* ----------------------------------------------------
+ * PERSISTENT TOAST POPOVER REGION
+ * ---------------------------------------------------- */
+.app-toast-region {
+  position: fixed;
+  inset: auto 1rem 1rem auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  max-width: min(24rem, calc(100vw - 2rem));
+  z-index: 120;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.app-toast-region[popover]:not(:popover-open):not(.\:popover-open) {
+  display: none;
+}
+
+.app-toast-region[popover]:is(:popover-open, .\:popover-open) {
+  display: flex;
 }
 
 /* ----------------------------------------------------
  * PRINT STYLES: A4 CLINICAL REPORT & MEDICAL DOSSIER
  * ---------------------------------------------------- */
 @media print {
-  /* Hide the entire application except the active report portal */
   body.printing-report > *:not(#report-modal-portal) {
     display: none !important;
   }
@@ -102,10 +446,18 @@
     display: block !important;
     position: static !important;
     width: 100% !important;
+    height: auto !important;
     background: #ffffff !important;
     padding: 0 !important;
     margin: 0 !important;
     overflow: visible !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  body.printing-report #report-modal-portal::backdrop,
+  body.printing-credenziali #credenziali-modal-portal::backdrop {
+    display: none !important;
   }
 
   body.printing-report #report-modal-portal .no-print {
@@ -122,7 +474,6 @@
     padding: 0 !important;
   }
 
-  /* Printing Credenziali Card */
   body.printing-credenziali > *:not(#credenziali-modal-portal) {
     display: none !important;
   }
@@ -131,9 +482,12 @@
     display: flex !important;
     position: static !important;
     width: 100% !important;
+    height: auto !important;
     background: transparent !important;
     padding: 0 !important;
     margin: 0 !important;
+    opacity: 1 !important;
+    transform: none !important;
   }
 
   body.printing-credenziali #credenziali-modal-portal .no-print {
@@ -153,7 +507,8 @@
     margin: 10mm 12mm 12mm 12mm;
   }
 
-  html, body {
+  html,
+  body {
     background: #ffffff !important;
     color: #0f172a !important;
     font-size: 11pt !important;

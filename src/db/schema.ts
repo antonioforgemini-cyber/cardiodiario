@@ -100,6 +100,15 @@ export async function initDb() {
       );
     `),
     db.execute(`
+      CREATE TABLE IF NOT EXISTS promemoria_inviati (
+        ciclo_id TEXT NOT NULL,
+        data_rif DATE NOT NULL,
+        slot TEXT CHECK(slot IN ('mattina', 'pomeriggio', 'sera')) NOT NULL,
+        sent_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY(ciclo_id, data_rif, slot)
+      );
+    `),
+    db.execute(`
       CREATE TABLE IF NOT EXISTS comunicazioni (
         id TEXT PRIMARY KEY,
         medico_id TEXT NOT NULL,
@@ -140,7 +149,6 @@ export async function initDb() {
     `),
   ]);
 
-  // Indici additivi per velocizzare la navigazione e le query sui diari
   await Promise.all([
     db.execute(`CREATE INDEX IF NOT EXISTS idx_login_tentativi ON login_tentativi(chiave, created_at);`),
     db.execute(`CREATE INDEX IF NOT EXISTS idx_webauthn_utente ON webauthn_credenziali(ruolo, utente_id);`),
@@ -149,21 +157,36 @@ export async function initDb() {
     db.execute(`CREATE INDEX IF NOT EXISTS idx_cicli_medico ON cicli(medico_id, stato);`),
     db.execute(`CREATE INDEX IF NOT EXISTS idx_misurazioni_ciclo ON misurazioni(ciclo_id, data_rilevazione);`),
     db.execute(`CREATE INDEX IF NOT EXISTS idx_note_paziente ON note_terapia(paziente_id);`),
+    db.execute(`CREATE INDEX IF NOT EXISTS idx_push_sub_paziente ON push_subscriptions(paziente_id);`),
   ]);
 
-  // ------------------------------------
-  // MIGRAZIONI COLONNE (idempotenti e parallele per tabella)
-  // ------------------------------------
   await Promise.all([
     ensureColumns("pazienti", [
       { column: "sessione_versione", definition: "INTEGER NOT NULL DEFAULT 0" },
       { column: "disclaimer_accettato", definition: "INTEGER NOT NULL DEFAULT 0" },
       { column: "disclaimer_accettato_il", definition: "DATETIME" },
+      { column: "notifiche_mute_mode", definition: "TEXT NOT NULL DEFAULT 'active'" },
+      { column: "notifiche_mute_until", definition: "TEXT" },
     ]),
     ensureColumns("medici", [
       { column: "sessione_versione", definition: "INTEGER NOT NULL DEFAULT 0" },
     ]),
+    ensureColumns("push_subscriptions", [
+      { column: "user_agent", definition: "TEXT" },
+      { column: "updated_at", definition: "DATETIME" },
+    ]),
   ]);
+
+  // Deduplica eventuali endpoint ripetuti prima di creare l'indice univoco
+  await db.execute(
+    `DELETE FROM push_subscriptions
+     WHERE rowid NOT IN (
+       SELECT MAX(rowid) FROM push_subscriptions GROUP BY endpoint
+     )`
+  );
+  await db.execute(
+    `CREATE UNIQUE INDEX IF NOT EXISTS idx_push_sub_endpoint ON push_subscriptions(endpoint);`
+  );
 }
 
 async function ensureColumns(

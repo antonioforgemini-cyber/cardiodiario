@@ -1,8 +1,11 @@
 "use client";
 
-import React, { useEffect, useState, useMemo } from "react";
-import { createPortal } from "react-dom";
+import React, { useEffect, useMemo } from "react";
+import { ClipboardList, FileText, Printer } from "lucide-react";
 import { Logo } from "@/components/Logo";
+import { AppDialog } from "@/components/ui/AppDialog";
+import { classifyBloodPressure } from "@/lib/guidelines";
+import { formatItalianDate } from "@/lib/dateUtils";
 
 interface Misurazione {
   id: string;
@@ -67,43 +70,23 @@ export const ReportClinicoModal: React.FC<ReportClinicoModalProps> = ({
   noteTerapia = [],
   medicoNome = "Dott.ssa Ivana Pariggiano",
 }) => {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  // Filter ONLY notes visible to the patient (strictly exclude private doctor notes)
   const patientVisibleNotes = useMemo(() => {
     return (noteTerapia || []).filter((n) => n.visibilePaziente);
   }, [noteTerapia]);
 
-  // Classification helper (ESC/ESH Guidelines)
-  const getEscCategory = (max: number, min: number) => {
-    if (max < 120 && min < 80) return { label: "Ottimale", bg: "bg-emerald-100 text-emerald-800", color: "#10b981" };
-    if (max <= 129 && min <= 84) return { label: "Normale", bg: "bg-green-100 text-green-800", color: "#22c55e" };
-    if (max <= 139 || min <= 89) return { label: "Normale-Alta", bg: "bg-amber-100 text-amber-800", color: "#f59e0b" };
-    if (max <= 159 || min <= 99) return { label: "Ipertensione Grado 1", bg: "bg-orange-100 text-orange-800", color: "#f97316" };
-    return { label: "Ipertensione Grado 2", bg: "bg-red-100 text-red-800", color: "#ef4444" };
-  };
+  const globalEsc = classifyBloodPressure(averages.avgMax || 120, averages.avgMin || 80);
 
-  // Global classification from averages
-  const globalEsc = getEscCategory(averages.avgMax || 120, averages.avgMin || 80);
-
-  // Today formatted
   const todayFormatted = new Intl.DateTimeFormat("it-IT", {
     day: "numeric",
     month: "long",
     year: "numeric",
   }).format(new Date());
 
-  // Print handler
   const handlePrint = () => {
     document.body.classList.add("printing-report");
     window.print();
   };
 
-  // Setup print lifecycle listeners
   useEffect(() => {
     if (!isOpen) return;
 
@@ -124,9 +107,6 @@ export const ReportClinicoModal: React.FC<ReportClinicoModalProps> = ({
     };
   }, [isOpen]);
 
-  if (!isOpen || !mounted) return null;
-
-  // SVG Chart Geometry calculation for printable vector chart
   const svgWidth = 720;
   const svgHeight = 170;
   const paddingX = 40;
@@ -141,7 +121,6 @@ export const ReportClinicoModal: React.FC<ReportClinicoModalProps> = ({
     return paddingY + chartH - ((clamped - minY) / (maxY - minY)) * chartH;
   };
 
-  // Points for SVG path
   const numPoints = misurazioni.length;
   const getX = (idx: number) => {
     if (numPoints <= 1) return paddingX + chartW / 2;
@@ -161,60 +140,69 @@ export const ReportClinicoModal: React.FC<ReportClinicoModalProps> = ({
     val: m.pressioneMin,
   }));
 
-  const maxPath = maxPoints.length > 0
-    ? maxPoints.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ")
-    : "";
+  const maxPath =
+    maxPoints.length > 0
+      ? maxPoints.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ")
+      : "";
 
-  const minPath = minPoints.length > 0
-    ? minPoints.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ")
-    : "";
+  const minPath =
+    minPoints.length > 0
+      ? minPoints.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ")
+      : "";
 
-  const reportContent = (
-    <div
-      id="report-modal-portal"
-      className="fixed inset-0 z-[9999] flex flex-col bg-slate-900/80 backdrop-blur-md overflow-y-auto animate-in fade-in duration-200"
+  const inizioCicloFormatted = formatItalianDate(
+    ciclo?.dataInizioEffettiva || ciclo?.dataCreazione
+  );
+
+  return (
+    <AppDialog
+      isOpen={isOpen}
+      onClose={onClose}
+      labelledBy="report-preview-title"
+      variant="fullscreen-print"
+      portalId="report-modal-portal"
+      panelClassName="bg-slate-900/75"
     >
-      {/* Top Floating Toolbar (Hidden during actual print) */}
       <div className="sticky top-0 z-50 w-full bg-surface-container-lowest/95 backdrop-blur border-b border-surface-variant/40 px-3 sm:px-6 py-2.5 sm:py-3.5 shadow-md flex items-center justify-between gap-2 no-print">
         <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center flex-shrink-0">
-            <span className="material-symbols-outlined text-[18px] sm:text-[20px]">description</span>
+          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+            <FileText className="w-4 h-4 sm:w-5 sm:h-5" aria-hidden="true" />
           </div>
           <div className="min-w-0">
-            <h2 className="text-xs sm:text-sm font-bold text-on-surface truncate">Anteprima Referto A4</h2>
-            <p className="text-[10px] sm:text-[11px] text-on-surface-variant hidden sm:block">
+            <h1 id="report-preview-title" className="text-xs sm:text-sm font-bold text-on-surface truncate">
+              Anteprima Referto A4
+            </h1>
+            <p className="text-[11px] text-on-surface-variant hidden sm:block">
               Pronto per la stampa cartacea o il salvataggio in PDF (Formato A4)
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 flex-shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
           <button
             type="button"
             onClick={onClose}
-            className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs font-semibold text-secondary hover:bg-surface-container-high transition-colors"
+            className="min-h-[40px] px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs font-semibold text-secondary hover:bg-surface-container-high transition-colors"
           >
             Chiudi
           </button>
           <button
             type="button"
+            autoFocus
             onClick={handlePrint}
-            className="px-3 sm:px-5 py-1.5 sm:py-2 rounded-xl bg-primary hover:bg-primary/90 text-on-primary text-xs font-bold flex items-center gap-1.5 sm:gap-2 shadow-sm transition-all active:scale-95"
+            className="min-h-[40px] px-3 sm:px-5 py-1.5 sm:py-2 rounded-xl bg-primary hover:bg-primary/90 text-on-primary text-xs font-bold flex items-center gap-1.5 sm:gap-2 shadow-sm transition-colors"
           >
-            <span className="material-symbols-outlined text-sm sm:text-base">print</span>
+            <Printer className="w-4 h-4" aria-hidden="true" />
             <span>Stampa / PDF</span>
           </button>
         </div>
       </div>
 
-      {/* Main Preview Container */}
       <div className="flex-1 py-4 sm:py-8 px-2 sm:px-4 flex justify-center items-start overflow-x-hidden">
-        {/* The Printable A4 Sheet */}
         <div
           id="printable-report"
-          className="printable-sheet w-full max-w-[820px] bg-white text-slate-900 p-4 sm:p-10 md:p-12 shadow-2xl rounded-2xl border border-slate-200 transition-all font-sans"
+          className="printable-sheet w-full max-w-[820px] bg-white text-slate-900 p-4 sm:p-10 md:p-12 shadow-2xl rounded-2xl border border-slate-200 font-sans"
         >
-          {/* 1. Official Header */}
           <div className="flex flex-col sm:flex-row items-start justify-between gap-3 border-b-2 border-primary/30 pb-5 mb-6">
             <div className="space-y-1">
               <Logo size={40} showText={true} subtitle="Monitoraggio Pressorio Domiciliare (HBPM)" />
@@ -234,21 +222,26 @@ export const ReportClinicoModal: React.FC<ReportClinicoModalProps> = ({
             </div>
           </div>
 
-          {/* 2. Patient Profile & Protocol Bar */}
           <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 mb-6 grid grid-cols-1 md:grid-cols-2 gap-4 text-xs page-break-avoid">
             <div className="space-y-1.5 border-b md:border-b-0 md:border-r border-slate-200 pb-3 md:pb-0 md:pr-4">
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
                 Dati Identificativi Paziente
               </span>
-              <div className="flex items-baseline gap-2">
-                <h3 className="text-base font-bold text-slate-900">
-                  {paziente.cognome} {paziente.nome}
-                </h3>
-              </div>
+              <h2 className="text-base font-bold text-slate-900">
+                {paziente.cognome} {paziente.nome}
+              </h2>
               <div className="grid grid-cols-2 gap-2 pt-1 text-slate-600">
-                <p>Codice Fiscale: <strong className="font-mono text-slate-800">{paziente.codiceFiscale}</strong></p>
-                <p>Data di Nascita: <strong className="text-slate-800">{paziente.dataNascita || "N/D"}</strong></p>
-                {paziente.telefono && <p>Recapito: <strong className="text-slate-800">{paziente.telefono}</strong></p>}
+                <p>
+                  Codice Fiscale: <strong className="font-mono text-slate-800">{paziente.codiceFiscale}</strong>
+                </p>
+                <p>
+                  Data di Nascita: <strong className="text-slate-800">{paziente.dataNascita || "N/D"}</strong>
+                </p>
+                {paziente.telefono && (
+                  <p>
+                    Recapito: <strong className="text-slate-800">{paziente.telefono}</strong>
+                  </p>
+                )}
               </div>
             </div>
 
@@ -256,7 +249,7 @@ export const ReportClinicoModal: React.FC<ReportClinicoModalProps> = ({
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
                 Parametri di Protocollo HBPM
               </span>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-slate-700 font-medium">Braccio Ufficiale:</span>
                 <span className="px-2.5 py-0.5 rounded-md bg-primary/15 text-primary font-bold text-xs">
                   {ciclo?.braccioRiferimento === "SX" ? "SINISTRO (SX)" : "DESTRO (DX)"}
@@ -265,10 +258,15 @@ export const ReportClinicoModal: React.FC<ReportClinicoModalProps> = ({
               </div>
               <div className="grid grid-cols-2 gap-2 pt-1 text-slate-600">
                 <p>
-                  Inizio Ciclo: <strong className="text-slate-800">{ciclo?.dataInizioEffettiva || ciclo?.dataCreazione || "N/D"}</strong>
+                  Inizio Ciclo: <strong className="text-slate-800">{inizioCicloFormatted}</strong>
                 </p>
                 <p>
-                  Durata: <strong className="text-slate-800">{ciclo?.durataSettimane ? `${ciclo.durataSettimane} Settimane (${ciclo.durataSettimane * 7} giorni)` : "14 giorni"}</strong>
+                  Durata:{" "}
+                  <strong className="text-slate-800">
+                    {ciclo?.durataSettimane
+                      ? `${ciclo.durataSettimane} Settimane (${ciclo.durataSettimane * 7} giorni)`
+                      : "14 giorni"}
+                  </strong>
                 </p>
                 <p>
                   Stato Ciclo: <strong className="text-slate-800 capitalize">{ciclo?.stato || "Attivo"}</strong>
@@ -280,33 +278,38 @@ export const ReportClinicoModal: React.FC<ReportClinicoModalProps> = ({
             </div>
           </div>
 
-          {/* 3. Clinical Metrics Summary (ESC/ESH 2026) */}
           <div className="mb-6 page-break-avoid">
-            <div className="flex items-center justify-between mb-2.5">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500">
+            <div className="flex items-center justify-between mb-2.5 gap-2 flex-wrap">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
                 Quadro Clinico di Sintesi (Medie del Ciclo)
-              </h4>
-              <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${globalEsc.bg}`}>
-                Classificazione: {globalEsc.label}
+              </h3>
+              <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${globalEsc.reportBadgeClass}`}>
+                Classificazione: {globalEsc.category}
               </span>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 text-center">
               <div className="bg-slate-50 border border-slate-200 rounded-xl p-3">
                 <p className="text-[10px] font-semibold text-slate-500 uppercase">Sistolica Media (MAX)</p>
-                <p className="text-2xl font-bold text-slate-900 mt-0.5">{averages.avgMax} <span className="text-xs font-normal text-slate-500">mmHg</span></p>
+                <p className="text-2xl font-bold text-slate-900 mt-0.5">
+                  {averages.avgMax} <span className="text-xs font-normal text-slate-500">mmHg</span>
+                </p>
                 <p className="text-[10px] text-slate-400 mt-0.5">Target: &lt; 140 mmHg</p>
               </div>
 
               <div className="bg-slate-50 border border-slate-200 rounded-xl p-3">
                 <p className="text-[10px] font-semibold text-slate-500 uppercase">Diastolica Media (MIN)</p>
-                <p className="text-2xl font-bold text-slate-900 mt-0.5">{averages.avgMin} <span className="text-xs font-normal text-slate-500">mmHg</span></p>
+                <p className="text-2xl font-bold text-slate-900 mt-0.5">
+                  {averages.avgMin} <span className="text-xs font-normal text-slate-500">mmHg</span>
+                </p>
                 <p className="text-[10px] text-slate-400 mt-0.5">Target: &lt; 90 mmHg</p>
               </div>
 
               <div className="bg-slate-50 border border-slate-200 rounded-xl p-3">
                 <p className="text-[10px] font-semibold text-slate-500 uppercase">Frequenza Media</p>
-                <p className="text-2xl font-bold text-slate-900 mt-0.5">{averages.avgBpm} <span className="text-xs font-normal text-slate-500">BPM</span></p>
+                <p className="text-2xl font-bold text-slate-900 mt-0.5">
+                  {averages.avgBpm} <span className="text-xs font-normal text-slate-500">BPM</span>
+                </p>
                 <p className="text-[10px] text-slate-400 mt-0.5">Ritmo medio a riposo</p>
               </div>
 
@@ -318,37 +321,36 @@ export const ReportClinicoModal: React.FC<ReportClinicoModalProps> = ({
             </div>
           </div>
 
-          {/* 4. Vector SVG Chart for Pristine Crisp Printing */}
           {misurazioni.length > 0 && (
             <div className="mb-6 bg-slate-50 border border-slate-200 rounded-xl p-4 page-break-avoid">
-              <div className="flex items-center justify-between mb-2">
-                <h4 className="text-xs font-bold text-slate-700">
+              <div className="flex items-center justify-between mb-2 gap-2 flex-wrap">
+                <h3 className="text-xs font-bold text-slate-700">
                   Andamento Pressorio Temporale (Sistolica &amp; Diastolica)
-                </h4>
+                </h3>
                 <div className="flex items-center gap-4 text-[11px]">
                   <div className="flex items-center gap-1.5">
-                    <span className="w-3 h-1.5 rounded-full bg-emerald-600"></span>
+                    <span className="w-3 h-1.5 rounded-full bg-emerald-600" />
                     <span className="text-slate-600 font-medium">Sistolica (MAX)</span>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <span className="w-3 h-1.5 rounded-full bg-amber-600"></span>
+                    <span className="w-3 h-1.5 rounded-full bg-amber-600" />
                     <span className="text-slate-600 font-medium">Diastolica (MIN)</span>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <span className="w-3 border-t border-dashed border-red-400"></span>
+                    <span className="w-3 border-t border-dashed border-red-400" />
                     <span className="text-[10px] text-red-600 font-medium">Soglia 140/90</span>
                   </div>
                 </div>
               </div>
 
-              {/* Vector SVG */}
               <div className="w-full overflow-hidden">
                 <svg
+                  role="img"
+                  aria-label="Grafico andamento pressione sistolica e diastolica nel ciclo"
                   viewBox={`0 0 ${svgWidth} ${svgHeight}`}
                   className="w-full h-auto"
                   style={{ maxHeight: "170px" }}
                 >
-                  {/* Grid Lines */}
                   {[60, 90, 120, 140, 160].map((val) => {
                     const y = getY(val);
                     return (
@@ -376,7 +378,6 @@ export const ReportClinicoModal: React.FC<ReportClinicoModalProps> = ({
                     );
                   })}
 
-                  {/* Diastolic Path */}
                   {minPath && (
                     <path
                       d={minPath}
@@ -388,7 +389,6 @@ export const ReportClinicoModal: React.FC<ReportClinicoModalProps> = ({
                     />
                   )}
 
-                  {/* Systolic Path */}
                   {maxPath && (
                     <path
                       d={maxPath}
@@ -400,17 +400,30 @@ export const ReportClinicoModal: React.FC<ReportClinicoModalProps> = ({
                     />
                   )}
 
-                  {/* Data Points */}
                   {maxPoints.map((p, i) => (
-                    <circle key={`max-${i}`} cx={p.x} cy={p.y} r="3.5" fill="#059669" stroke="#ffffff" strokeWidth="1.5" />
+                    <circle
+                      key={`max-${i}`}
+                      cx={p.x}
+                      cy={p.y}
+                      r="3.5"
+                      fill="#059669"
+                      stroke="#ffffff"
+                      strokeWidth="1.5"
+                    />
                   ))}
                   {minPoints.map((p, i) => (
-                    <circle key={`min-${i}`} cx={p.x} cy={p.y} r="3.5" fill="#d97706" stroke="#ffffff" strokeWidth="1.5" />
+                    <circle
+                      key={`min-${i}`}
+                      cx={p.x}
+                      cy={p.y}
+                      r="3.5"
+                      fill="#d97706"
+                      stroke="#ffffff"
+                      strokeWidth="1.5"
+                    />
                   ))}
 
-                  {/* X Axis Labels */}
                   {maxPoints.map((p, i) => {
-                    // Show a label every few points to avoid crowding
                     const step = Math.ceil(numPoints / 12);
                     if (i % step !== 0 && i !== numPoints - 1) return null;
                     return (
@@ -432,40 +445,45 @@ export const ReportClinicoModal: React.FC<ReportClinicoModalProps> = ({
             </div>
           )}
 
-          {/* 5. Full Measurements Log Table */}
           <div className="mb-6">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2.5">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2.5">
               Diario Cronologico Completo delle Misurazioni
-            </h4>
+            </h3>
 
             <div className="border border-slate-200 rounded-xl overflow-x-auto">
               <table className="w-full text-left text-xs border-collapse">
+                <caption className="visually-hidden">
+                  Elenco cronologico delle misurazioni pressorie del ciclo
+                </caption>
                 <thead>
                   <tr className="bg-slate-100 border-b border-slate-200 text-slate-700 text-[11px] font-bold">
-                    <th className="py-2 px-3 text-center w-12">Giorno</th>
-                    <th className="py-2 px-3">Data e Ora</th>
-                    <th className="py-2 px-3">Slot</th>
-                    <th className="py-2 px-3 text-center">MAX / MIN (mmHg)</th>
-                    <th className="py-2 px-3 text-center">BPM</th>
-                    <th className="py-2 px-3">Valutazione ESC/ESH</th>
-                    <th className="py-2 px-3">Note Paziente</th>
+                    <th scope="col" className="py-2 px-3 text-center w-12">Giorno</th>
+                    <th scope="col" className="py-2 px-3">Data e Ora</th>
+                    <th scope="col" className="py-2 px-3">Slot</th>
+                    <th scope="col" className="py-2 px-3 text-center">MAX / MIN (mmHg)</th>
+                    <th scope="col" className="py-2 px-3 text-center">BPM</th>
+                    <th scope="col" className="py-2 px-3">Valutazione ESC/ESH</th>
+                    <th scope="col" className="py-2 px-3">Note Paziente</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {misurazioni.map((m, idx) => {
-                    const esc = getEscCategory(m.pressioneMax, m.pressioneMin);
+                    const esc = classifyBloodPressure(m.pressioneMax, m.pressioneMin);
                     const slotLabel =
-                      m.slot === "mattina" ? "Mattina (ore 11)" :
-                      m.slot === "pomeriggio" ? "Pomeriggio (ore 16)" : "Sera (ore 22)";
+                      m.slot === "mattina"
+                        ? "Mattina (ore 11)"
+                        : m.slot === "pomeriggio"
+                        ? "Pomeriggio (ore 16)"
+                        : "Sera (ore 22)";
 
                     return (
                       <tr
                         key={m.id || idx}
                         className={`page-break-avoid ${idx % 2 === 0 ? "bg-white" : "bg-slate-50/60"}`}
                       >
-                        <td className="py-1.5 px-3 text-center font-bold text-slate-800">
+                        <th scope="row" className="py-1.5 px-3 text-center font-bold text-slate-800">
                           G{m.giornoNumero}
-                        </td>
+                        </th>
                         <td className="py-1.5 px-3 text-slate-600 font-mono text-[11px]">
                           {m.dataRilevazione} • {m.oraRilevazione}
                         </td>
@@ -473,16 +491,20 @@ export const ReportClinicoModal: React.FC<ReportClinicoModalProps> = ({
                           {slotLabel}
                         </td>
                         <td className="py-1.5 px-3 text-center font-bold font-mono text-slate-900">
-                          <span className={m.pressioneMax >= 140 ? "text-red-700 font-extrabold" : ""}>{m.pressioneMax}</span>
+                          <span className={m.pressioneMax >= 140 ? "text-red-700 font-extrabold" : ""}>
+                            {m.pressioneMax}
+                          </span>
                           <span className="text-slate-400 mx-1">/</span>
-                          <span className={m.pressioneMin >= 90 ? "text-amber-700 font-extrabold" : ""}>{m.pressioneMin}</span>
+                          <span className={m.pressioneMin >= 90 ? "text-amber-700 font-extrabold" : ""}>
+                            {m.pressioneMin}
+                          </span>
                         </td>
                         <td className="py-1.5 px-3 text-center text-slate-600 font-mono">
                           {m.bpm ? `${m.bpm} bpm` : "—"}
                         </td>
                         <td className="py-1.5 px-3">
-                          <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-semibold ${esc.bg}`}>
-                            {esc.label}
+                          <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-semibold ${esc.reportBadgeClass}`}>
+                            {esc.category}
                           </span>
                         </td>
                         <td className="py-1.5 px-3 text-slate-500 text-[11px] italic max-w-[140px] truncate">
@@ -496,12 +518,11 @@ export const ReportClinicoModal: React.FC<ReportClinicoModalProps> = ({
             </div>
           </div>
 
-          {/* 6. Medical Prescriptions & Patient-Facing Notes ONLY */}
           <div className="mb-8 border border-slate-200 rounded-xl p-4 bg-slate-50 page-break-avoid">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 mb-2 flex items-center gap-2">
-              <span className="material-symbols-outlined text-[16px] text-primary">clinical_notes</span>
-              Indicazioni di Terapia e Prescrizioni del Medico
-            </h4>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 mb-2 flex items-center gap-2">
+              <ClipboardList className="w-4 h-4 text-primary" aria-hidden="true" />
+              <span>Indicazioni di Terapia e Prescrizioni del Medico</span>
+            </h3>
 
             {patientVisibleNotes.length > 0 ? (
               <ul className="space-y-2 text-xs text-slate-800 divide-y divide-slate-200/60">
@@ -521,10 +542,11 @@ export const ReportClinicoModal: React.FC<ReportClinicoModalProps> = ({
             )}
           </div>
 
-          {/* 7. Footer: Legal Disclaimer */}
           <div className="pt-4 border-t border-slate-200 flex items-center justify-between page-break-avoid text-xs">
             <div className="space-y-1 text-slate-500 text-[10px]">
-              <p className="font-semibold text-slate-600">CardioDiario • Diario Personale delle Misurazioni (HBPM)</p>
+              <p className="font-semibold text-slate-600">
+                CardioDiario • Diario Personale delle Misurazioni (HBPM)
+              </p>
               <p>
                 Riepilogo personale generato conformemente alle linee guida ESC/ESH per l&apos;automisurazione domiciliare della pressione arteriosa.
               </p>
@@ -532,8 +554,6 @@ export const ReportClinicoModal: React.FC<ReportClinicoModalProps> = ({
           </div>
         </div>
       </div>
-    </div>
+    </AppDialog>
   );
-
-  return createPortal(reportContent, document.body);
 };

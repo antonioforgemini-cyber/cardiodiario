@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Fingerprint } from "lucide-react";
 import {
   browserSupportsWebAuthn,
   startAuthentication,
@@ -17,7 +18,6 @@ import {
 } from "@/lib/biometria-client";
 
 interface BiometricLoginButtonProps {
-  /** Ruolo atteso dalla pagina: usato per l'etichetta del separatore e il redirect di default */
   ruolo: "paziente" | "medico";
   onError?: (msg: string | null) => void;
   className?: string;
@@ -34,8 +34,6 @@ export const BiometricLoginButton: React.FC<BiometricLoginButtonProps> = ({
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Mostra il pulsante solo se il browser supporta WebAuthn E su questo dispositivo
-    // è già stata attivata una passkey per CardioDiario
     setVisible(browserSupportsWebAuthn() && biometriaGiaAttiva());
     setInApp(isInAppBrowser());
   }, []);
@@ -80,11 +78,11 @@ export const BiometricLoginButton: React.FC<BiometricLoginButtonProps> = ({
         disabled={loading}
         className={
           className ??
-          "w-full h-14 rounded-xl bg-primary text-on-primary font-bold text-base shadow-sm flex items-center justify-center gap-2.5 active:scale-98 transition-all disabled:opacity-60"
+          "w-full min-h-[56px] px-4 rounded-xl bg-primary text-on-primary font-bold text-base shadow-sm flex items-center justify-center gap-2.5 active:scale-[0.99] transition-all disabled:opacity-60"
         }
         aria-label={ruolo === "medico" ? "Accedi con biometria" : "Accedi con impronta o Face ID"}
       >
-        <span className="material-symbols-outlined text-2xl">fingerprint</span>
+        <Fingerprint className="w-6 h-6 shrink-0" aria-hidden="true" />
         <span>{loading ? "Verifica in corso..." : "Accedi con impronta o Face ID"}</span>
       </button>
 

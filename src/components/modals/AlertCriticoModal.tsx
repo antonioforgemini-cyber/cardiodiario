@@ -1,6 +1,8 @@
 "use client";
 
 import React from "react";
+import { AlertTriangle, Check } from "lucide-react";
+import { AppDialog } from "@/components/ui/AppDialog";
 
 interface AlertCriticoModalProps {
   isOpen: boolean;
@@ -15,28 +17,32 @@ export const AlertCriticoModal: React.FC<AlertCriticoModalProps> = ({
   max,
   min,
 }) => {
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-inverse-surface/60 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="bg-surface-container-lowest w-full max-w-md rounded-3xl shadow-2xl border-2 border-error p-6 space-y-5">
-        {/* Warning Icon & Value */}
+    <AppDialog
+      isOpen={isOpen}
+      onClose={onClose}
+      labelledBy="alert-critico-title"
+      dismissible={false}
+      variant="center"
+      maxWidthClassName="max-w-md"
+      panelClassName="border-2 border-error"
+    >
+      <div className="p-6 space-y-5 overflow-y-auto">
         <div className="text-center space-y-2">
-          <div className="w-16 h-16 rounded-full bg-error/15 text-error flex items-center justify-center mx-auto animate-bounce">
-            <span className="material-symbols-outlined text-4xl">warning</span>
+          <div className="w-16 h-16 rounded-full bg-error/15 text-error flex items-center justify-center mx-auto">
+            <AlertTriangle className="w-8 h-8" aria-hidden="true" />
           </div>
           <span className="text-xs font-bold uppercase tracking-wider text-error bg-error-container px-3 py-1 rounded-full inline-block">
             Attenzione Clinica • Valori Fuori Scala
           </span>
-          <h2 className="text-2xl font-headline font-bold text-on-surface pt-1">
+          <h1 id="alert-critico-title" className="text-2xl font-headline font-bold text-on-surface pt-1">
             Hai registrato: <span className="text-error">{max} / {min} mmHg</span>
-          </h2>
+          </h1>
           <p className="text-xs text-on-surface-variant">
             I valori pressori inseriti sono sensibilmente superiori alla norma.
           </p>
         </div>
 
-        {/* Guidance Instructions */}
         <div className="p-4 rounded-2xl bg-surface-container-low border border-surface-variant/50 space-y-2 text-xs text-on-surface leading-relaxed">
           <p className="font-bold text-sm text-on-surface">Cosa ti consigliamo di fare ora:</p>
           <ol className="list-decimal list-inside space-y-1.5 text-on-surface-variant">
@@ -47,17 +53,18 @@ export const AlertCriticoModal: React.FC<AlertCriticoModalProps> = ({
           </ol>
         </div>
 
-        <div className="pt-2 space-y-2">
+        <div className="pt-2">
           <button
             type="button"
+            autoFocus
             onClick={onClose}
-            className="w-full h-12 rounded-xl bg-error text-on-error font-bold text-sm shadow-sm flex items-center justify-center gap-2 hover:bg-error/90 active:scale-98 transition-all"
+            className="w-full min-h-[48px] px-4 rounded-xl bg-error text-on-error font-bold text-sm shadow-sm flex items-center justify-center gap-2 hover:bg-error/90 transition-colors"
           >
             <span>Ho Capito le Istruzioni</span>
-            <span className="material-symbols-outlined text-lg">check</span>
+            <Check className="w-4 h-4" aria-hidden="true" />
           </button>
         </div>
       </div>
-    </div>
+    </AppDialog>
   );
 };

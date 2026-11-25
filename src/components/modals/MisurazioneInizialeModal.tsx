@@ -1,8 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { AlertCircle, ArrowRight, Check, CheckCircle2, Hand, Moon, Sun, SunMedium, X } from "lucide-react";
 import { startCicloBilaterale } from "@/db/actions";
 import { StethoscopeLoader } from "@/components/StethoscopeLoader";
+import { AppDialog } from "@/components/ui/AppDialog";
 
 interface MisurazioneInizialeModalProps {
   isOpen: boolean;
@@ -19,27 +21,36 @@ export default function MisurazioneInizialeModal({
   cicloId,
   pazienteId,
 }: MisurazioneInizialeModalProps) {
-  // Step: 1 = DX, 2 = SX, 3 = Result & Slot Choice
   const [step, setStep] = useState<1 | 2 | 3>(1);
 
-  // Right Arm
   const [maxDx, setMaxDx] = useState("");
   const [minDx, setMinDx] = useState("");
   const [bpmDx, setBpmDx] = useState("");
 
-  // Left Arm
   const [maxSx, setMaxSx] = useState("");
   const [minSx, setMinSx] = useState("");
   const [bpmSx, setBpmSx] = useState("");
 
-  // Result Selection
   const [braccioScelto, setBraccioScelto] = useState<"DX" | "SX" | null>(null);
   const [slotAssegnato, setSlotAssegnato] = useState<"mattina" | "pomeriggio" | "sera">("mattina");
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  if (!isOpen) return null;
+  useEffect(() => {
+    if (isOpen) {
+      setStep(1);
+      setMaxDx("");
+      setMinDx("");
+      setBpmDx("");
+      setMaxSx("");
+      setMinSx("");
+      setBpmSx("");
+      setBraccioScelto(null);
+      setSlotAssegnato("mattina");
+      setError(null);
+    }
+  }, [isOpen, cicloId]);
 
   const handleNextToLeft = (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,6 +62,10 @@ export default function MisurazioneInizialeModal({
     }
     if (numMaxDx <= numMinDx) {
       setError("La massima deve essere maggiore della minima.");
+      return;
+    }
+    if (numMaxDx < 60 || numMaxDx > 280 || numMinDx < 40 || numMinDx > 160) {
+      setError("Valori fuori scala fisiologica. Controlla i numeri inseriti.");
       return;
     }
     setError(null);
@@ -69,17 +84,19 @@ export default function MisurazioneInizialeModal({
       setError("La massima deve essere maggiore della minima.");
       return;
     }
+    if (numMaxSx < 60 || numMaxSx > 280 || numMinSx < 40 || numMinSx > 160) {
+      setError("Valori fuori scala fisiologica. Controlla i numeri inseriti.");
+      return;
+    }
     setError(null);
 
-    // Calculate automatically which arm has higher systolic
     const numMaxDx = Number(maxDx);
     if (numMaxDx > numMaxSx) {
       setBraccioScelto("DX");
     } else if (numMaxSx > numMaxDx) {
       setBraccioScelto("SX");
     } else {
-      // Tie!
-      setBraccioScelto("DX"); // default choice, patient can switch
+      setBraccioScelto("DX");
     }
     setStep(3);
   };
@@ -117,152 +134,216 @@ export default function MisurazioneInizialeModal({
   const isTie = Number(maxDx) === Number(maxSx);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-inverse-surface/50 backdrop-blur-md animate-in fade-in duration-200">
+    <AppDialog
+      isOpen={isOpen}
+      onClose={loading ? () => {} : onClose}
+      labelledBy="bilateral-title"
+      dismissible={!loading}
+      variant="sheet"
+      maxWidthClassName="max-w-lg"
+    >
       {loading && <StethoscopeLoader overlay text="Avvio diario e salvataggio in corso..." />}
-      <div className="bg-surface-container-lowest w-full max-w-lg rounded-3xl shadow-2xl border border-surface-variant/50 p-6 flex flex-col justify-between max-h-[90vh] overflow-y-auto">
-        {/* Step Indicator Header */}
+      <div className="p-5 sm:p-6 flex flex-col justify-between overflow-y-auto">
         <div className="flex items-center justify-between border-b border-surface-variant/40 pb-4">
           <div className="flex items-center gap-2.5">
-            <span className="w-8 h-8 rounded-full bg-primary text-on-primary text-xs font-bold flex items-center justify-center">
+            <span className="w-8 h-8 rounded-full bg-primary text-on-primary text-xs font-bold flex items-center justify-center shrink-0">
               {step}/3
             </span>
-            <span className="text-xs font-bold text-on-surface uppercase tracking-wider">
+            <h1 id="bilateral-title" className="text-xs sm:text-sm font-bold text-on-surface uppercase tracking-wider">
               {step === 1 && "Fase 1: Misurazione Braccio Destro"}
               {step === 2 && "Fase 2: Misurazione Braccio Sinistro"}
               {step === 3 && "Fase 3: Esito e Avvio Ciclo"}
-            </span>
+            </h1>
           </div>
-          <button onClick={onClose} className="text-outline hover:text-on-surface">
-            <span className="material-symbols-outlined text-lg">close</span>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Chiudi calibrazione iniziale"
+            className="min-w-[40px] min-h-[40px] rounded-full flex items-center justify-center text-secondary hover:bg-surface-container hover:text-on-surface"
+          >
+            <X className="w-5 h-5" aria-hidden="true" />
           </button>
         </div>
 
         {error && (
-          <div className="p-3 my-3 rounded-xl bg-error-container text-on-error-container text-xs flex items-center gap-2">
-            <span className="material-symbols-outlined text-error text-base">error</span>
+          <div
+            role="alert"
+            className="p-3 my-3 rounded-xl bg-error-container text-on-error-container text-xs flex items-center gap-2"
+          >
+            <AlertCircle className="w-4 h-4 text-error shrink-0" aria-hidden="true" />
             <span>{error}</span>
           </div>
         )}
 
-        {/* STEP 1: BRACCIO DESTRO */}
         {step === 1 && (
           <form onSubmit={handleNextToLeft} className="py-4 space-y-5">
             <div className="text-center space-y-1">
               <div className="w-16 h-16 rounded-2xl bg-primary-container/30 text-primary flex items-center justify-center mx-auto mb-2">
-                <span className="material-symbols-outlined text-3xl">pan_tool</span>
+                <Hand className="w-8 h-8" aria-hidden="true" />
               </div>
-              <h3 className="text-xl font-headline font-bold text-on-surface">Misura il Braccio Destro</h3>
-              <p className="text-xs text-on-surface-variant max-w-xs mx-auto">
+              <h2 className="text-xl font-headline font-bold text-on-surface">Misura il Braccio Destro</h2>
+              <p className="text-xs sm:text-sm text-on-surface-variant max-w-xs mx-auto">
                 Posiziona il bracciale sul braccio destro ed effettua la prima misurazione.
               </p>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-bold text-on-surface">Pressione Massima (MAX) *</label>
+                <label htmlFor="init-max-dx" className="text-xs font-bold text-on-surface block">
+                  Pressione Massima (MAX) *
+                </label>
                 <div className="relative mt-1">
                   <input
-                    type="number"
+                    id="init-max-dx"
+                    name="maxDx"
+                    type="text"
+                    inputMode="numeric"
+                    pattern="\d{2,3}"
+                    enterKeyHint="next"
+                    autoFocus
                     required
                     value={maxDx}
-                    onChange={(e) => setMaxDx(e.target.value)}
-                    placeholder="es. 135"
-                    className="w-full h-14 px-3 text-xl font-mono font-bold bg-surface-container-low rounded-xl text-center border border-surface-variant/40 focus:ring-2 focus:ring-primary focus:outline-none placeholder:text-outline-variant/60 placeholder:font-normal"
+                    onChange={(e) => setMaxDx(e.target.value.replace(/\D/g, ""))}
+                    placeholder="135"
+                    className="w-full h-14 px-3 pr-11 text-xl font-mono font-bold bg-surface-container-low rounded-xl text-center border border-surface-variant/50 focus:outline-none placeholder:text-outline-variant/60 placeholder:font-normal"
                   />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-secondary font-semibold">mmHg</span>
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] text-secondary font-semibold">
+                    mmHg
+                  </span>
                 </div>
               </div>
 
               <div>
-                <label className="text-xs font-bold text-on-surface">Pressione Minima (MIN) *</label>
+                <label htmlFor="init-min-dx" className="text-xs font-bold text-on-surface block">
+                  Pressione Minima (MIN) *
+                </label>
                 <div className="relative mt-1">
                   <input
-                    type="number"
+                    id="init-min-dx"
+                    name="minDx"
+                    type="text"
+                    inputMode="numeric"
+                    pattern="\d{2,3}"
+                    enterKeyHint="next"
                     required
                     value={minDx}
-                    onChange={(e) => setMinDx(e.target.value)}
-                    placeholder="es. 85"
-                    className="w-full h-14 px-3 text-xl font-mono font-bold bg-surface-container-low rounded-xl text-center border border-surface-variant/40 focus:ring-2 focus:ring-primary focus:outline-none placeholder:text-outline-variant/60 placeholder:font-normal"
+                    onChange={(e) => setMinDx(e.target.value.replace(/\D/g, ""))}
+                    placeholder="85"
+                    className="w-full h-14 px-3 pr-11 text-xl font-mono font-bold bg-surface-container-low rounded-xl text-center border border-surface-variant/50 focus:outline-none placeholder:text-outline-variant/60 placeholder:font-normal"
                   />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-secondary font-semibold">mmHg</span>
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] text-secondary font-semibold">
+                    mmHg
+                  </span>
                 </div>
               </div>
             </div>
 
             <div>
-              <label className="text-xs font-bold text-on-surface">Battiti Cardiaci (BPM - Facoltativo)</label>
+              <label htmlFor="init-bpm-dx" className="text-xs font-bold text-on-surface block">
+                Battiti Cardiaci (BPM - Facoltativo)
+              </label>
               <input
-                type="number"
+                id="init-bpm-dx"
+                name="bpmDx"
+                type="text"
+                inputMode="numeric"
+                pattern="\d{2,3}"
+                enterKeyHint="next"
                 value={bpmDx}
-                onChange={(e) => setBpmDx(e.target.value)}
-                placeholder="es. 72"
-                className="w-full h-11 px-3 mt-1 bg-surface-container-low rounded-xl text-center font-mono border border-surface-variant/40 focus:ring-2 focus:ring-primary focus:outline-none placeholder:text-outline-variant/60 placeholder:font-normal"
+                onChange={(e) => setBpmDx(e.target.value.replace(/\D/g, ""))}
+                placeholder="72"
+                className="w-full min-h-[48px] px-3 mt-1 bg-surface-container-low rounded-xl text-center font-mono font-bold border border-surface-variant/50 focus:outline-none placeholder:text-outline-variant/60 placeholder:font-normal"
               />
             </div>
 
             <button
               type="submit"
-              className="w-full h-12 rounded-xl bg-primary text-on-primary text-sm font-bold shadow-sm flex items-center justify-center gap-2 mt-4"
+              className="w-full min-h-[52px] rounded-xl bg-primary text-on-primary text-sm font-bold shadow-sm flex items-center justify-center gap-2 mt-4"
             >
               <span>Procedi al Braccio Sinistro</span>
-              <span className="material-symbols-outlined text-lg">arrow_forward</span>
+              <ArrowRight className="w-4 h-4" aria-hidden="true" />
             </button>
           </form>
         )}
 
-        {/* STEP 2: BRACCIO SINISTRO */}
         {step === 2 && (
           <form onSubmit={handleNextToResult} className="py-4 space-y-5">
             <div className="text-center space-y-1">
               <div className="w-16 h-16 rounded-2xl bg-secondary-container text-tertiary flex items-center justify-center mx-auto mb-2">
-                <span className="material-symbols-outlined text-3xl">pan_tool</span>
+                <Hand className="w-8 h-8 -scale-x-100" aria-hidden="true" />
               </div>
-              <h3 className="text-xl font-headline font-bold text-on-surface">Misura il Braccio Sinistro</h3>
-              <p className="text-xs text-on-surface-variant max-w-xs mx-auto">
+              <h2 className="text-xl font-headline font-bold text-on-surface">Misura il Braccio Sinistro</h2>
+              <p className="text-xs sm:text-sm text-on-surface-variant max-w-xs mx-auto">
                 Sposta il bracciale sul braccio sinistro e ripeti la misurazione.
               </p>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-bold text-on-surface">Pressione Massima (MAX) *</label>
+                <label htmlFor="init-max-sx" className="text-xs font-bold text-on-surface block">
+                  Pressione Massima (MAX) *
+                </label>
                 <div className="relative mt-1">
                   <input
-                    type="number"
+                    id="init-max-sx"
+                    name="maxSx"
+                    type="text"
+                    inputMode="numeric"
+                    pattern="\d{2,3}"
+                    enterKeyHint="next"
+                    autoFocus
                     required
                     value={maxSx}
-                    onChange={(e) => setMaxSx(e.target.value)}
-                    placeholder="es. 128"
-                    className="w-full h-14 px-3 text-xl font-mono font-bold bg-surface-container-low rounded-xl text-center border border-surface-variant/40 focus:ring-2 focus:ring-primary focus:outline-none placeholder:text-outline-variant/60 placeholder:font-normal"
+                    onChange={(e) => setMaxSx(e.target.value.replace(/\D/g, ""))}
+                    placeholder="128"
+                    className="w-full h-14 px-3 pr-11 text-xl font-mono font-bold bg-surface-container-low rounded-xl text-center border border-surface-variant/50 focus:outline-none placeholder:text-outline-variant/60 placeholder:font-normal"
                   />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-secondary font-semibold">mmHg</span>
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] text-secondary font-semibold">
+                    mmHg
+                  </span>
                 </div>
               </div>
 
               <div>
-                <label className="text-xs font-bold text-on-surface">Pressione Minima (MIN) *</label>
+                <label htmlFor="init-min-sx" className="text-xs font-bold text-on-surface block">
+                  Pressione Minima (MIN) *
+                </label>
                 <div className="relative mt-1">
                   <input
-                    type="number"
+                    id="init-min-sx"
+                    name="minSx"
+                    type="text"
+                    inputMode="numeric"
+                    pattern="\d{2,3}"
+                    enterKeyHint="next"
                     required
                     value={minSx}
-                    onChange={(e) => setMinSx(e.target.value)}
-                    placeholder="es. 82"
-                    className="w-full h-14 px-3 text-xl font-mono font-bold bg-surface-container-low rounded-xl text-center border border-surface-variant/40 focus:ring-2 focus:ring-primary focus:outline-none placeholder:text-outline-variant/60 placeholder:font-normal"
+                    onChange={(e) => setMinSx(e.target.value.replace(/\D/g, ""))}
+                    placeholder="82"
+                    className="w-full h-14 px-3 pr-11 text-xl font-mono font-bold bg-surface-container-low rounded-xl text-center border border-surface-variant/50 focus:outline-none placeholder:text-outline-variant/60 placeholder:font-normal"
                   />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-secondary font-semibold">mmHg</span>
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] text-secondary font-semibold">
+                    mmHg
+                  </span>
                 </div>
               </div>
             </div>
 
             <div>
-              <label className="text-xs font-bold text-on-surface">Battiti Cardiaci (BPM - Facoltativo)</label>
+              <label htmlFor="init-bpm-sx" className="text-xs font-bold text-on-surface block">
+                Battiti Cardiaci (BPM - Facoltativo)
+              </label>
               <input
-                type="number"
+                id="init-bpm-sx"
+                name="bpmSx"
+                type="text"
+                inputMode="numeric"
+                pattern="\d{2,3}"
+                enterKeyHint="done"
                 value={bpmSx}
-                onChange={(e) => setBpmSx(e.target.value)}
-                placeholder="es. 70"
-                className="w-full h-11 px-3 mt-1 bg-surface-container-low rounded-xl text-center font-mono border border-surface-variant/40 focus:ring-2 focus:ring-primary focus:outline-none placeholder:text-outline-variant/60 placeholder:font-normal"
+                onChange={(e) => setBpmSx(e.target.value.replace(/\D/g, ""))}
+                placeholder="70"
+                className="w-full min-h-[48px] px-3 mt-1 bg-surface-container-low rounded-xl text-center font-mono font-bold border border-surface-variant/50 focus:outline-none placeholder:text-outline-variant/60 placeholder:font-normal"
               />
             </div>
 
@@ -270,38 +351,52 @@ export default function MisurazioneInizialeModal({
               <button
                 type="button"
                 onClick={() => setStep(1)}
-                className="h-12 px-4 rounded-xl bg-surface-container text-xs font-bold text-on-surface"
+                className="min-h-[48px] px-4 rounded-xl bg-surface-container text-xs font-bold text-on-surface"
               >
                 Torna a DX
               </button>
               <button
                 type="submit"
-                className="flex-1 h-12 rounded-xl bg-primary text-on-primary text-sm font-bold shadow-sm flex items-center justify-center gap-2"
+                className="flex-1 min-h-[48px] rounded-xl bg-primary text-on-primary text-sm font-bold shadow-sm flex items-center justify-center gap-2"
               >
                 <span>Confronta Valori</span>
-                <span className="material-symbols-outlined text-lg">check_circle</span>
+                <CheckCircle2 className="w-4 h-4" aria-hidden="true" />
               </button>
             </div>
           </form>
         )}
 
-        {/* STEP 3: RESULT & SLOT CHOICE */}
         {step === 3 && (
           <div className="py-4 space-y-5">
-            {/* Comparison Box */}
             <div className="p-4 rounded-2xl bg-surface-container-low border border-surface-variant/40 space-y-3">
               <span className="text-xs font-bold text-secondary uppercase tracking-wider block text-center">
                 Esito del Confronto
               </span>
 
               <div className="grid grid-cols-2 gap-3 text-center">
-                <div className={`p-3 rounded-xl border ${braccioScelto === "DX" ? "bg-primary-container/30 border-primary" : "bg-white border-surface-variant/30"}`}>
+                <div
+                  className={`p-3 rounded-xl border ${
+                    braccioScelto === "DX"
+                      ? "bg-primary-container/30 border-primary"
+                      : "bg-surface-container-lowest border-surface-variant/40"
+                  }`}
+                >
                   <span className="text-xs font-bold text-secondary block">Braccio Destro</span>
-                  <span className="text-xl font-bold font-mono text-on-surface">{maxDx} / {minDx}</span>
+                  <span className="text-xl font-bold font-mono text-on-surface">
+                    {maxDx} / {minDx}
+                  </span>
                 </div>
-                <div className={`p-3 rounded-xl border ${braccioScelto === "SX" ? "bg-primary-container/30 border-primary" : "bg-white border-surface-variant/30"}`}>
+                <div
+                  className={`p-3 rounded-xl border ${
+                    braccioScelto === "SX"
+                      ? "bg-primary-container/30 border-primary"
+                      : "bg-surface-container-lowest border-surface-variant/40"
+                  }`}
+                >
                   <span className="text-xs font-bold text-secondary block">Braccio Sinistro</span>
-                  <span className="text-xl font-bold font-mono text-on-surface">{maxSx} / {minSx}</span>
+                  <span className="text-xl font-bold font-mono text-on-surface">
+                    {maxSx} / {minSx}
+                  </span>
                 </div>
               </div>
 
@@ -315,14 +410,24 @@ export default function MisurazioneInizialeModal({
                     <button
                       type="button"
                       onClick={() => setBraccioScelto("DX")}
-                      className={`py-2 rounded-lg text-xs font-bold transition-all ${braccioScelto === "DX" ? "bg-primary text-on-primary" : "bg-white text-on-surface"}`}
+                      aria-pressed={braccioScelto === "DX"}
+                      className={`min-h-[40px] py-2 rounded-lg text-xs font-bold transition-colors ${
+                        braccioScelto === "DX"
+                          ? "bg-primary text-on-primary"
+                          : "bg-surface-container-lowest text-on-surface"
+                      }`}
                     >
                       Braccio Destro
                     </button>
                     <button
                       type="button"
                       onClick={() => setBraccioScelto("SX")}
-                      className={`py-2 rounded-lg text-xs font-bold transition-all ${braccioScelto === "SX" ? "bg-primary text-on-primary" : "bg-white text-on-surface"}`}
+                      aria-pressed={braccioScelto === "SX"}
+                      className={`min-h-[40px] py-2 rounded-lg text-xs font-bold transition-colors ${
+                        braccioScelto === "SX"
+                          ? "bg-primary text-on-primary"
+                          : "bg-surface-container-lowest text-on-surface"
+                      }`}
                     >
                       Braccio Sinistro
                     </button>
@@ -333,52 +438,56 @@ export default function MisurazioneInizialeModal({
                   La pressione massima è risultata maggiore al{" "}
                   <strong className="text-primary uppercase font-extrabold">
                     {braccioScelto === "DX" ? "Braccio Destro (DX)" : "Braccio Sinistro (SX)"}
-                  </strong>.
-                  Questo sarà il tuo braccio di riferimento per tutte le prossime misurazioni.
+                  </strong>
+                  . Questo sarà il tuo braccio di riferimento per tutte le prossime misurazioni.
                 </p>
               )}
             </div>
 
-            {/* Day 1 Slot Placement */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-on-surface uppercase tracking-wider block">
+            <fieldset className="space-y-2">
+              <legend className="text-xs font-bold text-on-surface uppercase tracking-wider block">
                 A quale momento della giornata vuoi assegnare questa prima misurazione? *
-              </label>
+              </legend>
               <div className="grid grid-cols-3 gap-2">
                 {[
-                  { id: "mattina", label: "Mattina", icon: "wb_sunny" },
-                  { id: "pomeriggio", label: "Pomeriggio", icon: "light_mode" },
-                  { id: "sera", label: "Sera", icon: "bedtime" },
-                ].map((s) => (
-                  <button
-                    key={s.id}
-                    type="button"
-                    onClick={() => setSlotAssegnato(s.id as any)}
-                    className={`py-3 px-2 rounded-xl text-xs font-bold flex flex-col items-center gap-1 transition-all border ${
-                      slotAssegnato === s.id
-                        ? "bg-primary text-on-primary border-primary shadow-sm"
-                        : "bg-surface-container-low text-on-surface border-surface-variant/40 hover:bg-surface-container"
-                    }`}
-                  >
-                    <span className="material-symbols-outlined text-lg">{s.icon}</span>
-                    <span>{s.label}</span>
-                  </button>
-                ))}
+                  { id: "mattina" as const, label: "Mattina", Icon: Sun },
+                  { id: "pomeriggio" as const, label: "Pomeriggio", Icon: SunMedium },
+                  { id: "sera" as const, label: "Sera", Icon: Moon },
+                ].map((s) => {
+                  const Icon = s.Icon;
+                  const active = slotAssegnato === s.id;
+                  return (
+                    <button
+                      key={s.id}
+                      type="button"
+                      aria-pressed={active}
+                      onClick={() => setSlotAssegnato(s.id)}
+                      className={`min-h-[64px] py-3 px-2 rounded-xl text-xs font-bold flex flex-col items-center justify-center gap-1 transition-colors border ${
+                        active
+                          ? "bg-primary text-on-primary border-primary shadow-sm"
+                          : "bg-surface-container-low text-on-surface border-surface-variant/40 hover:bg-surface-container"
+                      }`}
+                    >
+                      <Icon className="w-4 h-4" aria-hidden="true" />
+                      <span>{s.label}</span>
+                    </button>
+                  );
+                })}
               </div>
-            </div>
+            </fieldset>
 
             <button
               type="button"
               disabled={loading || !braccioScelto}
               onClick={handleConfirm}
-              className="w-full h-13 py-3 rounded-xl bg-primary text-on-primary text-sm font-bold shadow-sm flex items-center justify-center gap-2 mt-4 active:scale-98 transition-all disabled:opacity-50"
+              className="w-full min-h-[52px] py-3 rounded-xl bg-primary text-on-primary text-sm font-bold shadow-sm flex items-center justify-center gap-2 mt-4 disabled:opacity-50"
             >
               <span>{loading ? "Avvio ciclo in corso..." : "Salva e Inizia il Diario"}</span>
-              <span className="material-symbols-outlined text-lg">check</span>
+              <Check className="w-4 h-4" aria-hidden="true" />
             </button>
           </div>
         )}
       </div>
-    </div>
+    </AppDialog>
   );
 }

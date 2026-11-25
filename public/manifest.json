@@ -1,18 +1,57 @@
 {
+  "id": "/",
+  "scope": "/",
+  "lang": "it",
+  "dir": "ltr",
   "name": "CardioDiario — Diario delle Misurazioni Pressorie",
   "short_name": "CardioDiario",
-  "description": "Diario pressorio digitale per il monitoraggio della salute cardiovascolare",
-  "start_url": "/login/paziente",
+  "description": "Diario pressorio digitale connesso con il tuo medico curante per il monitoraggio della salute cardiovascolare.",
+  "start_url": "/login/paziente?source=pwa",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
   "background_color": "#faf6f0",
   "theme_color": "#4a7c59",
-  "orientation": "portrait",
+  "orientation": "portrait-primary",
+  "categories": ["medical", "health"],
   "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
     {
       "src": "/icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "I Miei Cicli",
+      "short_name": "Diari",
+      "description": "Apri subito i tuoi cicli di monitoraggio pressorio",
+      "url": "/paziente/cicli",
+      "icons": [
+        {
+          "src": "/icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     }
   ]
 }

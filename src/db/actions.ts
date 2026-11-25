@@ -6,6 +6,14 @@ import { isCriticalValue } from "@/lib/guidelines";
 import { hashSecret, verifySecret, generatePin } from "@/lib/crypto";
 import { createSession, destroySession, getSession } from "@/lib/session";
 import {
+  calculateCurrentActiveDay,
+  formatItalianDate,
+  getRomeDateOffsetString,
+  getRomeDateString,
+  getRomeTimeString,
+} from "@/lib/dateUtils";
+import { sendPushToPazienti } from "@/lib/web-push";
+import {
   requireMedico,
   requirePaziente,
   requireAccessoPaziente,
@@ -166,40 +174,47 @@ export async function rigeneraPinPaziente(pazienteId: string) {
 // ------------------------------------
 export async function getDoctorDashboardData(_medicoIdIgnorato?: string) {
   await ensureDb();
-  // L'id del medico viene sempre dalla sessione, mai dal client
   const medicoId = (await requireMedico()).id;
-  const todayStr = new Date().toISOString().split("T")[0];
+  const todayStr = getRomeDateString();
+  const sevenDaysAgoStr = getRomeDateOffsetString(-6);
 
-  const [pazRes, cicliRes, misOggiRes, allarmiRes, listRes, trendRes, distRes] = await Promise.all([
-    // Pazienti count
+  const [medRes, pazRes, cicliRes, misOggiRes, allarmiRes, activeCyclesRes, listRes, trendRes, distRes] = await Promise.all([
+    db.execute({
+      sql: "SELECT id, nome, cognome, specializzazione FROM medici WHERE id = ?",
+      args: [medicoId],
+    }),
     db.execute({
       sql: "SELECT COUNT(*) as count FROM pazienti WHERE medico_id = ?",
       args: [medicoId],
     }),
-    // Cicli in corso
     db.execute({
       sql: "SELECT COUNT(*) as count FROM cicli WHERE medico_id = ? AND stato = 'in corso'",
       args: [medicoId],
     }),
-    // Misurazioni oggi
     db.execute({
       sql: `SELECT COUNT(*) as count FROM misurazioni m
             JOIN cicli c ON m.ciclo_id = c.id
             WHERE c.medico_id = ? AND m.data_rilevazione = ?`,
       args: [medicoId, todayStr],
     }),
-    // Allarmi / Valori critici (ultimi 7 giorni)
     db.execute({
       sql: `SELECT COUNT(*) as count FROM misurazioni m
             JOIN cicli c ON m.ciclo_id = c.id
-            WHERE c.medico_id = ? AND (m.pressione_max >= 160 OR m.pressione_min >= 100)`,
+            WHERE c.medico_id = ? AND m.data_rilevazione >= ? AND (m.pressione_max >= 160 OR m.pressione_min >= 100)`,
+      args: [medicoId, sevenDaysAgoStr],
+    }),
+    db.execute({
+      sql: `SELECT c.id, c.durata_settimane, c.data_inizio_effettiva,
+                   (SELECT COUNT(*) FROM misurazioni m WHERE m.ciclo_id = c.id) as mis_count
+            FROM cicli c
+            WHERE c.medico_id = ? AND c.stato = 'in corso'`,
       args: [medicoId],
     }),
-    // Lista pazienti con ultimo stato ciclo e ultima misurazione (1 riga per paziente)
     db.execute({
       sql: `SELECT 
               p.id, p.nome, p.cognome, p.codice_fiscale, p.telefono, p.data_nascita, p.email,
               (SELECT COUNT(*) FROM cicli WHERE paziente_id = p.id) as cicli_count,
+              (SELECT EXISTS(SELECT 1 FROM push_subscriptions ps WHERE ps.paziente_id = p.id)) as push_active,
               c.id as ciclo_id, c.stato as ciclo_stato, c.durata_settimane, c.braccio_riferimento,
               (SELECT MAX(data_rilevazione) FROM misurazioni WHERE ciclo_id = c.id) as ultima_data,
               (SELECT pressione_max FROM misurazioni WHERE ciclo_id = c.id ORDER BY data_rilevazione DESC, ora_rilevazione DESC LIMIT 1) as ultimo_max,
@@ -220,7 +235,6 @@ export async function getDoctorDashboardData(_medicoIdIgnorato?: string) {
             ORDER BY p.cognome ASC`,
       args: [medicoId],
     }),
-    // Trend di coorte reale
     db.execute({
       sql: `SELECT 
               m.giorno_numero,
@@ -233,7 +247,6 @@ export async function getDoctorDashboardData(_medicoIdIgnorato?: string) {
             ORDER BY m.giorno_numero ASC`,
       args: [medicoId],
     }),
-    // Distribuzione per fascia reale
     db.execute({
       sql: `SELECT 
               m.slot,
@@ -251,6 +264,37 @@ export async function getDoctorDashboardData(_medicoIdIgnorato?: string) {
   const cicliInCorso = Number(cicliRes.rows[0]?.count || 0);
   const misurazioniOggi = Number(misOggiRes.rows[0]?.count || 0);
   const allarmiCount = Number(allarmiRes.rows[0]?.count || 0);
+
+  let expectedSlots = 0;
+  let actualSlots = 0;
+  for (const row of activeCyclesRes.rows) {
+    const totalDays = Number(row.durata_settimane || 2) * 7;
+    const activeDay = calculateCurrentActiveDay(
+      row.data_inizio_effettiva ? String(row.data_inizio_effettiva) : null,
+      totalDays,
+      1
+    );
+    expectedSlots += activeDay * 3;
+    actualSlots += Number(row.mis_count || 0);
+  }
+  const compliance = expectedSlots > 0 ? Math.min(100, Math.round((actualSlots / expectedSlots) * 100)) : 0;
+
+  const medRow = medRes.rows[0];
+  const medico = medRow
+    ? {
+        id: String(medRow.id),
+        nome: String(medRow.nome),
+        cognome: String(medRow.cognome),
+        specializzazione: medRow.specializzazione
+          ? String(medRow.specializzazione)
+          : "Specialista in Cardiologia",
+      }
+    : {
+        id: medicoId,
+        nome: "Ivana",
+        cognome: "Pariggiano",
+        specializzazione: "Specialista in Cardiologia",
+      };
 
   const trendData = trendRes.rows.map((r) => ({
     day: `G${r.giorno_numero}`,
@@ -273,12 +317,13 @@ export async function getDoctorDashboardData(_medicoIdIgnorato?: string) {
   }));
 
   return {
+    medico,
     stats: {
       totalPazienti,
       cicliInCorso,
       misurazioniOggi,
       allarmiCount,
-      compliance: totalPazienti > 0 ? 92 : 0,
+      compliance,
     },
     trendData,
     distributionData,
@@ -291,6 +336,7 @@ export async function getDoctorDashboardData(_medicoIdIgnorato?: string) {
       dataNascita: String(r.data_nascita),
       email: r.email ? String(r.email) : null,
       cicliCount: Number(r.cicli_count || 0),
+      pushActive: Boolean(r.push_active),
       cicloId: r.ciclo_id ? String(r.ciclo_id) : null,
       cicloStato: r.ciclo_stato ? String(r.ciclo_stato) : "nessuno",
       durataSettimane: r.durata_settimane ? Number(r.durata_settimane) : 0,
@@ -359,6 +405,10 @@ export async function deletePaziente(pazienteId: string) {
 
   await db.execute({
     sql: "DELETE FROM misurazioni WHERE paziente_id = ?",
+    args: [pazienteId],
+  });
+  await db.execute({
+    sql: "DELETE FROM promemoria_inviati WHERE ciclo_id IN (SELECT id FROM cicli WHERE paziente_id = ?)",
     args: [pazienteId],
   });
   await db.execute({
@@ -481,12 +531,13 @@ export async function getPazienteDettaglioClinico(pazienteId: string, cicloId?: 
   await requireAccessoPaziente(pazienteId);
 
   const [pazRes, cicliRes, noteRes] = await Promise.all([
-    // Paziente
     db.execute({
-      sql: "SELECT * FROM pazienti WHERE id = ?",
+      sql: `SELECT p.*, m.nome as medico_nome, m.cognome as medico_cognome
+            FROM pazienti p
+            LEFT JOIN medici m ON p.medico_id = m.id
+            WHERE p.id = ?`,
       args: [pazienteId],
     }),
-    // Cicli del paziente con statistiche sintetiche e ultima rilevazione
     db.execute({
       sql: `SELECT 
               c.*,
@@ -506,7 +557,6 @@ export async function getPazienteDettaglioClinico(pazienteId: string, cicloId?: 
               END, c.data_creazione DESC`,
       args: [pazienteId],
     }),
-    // Note di terapia
     db.execute({
       sql: `SELECT * FROM note_terapia WHERE paziente_id = ? ORDER BY created_at DESC`,
       args: [pazienteId],
@@ -515,22 +565,33 @@ export async function getPazienteDettaglioClinico(pazienteId: string, cicloId?: 
 
   if (pazRes.rows.length === 0) return null;
   const p = pazRes.rows[0];
+  const medicoNomeCompleto = p.medico_nome
+    ? `Dott.ssa ${String(p.medico_nome)} ${String(p.medico_cognome)}`
+    : "Dott.ssa Ivana Pariggiano";
 
-  const allCicli = cicliRes.rows.map((c) => ({
-    id: String(c.id),
-    durataSettimane: Number(c.durata_settimane),
-    stato: String(c.stato),
-    braccioRiferimento: c.braccio_riferimento ? String(c.braccio_riferimento) : null,
-    dataCreazione: String(c.data_creazione),
-    dataInizioEffettiva: c.data_inizio_effettiva ? String(c.data_inizio_effettiva) : null,
-    dataFinePrevista: c.data_fine_prevista ? String(c.data_fine_prevista) : null,
-    noteCiclo: c.note_ciclo ? String(c.note_ciclo) : null,
-    misurazioniCount: Number(c.misurazioni_count || 0),
-    maxGiornoRilevato: c.max_giorno_rilevato ? Number(c.max_giorno_rilevato) : 0,
-    ultimaData: c.ultima_data ? String(c.ultima_data) : null,
-    ultimoMax: c.ultimo_max !== null && c.ultimo_max !== undefined ? Number(c.ultimo_max) : null,
-    ultimoMin: c.ultimo_min !== null && c.ultimo_min !== undefined ? Number(c.ultimo_min) : null,
-  }));
+  const allCicli = cicliRes.rows.map((c) => {
+    const durataSettimane = Number(c.durata_settimane);
+    const dataInizioRaw = c.data_inizio_effettiva
+      ? String(c.data_inizio_effettiva)
+      : String(c.data_creazione);
+    return {
+      id: String(c.id),
+      durataSettimane,
+      durataGiorni: durataSettimane * 7,
+      stato: String(c.stato),
+      braccioRiferimento: c.braccio_riferimento ? String(c.braccio_riferimento) : null,
+      dataCreazione: String(c.data_creazione),
+      dataInizio: formatItalianDate(dataInizioRaw),
+      dataInizioEffettiva: c.data_inizio_effettiva ? String(c.data_inizio_effettiva) : null,
+      dataFinePrevista: c.data_fine_prevista ? String(c.data_fine_prevista) : null,
+      noteCiclo: c.note_ciclo ? String(c.note_ciclo) : null,
+      misurazioniCount: Number(c.misurazioni_count || 0),
+      maxGiornoRilevato: c.max_giorno_rilevato ? Number(c.max_giorno_rilevato) : 0,
+      ultimaData: c.ultima_data ? String(c.ultima_data) : null,
+      ultimoMax: c.ultimo_max !== null && c.ultimo_max !== undefined ? Number(c.ultimo_max) : null,
+      ultimoMin: c.ultimo_min !== null && c.ultimo_min !== undefined ? Number(c.ultimo_min) : null,
+    };
+  });
 
   const activeCiclo = (cicloId ? allCicli.find((c) => c.id === cicloId) : null) || allCicli[0] || null;
 
@@ -626,6 +687,7 @@ export async function getPazienteDettaglioClinico(pazienteId: string, cicloId?: 
       noteAnamnesi: p.note_anamnesi ? String(p.note_anamnesi) : null,
       disclaimerAccettato: Boolean(p.disclaimer_accettato),
     },
+    medicoNomeCompleto,
     activeCiclo,
     allCicli,
     misurazioni,
@@ -665,6 +727,10 @@ export async function deleteCiclo(cicloId: string) {
   await ensureDb();
   await requireAccessoCiclo(cicloId);
   await db.execute({
+    sql: "DELETE FROM promemoria_inviati WHERE ciclo_id = ?",
+    args: [cicloId],
+  });
+  await db.execute({
     sql: "DELETE FROM misurazioni WHERE ciclo_id = ?",
     args: [cicloId],
   });
@@ -699,8 +765,8 @@ export async function startCicloBilaterale(data: {
   data = { ...data, pazienteId: await getPazienteIdDelCiclo(data.cicloId) };
 
   const now = new Date();
-  const startDateStr = now.toISOString().split("T")[0];
-  const timeStr = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+  const startDateStr = getRomeDateString(now);
+  const timeStr = getRomeTimeString(now);
 
   // Get ciclo duration
   const cRes = await db.execute({
@@ -913,7 +979,20 @@ export async function sendComunicazione(data: {
     });
   }
 
-  return { success: true, count: recipientIds.length };
+  const pushSummary = await sendPushToPazienti(recipientIds, {
+    title: data.titolo.trim(),
+    body: data.messaggio.trim(),
+    url: "/paziente/cicli?open=notifiche",
+    tag: `com-${comId}`,
+  });
+
+  return {
+    success: true,
+    count: recipientIds.length,
+    pushSent: pushSummary.sent,
+    pushTotal: pushSummary.totalSubscriptions,
+    pushConfigured: pushSummary.configured,
+  };
 }
 
 export async function getComunicazioniPaziente(pazienteId: string) {

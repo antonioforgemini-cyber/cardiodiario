@@ -1,9 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
+import { AlertCircle, CheckCircle2, Fingerprint } from "lucide-react";
 import { startRegistration, WebAuthnError } from "@simplewebauthn/browser";
 import { passkeyOpzioniRegistrazione, passkeyVerificaRegistrazione } from "@/db/passkey-actions";
 import { segnaBiometriaAttiva, segnaPromptRifiutato } from "@/lib/biometria-client";
+import { AppDialog } from "@/components/ui/AppDialog";
 
 /** Registra una passkey sul dispositivo corrente. Restituisce un messaggio d'errore o null. */
 export async function attivaBiometriaSuQuestoDispositivo(): Promise<string | null> {
@@ -17,7 +19,7 @@ export async function attivaBiometriaSuQuestoDispositivo(): Promise<string | nul
   } catch (e) {
     if (e instanceof WebAuthnError && e.code === "ERROR_AUTHENTICATOR_PREVIOUSLY_REGISTERED") {
       segnaBiometriaAttiva();
-      return null; // già attiva su questo dispositivo
+      return null;
     }
     if (e instanceof Error && (e.name === "NotAllowedError" || e.name === "AbortError")) {
       return "Operazione annullata.";
@@ -28,17 +30,13 @@ export async function attivaBiometriaSuQuestoDispositivo(): Promise<string | nul
 
 interface AttivaBiometriaSheetProps {
   isOpen: boolean;
-  /** Chiamato a fine flusso (attivata, rifiutata o errore) */
   onDone: () => void;
 }
 
-/** Bottom sheet mostrato dopo il login con PIN/password per proporre l'accesso biometrico. */
 export const AttivaBiometriaSheet: React.FC<AttivaBiometriaSheetProps> = ({ isOpen, onDone }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-
-  if (!isOpen) return null;
 
   const handleAttiva = async () => {
     setLoading(true);
@@ -59,21 +57,25 @@ export const AttivaBiometriaSheet: React.FC<AttivaBiometriaSheetProps> = ({ isOp
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-inverse-surface/40 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-surface-container-lowest w-full max-w-md rounded-t-3xl sm:rounded-3xl shadow-2xl p-6 pb-8 space-y-5 animate-in slide-in-from-bottom-6 duration-300">
-        <div className="sm:hidden flex justify-center -mt-2">
-          <div className="w-12 h-1.5 bg-outline/25 rounded-full" />
-        </div>
-
+    <AppDialog
+      isOpen={isOpen}
+      onClose={handleNonOra}
+      labelledBy="attiva-bio-title"
+      variant="sheet"
+      maxWidthClassName="max-w-md"
+    >
+      <div className="p-6 pb-8 space-y-5 overflow-y-auto">
         <div className="flex flex-col items-center text-center space-y-3">
           <div className="w-16 h-16 rounded-2xl bg-primary-container/40 text-primary flex items-center justify-center">
-            <span className="material-symbols-outlined text-4xl" style={{ fontVariationSettings: "'FILL' 1" }}>
-              {success ? "check_circle" : "fingerprint"}
-            </span>
+            {success ? (
+              <CheckCircle2 className="w-9 h-9" aria-hidden="true" />
+            ) : (
+              <Fingerprint className="w-9 h-9" aria-hidden="true" />
+            )}
           </div>
-          <h2 className="text-xl font-headline font-bold text-on-surface">
+          <h1 id="attiva-bio-title" className="text-xl font-headline font-bold text-on-surface">
             {success ? "Accesso rapido attivato!" : "Entra più velocemente"}
-          </h2>
+          </h1>
           <p className="text-sm text-on-surface-variant leading-relaxed max-w-xs">
             {success
               ? "Dalla prossima volta potrai entrare con l'impronta o il volto."
@@ -82,8 +84,11 @@ export const AttivaBiometriaSheet: React.FC<AttivaBiometriaSheetProps> = ({ isOp
         </div>
 
         {error && (
-          <div className="p-3 rounded-xl bg-error-container text-on-error-container text-sm flex items-center gap-2">
-            <span className="material-symbols-outlined text-error text-xl">error</span>
+          <div
+            role="alert"
+            className="p-3 rounded-xl bg-error-container text-on-error-container text-sm flex items-center gap-2"
+          >
+            <AlertCircle className="w-5 h-5 text-error shrink-0" aria-hidden="true" />
             <span>{error}</span>
           </div>
         )}
@@ -92,18 +97,19 @@ export const AttivaBiometriaSheet: React.FC<AttivaBiometriaSheetProps> = ({ isOp
           <div className="space-y-2.5">
             <button
               type="button"
+              autoFocus
               onClick={handleAttiva}
               disabled={loading}
-              className="w-full h-14 rounded-xl bg-primary text-on-primary font-bold text-base shadow-sm flex items-center justify-center gap-2 disabled:opacity-60"
+              className="w-full min-h-[52px] px-4 rounded-xl bg-primary text-on-primary font-bold text-base shadow-sm flex items-center justify-center gap-2 disabled:opacity-60"
             >
-              <span className="material-symbols-outlined text-xl">fingerprint</span>
-              {loading ? "Attivazione..." : "Attiva impronta / Face ID"}
+              <Fingerprint className="w-5 h-5" aria-hidden="true" />
+              <span>{loading ? "Attivazione..." : "Attiva impronta / Face ID"}</span>
             </button>
             <button
               type="button"
               onClick={handleNonOra}
               disabled={loading}
-              className="w-full h-12 rounded-xl text-sm font-semibold text-secondary hover:bg-surface-container"
+              className="w-full min-h-[48px] px-4 rounded-xl text-sm font-semibold text-secondary hover:bg-surface-container"
             >
               Non ora
             </button>
@@ -114,6 +120,6 @@ export const AttivaBiometriaSheet: React.FC<AttivaBiometriaSheetProps> = ({ isOp
           Il tuo dato biometrico resta sul telefono e non viene mai inviato a CardioDiario.
         </p>
       </div>
-    </div>
+    </AppDialog>
   );
 };

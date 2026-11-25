@@ -17,7 +17,7 @@ export const Logo: React.FC<LogoProps> = ({
     <div className={`flex items-center gap-3 ${className}`}>
       <div
         style={{ width: size, height: size }}
-        className="shrink-0 flex items-center justify-center rounded-xl overflow-hidden shadow-sm hover:scale-105 transition-transform"
+        className="shrink-0 flex items-center justify-center rounded-xl overflow-hidden shadow-sm transition-transform"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -25,6 +25,7 @@ export const Logo: React.FC<LogoProps> = ({
           width={size}
           height={size}
           fill="none"
+          aria-hidden="true"
         >
           <rect width="48" height="48" rx="12" fill="#4a7c59" />
           <path

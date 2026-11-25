@@ -1,7 +1,6 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
-  darkMode: "class",
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -66,10 +65,14 @@ const config: Config = {
         "full": "9999px",
       },
       fontFamily: {
-        headline: ["Literata", "serif"],
-        display: ["Literata", "serif"],
-        body: ["Nunito Sans", "sans-serif"],
-        label: ["Nunito Sans", "sans-serif"],
+        headline: ["var(--font-literata)", "Georgia", "serif"],
+        display: ["var(--font-literata)", "Georgia", "serif"],
+        body: ["var(--font-nunito-sans)", "system-ui", "sans-serif"],
+        label: ["var(--font-nunito-sans)", "system-ui", "sans-serif"],
+      },
+      boxShadow: {
+        terra: "0 4px 20px rgba(46, 50, 48, 0.06)",
+        "terra-lg": "0 12px 32px rgba(46, 50, 48, 0.10)",
       },
     },
   },

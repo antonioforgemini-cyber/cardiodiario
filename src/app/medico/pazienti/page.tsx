@@ -1,37 +1,53 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import {
+  ArrowRight,
+  BellOff,
+  BellRing,
+  FolderOpen,
+  IdCard,
+  Search,
+  Trash2,
+  UserPlus,
+  UsersRound,
+} from "lucide-react";
 import { getDoctorDashboardData, deletePaziente } from "@/db/actions";
 import { StethoscopeLoader } from "@/components/StethoscopeLoader";
 import { NuovoPazienteModal } from "@/components/modals/NuovoPazienteModal";
 import { SchedaCredenzialiModal } from "@/components/modals/SchedaCredenzialiModal";
 import { ConfermaEliminazioneModal } from "@/components/modals/ConfermaEliminazioneModal";
+import { useToast } from "@/components/ui/ToastProvider";
 
 export default function PazientiListPage() {
+  const { showToast } = useToast();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [isNewPatientOpen, setIsNewPatientOpen] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [selectedForCredenziali, setSelectedForCredenziali] = useState<any>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [patientToDelete, setPatientToDelete] = useState<any>(null);
   const [deleting, setDeleting] = useState(false);
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
-      const res = await getDoctorDashboardData("med-1");
+      const res = await getDoctorDashboardData();
       setData(res);
     } catch (e) {
       console.error(e);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    loadData();
-  }, []);
+    void loadData();
+  }, [loadData]);
 
   const handleConfirmDelete = async () => {
     if (!patientToDelete) return;
@@ -39,16 +55,17 @@ export default function PazientiListPage() {
     try {
       await deletePaziente(patientToDelete.id);
       setPatientToDelete(null);
+      showToast("Paziente eliminato definitivamente.", "success");
       await loadData();
     } catch (err) {
       console.error("Errore durante l'eliminazione del paziente:", err);
-      alert("Si è verificato un errore durante l'eliminazione del paziente.");
+      showToast("Si è verificato un errore durante l'eliminazione del paziente.", "error");
     } finally {
       setDeleting(false);
     }
   };
 
-  if (loading) {
+  if (loading || !data) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <StethoscopeLoader text="Caricamento anagrafica pazienti..." />
@@ -56,19 +73,22 @@ export default function PazientiListPage() {
     );
   }
 
-  const { pazienti } = data;
+  const { pazienti, medico } = data;
+  const medicoNomeCompleto = medico
+    ? `Dott.ssa ${medico.nome} ${medico.cognome}`
+    : "Dott.ssa Ivana Pariggiano";
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const filteredPatients = pazienti.filter((p: any) => {
-    const matchesSearch =
-      `${p.nome} ${p.cognome} ${p.codiceFiscale}`.toLowerCase().includes(search.toLowerCase());
-    const matchesStatus =
-      statusFilter === "all" || p.cicloStato === statusFilter;
+    const matchesSearch = `${p.nome} ${p.cognome} ${p.codiceFiscale}`
+      .toLowerCase()
+      .includes(search.toLowerCase());
+    const matchesStatus = statusFilter === "all" || p.cicloStato === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8 max-w-7xl mx-auto">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-surface-variant/40 pb-5 sm:pb-6">
         <div>
           <span className="text-[11px] sm:text-xs font-bold text-primary tracking-wider uppercase">
@@ -83,35 +103,43 @@ export default function PazientiListPage() {
         </div>
 
         <button
+          type="button"
           onClick={() => setIsNewPatientOpen(true)}
-          className="w-full sm:w-auto justify-center px-4 sm:px-5 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-on-primary text-xs sm:text-sm font-bold shadow-sm flex items-center gap-2 transition-colors"
+          className="w-full sm:w-auto justify-center min-h-[44px] px-4 sm:px-5 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-on-primary text-xs sm:text-sm font-bold shadow-sm flex items-center gap-2 transition-colors"
         >
-          <span className="material-symbols-outlined text-lg sm:text-xl">person_add</span>
+          <UserPlus className="w-4 h-4" aria-hidden="true" />
           <span>Nuovo Paziente</span>
         </button>
       </div>
 
-      {/* Filters Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 bg-surface-container-lowest p-3.5 sm:p-4 rounded-2xl border border-surface-variant/50">
+      <search className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 bg-surface-container-lowest p-3.5 sm:p-4 rounded-2xl border border-surface-variant/50 shadow-terra">
         <div className="relative flex-1 sm:max-w-md w-full">
+          <label htmlFor="pazienti-search" className="visually-hidden">
+            Cerca per cognome, nome o codice fiscale
+          </label>
           <input
-            type="text"
+            id="pazienti-search"
+            type="search"
             placeholder="Cerca per cognome, nome o codice fiscale..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full h-10 sm:h-11 pl-10 pr-4 bg-surface-container-low rounded-xl text-xs font-medium border border-surface-variant/40 focus:outline-none focus:ring-2 focus:ring-primary"
+            className="w-full min-h-[44px] pl-10 pr-4 bg-surface-container-low rounded-xl text-xs font-medium border border-surface-variant/50 focus:outline-none"
           />
-          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-lg">
-            search
-          </span>
+          <Search
+            className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-outline pointer-events-none"
+            aria-hidden="true"
+          />
         </div>
 
         <div className="flex items-center gap-2 w-full sm:w-auto">
-          <span className="text-xs font-bold text-secondary uppercase shrink-0">Stato:</span>
+          <label htmlFor="pazienti-status-filter" className="text-xs font-bold text-secondary uppercase shrink-0">
+            Stato:
+          </label>
           <select
+            id="pazienti-status-filter"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="h-10 sm:h-11 pl-3.5 pr-9 bg-surface-container-low rounded-xl text-xs font-semibold text-on-surface border border-surface-variant/40 focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer w-full sm:w-auto"
+            className="min-h-[44px] pl-3.5 pr-9 bg-surface-container-low rounded-xl text-xs font-semibold text-on-surface border border-surface-variant/50 focus:outline-none cursor-pointer w-full sm:w-auto"
           >
             <option value="all">Tutti i pazienti ({pazienti.length})</option>
             <option value="in corso">Ciclo In Corso</option>
@@ -119,30 +147,33 @@ export default function PazientiListPage() {
             <option value="in pausa">Ciclo In Pausa</option>
           </select>
         </div>
-      </div>
+      </search>
 
-      {/* Patient Cards Grid or Empty State */}
       {filteredPatients.length === 0 ? (
         <div className="bg-surface-container-lowest p-8 sm:p-12 rounded-3xl border border-surface-variant/50 text-center space-y-4">
           <div className="w-14 h-14 rounded-2xl bg-surface-container flex items-center justify-center text-outline mx-auto">
-            <span className="material-symbols-outlined text-3xl">group_off</span>
+            <UsersRound className="w-7 h-7" aria-hidden="true" />
           </div>
           <div>
-            <h3 className="font-headline font-bold text-base sm:text-lg text-on-surface">Nessun paziente in archivio</h3>
+            <h2 className="font-headline font-bold text-base sm:text-lg text-on-surface">
+              Nessun paziente trovato
+            </h2>
             <p className="text-xs text-on-surface-variant mt-1">
-              Non è ancora stato registrato alcun paziente. Clicca sul pulsante &quot;Nuovo Paziente&quot; in alto per iniziare.
+              Modifica i filtri o clicca su &quot;Nuovo Paziente&quot; per censire il primo paziente.
             </p>
           </div>
           <button
+            type="button"
             onClick={() => setIsNewPatientOpen(true)}
-            className="px-5 py-2.5 rounded-xl bg-primary text-on-primary text-xs font-bold inline-flex items-center gap-2 shadow-sm hover:bg-primary/90 transition-colors"
+            className="min-h-[44px] px-5 py-2.5 rounded-xl bg-primary text-on-primary text-xs font-bold inline-flex items-center gap-2 shadow-sm hover:bg-primary/90 transition-colors"
           >
-            <span className="material-symbols-outlined text-base">person_add</span>
-            Registra Primo Paziente
+            <UserPlus className="w-4 h-4" aria-hidden="true" />
+            <span>Registra Primo Paziente</span>
           </button>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
           {filteredPatients.map((p: any) => {
             let badgeClass = "bg-surface-container text-on-surface-variant";
             if (p.cicloStato === "in corso") badgeClass = "bg-primary-container/40 text-primary font-bold";
@@ -150,22 +181,26 @@ export default function PazientiListPage() {
             if (p.cicloStato === "in pausa") badgeClass = "bg-error-container/40 text-error font-bold";
 
             return (
-              <div
+              <article
                 key={p.id}
-                className="bg-surface-container-lowest p-5 sm:p-6 rounded-3xl border border-surface-variant/50 shadow-sm flex flex-col justify-between hover:border-primary/40 hover:shadow-md transition-all space-y-4"
+                className="bg-surface-container-lowest p-5 sm:p-6 rounded-3xl border border-surface-variant/50 shadow-terra flex flex-col justify-between hover:border-primary/40 transition-all space-y-4"
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-12 h-12 rounded-2xl bg-primary-container/30 text-primary flex items-center justify-center font-headline font-bold text-lg shrink-0">
-                      {p.nome.charAt(0)}{p.cognome.charAt(0)}
+                    <div
+                      aria-hidden="true"
+                      className="w-12 h-12 rounded-2xl bg-primary-container/30 text-primary flex items-center justify-center font-headline font-bold text-lg shrink-0"
+                    >
+                      {p.nome.charAt(0)}
+                      {p.cognome.charAt(0)}
                     </div>
                     <div className="min-w-0">
                       <span className="text-[10px] font-bold text-primary uppercase tracking-wider block">
                         Scheda Paziente
                       </span>
-                      <h3 className="font-headline font-bold text-base text-on-surface truncate">
+                      <h2 className="font-headline font-bold text-base text-on-surface truncate">
                         {p.cognome} {p.nome}
-                      </h3>
+                      </h2>
                       <p className="text-xs font-mono text-secondary truncate">{p.codiceFiscale}</p>
                     </div>
                   </div>
@@ -173,10 +208,10 @@ export default function PazientiListPage() {
                   <button
                     type="button"
                     onClick={() => setPatientToDelete(p)}
-                    title="Elimina paziente"
-                    className="w-9 h-9 rounded-xl bg-error-container/30 hover:bg-error-container/60 text-error flex items-center justify-center transition-colors shrink-0"
+                    aria-label={`Elimina paziente ${p.cognome} ${p.nome}`}
+                    className="min-w-[40px] min-h-[40px] rounded-xl bg-error-container/30 hover:bg-error-container/60 text-error flex items-center justify-center transition-colors shrink-0"
                   >
-                    <span className="material-symbols-outlined text-lg">delete</span>
+                    <Trash2 className="w-4 h-4" aria-hidden="true" />
                   </button>
                 </div>
 
@@ -190,6 +225,20 @@ export default function PazientiListPage() {
                     <span className="font-semibold text-on-surface">{p.telefono || "—"}</span>
                   </div>
                   <div className="flex justify-between items-center">
+                    <span className="text-secondary">Notifiche Push:</span>
+                    {p.pushActive ? (
+                      <span className="inline-flex items-center gap-1 text-primary font-bold">
+                        <BellRing className="w-3.5 h-3.5" aria-hidden="true" />
+                        <span>Attive</span>
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 text-secondary">
+                        <BellOff className="w-3.5 h-3.5" aria-hidden="true" />
+                        <span>Solo in-app</span>
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex justify-between items-center">
                     <span className="text-secondary">Diari Clinici:</span>
                     <div className="flex items-center gap-2">
                       <span className="font-bold text-on-surface">{p.cicliCount ?? 0}</span>
@@ -200,39 +249,38 @@ export default function PazientiListPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between pt-2 border-t border-surface-variant/30">
+                <div className="flex items-center justify-between pt-2 border-t border-surface-variant/30 gap-2">
                   <button
                     type="button"
                     onClick={() => setSelectedForCredenziali(p)}
-                    className="text-xs font-semibold text-secondary hover:text-on-surface flex items-center gap-1"
+                    className="min-h-[40px] px-2 text-xs font-semibold text-secondary hover:text-on-surface flex items-center gap-1.5"
                   >
-                    <span className="material-symbols-outlined text-base">badge</span>
+                    <IdCard className="w-4 h-4" aria-hidden="true" />
                     <span>Scheda PIN</span>
                   </button>
 
                   <Link
                     href={`/medico/pazienti/${p.id}`}
-                    className="px-4 py-2 rounded-xl bg-primary hover:bg-primary/90 text-on-primary text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors"
+                    className="min-h-[40px] px-4 py-2 rounded-xl bg-primary hover:bg-primary/90 text-on-primary text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors"
                   >
-                    <span className="material-symbols-outlined text-sm">folder_shared</span>
+                    <FolderOpen className="w-4 h-4" aria-hidden="true" />
                     <span>Vedi Diari</span>
-                    <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                    <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
                   </Link>
                 </div>
-              </div>
+              </article>
             );
           })}
         </div>
       )}
 
-      {/* Modals */}
       <NuovoPazienteModal
         isOpen={isNewPatientOpen}
         onClose={() => setIsNewPatientOpen(false)}
         onSuccess={(created) => {
           setIsNewPatientOpen(false);
           setSelectedForCredenziali(created);
-          loadData();
+          void loadData();
         }}
       />
 
@@ -240,6 +288,7 @@ export default function PazientiListPage() {
         <SchedaCredenzialiModal
           isOpen={true}
           onClose={() => setSelectedForCredenziali(null)}
+          medicoNome={medicoNomeCompleto}
           paziente={{
             id: selectedForCredenziali.id,
             nome: selectedForCredenziali.nome,

@@ -1,20 +1,50 @@
 "use client";
 
-import React, { useEffect, useState, use } from "react";
+import React, { useCallback, useEffect, useRef, useState, use } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import {
+  ArrowLeft,
+  Bell,
+  BellOff,
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  ClipboardList,
+  Hand,
+  Heart,
+  HelpCircle,
+  Moon,
+  Pencil,
+  Plus,
+  Printer,
+  Settings,
+  Sun,
+  SunMedium,
+} from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { StethoscopeLoader } from "@/components/StethoscopeLoader";
-import { getPazienteDettaglioClinico, getComunicazioniPaziente, getUtenteCorrente } from "@/db/actions";
+import {
+  getPazienteDettaglioClinico,
+  getComunicazioniPaziente,
+  getUtenteCorrente,
+} from "@/db/actions";
 import { NuovaMisurazioneModal } from "@/components/modals/NuovaMisurazioneModal";
 import { OnboardingModal } from "@/components/modals/OnboardingModal";
 import { ConclusioneCicloModal } from "@/components/modals/ConclusioneCicloModal";
 import { NoteTerapiaModal } from "@/components/modals/NoteTerapiaModal";
 import { NotificheModal } from "@/components/modals/NotificheModal";
+import { GestioneBiometriaModal } from "@/components/modals/GestioneBiometriaModal";
+import { ImpostazioniAppModal } from "@/components/modals/ImpostazioniAppModal";
 import { ReportClinicoModal } from "@/components/modals/ReportClinicoModal";
 import { DisclaimerPazienteModal } from "@/components/modals/DisclaimerPazienteModal";
+import { useToast } from "@/components/ui/ToastProvider";
 import { classifyBloodPressure } from "@/lib/guidelines";
-import { calculateCurrentActiveDay, getDateForCycleDay, formatLocalDate } from "@/lib/dateUtils";
+import {
+  calculateCurrentActiveDay,
+  getDateForCycleDay,
+  formatLocalDate,
+} from "@/lib/dateUtils";
 
 export default function PazienteDiarioPage({
   params,
@@ -24,25 +54,29 @@ export default function PazienteDiarioPage({
   const resolvedParams = use(params);
   const cicloId = resolvedParams.id;
   const router = useRouter();
+  const { showToast } = useToast();
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
-
-  // Active selected day in the horizontal calendar
   const [selectedDay, setSelectedDay] = useState<number>(1);
+  const [futureNotice, setFutureNotice] = useState<string | null>(null);
 
-  // Modals
   const [measurementModalOpen, setMeasurementModalOpen] = useState(false);
   const [selectedSlotForModal, setSelectedSlotForModal] = useState<"mattina" | "pomeriggio" | "sera">("sera");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [existingMisurazioneToEdit, setExistingMisurazioneToEdit] = useState<any>(null);
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
   const [isConclusioneOpen, setIsConclusioneOpen] = useState(false);
   const [isNoteOpen, setIsNoteOpen] = useState(false);
   const [isNotificheOpen, setIsNotificheOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isBioOpen, setIsBioOpen] = useState(false);
+  const [isNotificationsMuted, setIsNotificationsMuted] = useState(false);
   const [isReportOpen, setIsReportOpen] = useState(false);
 
-  const scrollContainerRef = React.useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const scrollCalendar = (direction: "left" | "right") => {
     if (scrollContainerRef.current) {
@@ -51,7 +85,7 @@ export default function PazienteDiarioPage({
     }
   };
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       const u = await getUtenteCorrente();
       if (!u || u.role !== "paziente") {
@@ -59,28 +93,42 @@ export default function PazienteDiarioPage({
         return;
       }
       const pId = u.id;
-      const res = await getPazienteDettaglioClinico(pId, cicloId);
+      const [res, comms, pushInfo] = await Promise.all([
+        getPazienteDettaglioClinico(pId, cicloId),
+        getComunicazioniPaziente(pId),
+        fetch("/api/push/subscribe", { cache: "no-store" })
+          .then((r) => (r.ok ? (r.json() as Promise<{ mute?: { isMuted?: boolean } }>) : null))
+          .catch(() => null),
+      ]);
       setData(res);
       if (res?.activeCiclo) {
         const total = (res.activeCiclo.durataSettimane || 1) * 7;
-        const maxMis = res.misurazioni && res.misurazioni.length > 0
-          ? Math.max(...res.misurazioni.map((m: any) => m.giornoNumero || 1))
-          : 1;
-        const activeDay = calculateCurrentActiveDay(res.activeCiclo.dataInizioEffettiva, total, maxMis);
+        const maxMis =
+          res.misurazioni && res.misurazioni.length > 0
+            ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              Math.max(...res.misurazioni.map((m: any) => m.giornoNumero || 1))
+            : 1;
+        const activeDay = calculateCurrentActiveDay(
+          res.activeCiclo.dataInizioEffettiva,
+          total,
+          maxMis
+        );
         setSelectedDay(activeDay);
       }
-      const comms = await getComunicazioniPaziente(pId);
-      setUnreadCount(comms.filter((c: any) => !c.letta).length);
+      setUnreadCount(comms.filter((c) => !c.letta).length);
+      if (pushInfo?.mute) {
+        setIsNotificationsMuted(Boolean(pushInfo.mute.isMuted));
+      }
     } catch (e) {
       console.error(e);
     } finally {
       setLoading(false);
     }
-  };
+  }, [cicloId, router]);
 
   useEffect(() => {
-    loadData();
-  }, [cicloId]);
+    void loadData();
+  }, [loadData]);
 
   useEffect(() => {
     if (!loading) {
@@ -101,11 +149,13 @@ export default function PazienteDiarioPage({
     );
   }
 
-  const { activeCiclo, paziente, misurazioni, noteTerapia, averages } = data;
+  const { activeCiclo, paziente, misurazioni, noteTerapia, averages, medicoNomeCompleto } = data;
   const totalDays = (activeCiclo?.durataSettimane || 2) * 7;
-  const maxDayRecorded = misurazioni && misurazioni.length > 0
-    ? Math.max(...misurazioni.map((m: any) => m.giornoNumero || 1))
-    : 1;
+  const maxDayRecorded =
+    misurazioni && misurazioni.length > 0
+      ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        Math.max(...misurazioni.map((m: any) => m.giornoNumero || 1))
+      : 1;
   const currentActiveDay = calculateCurrentActiveDay(
     activeCiclo?.dataInizioEffettiva,
     totalDays,
@@ -115,63 +165,121 @@ export default function PazienteDiarioPage({
   const currentWeek = Math.ceil(selectedDay / 7);
   const totalWeeks = Math.ceil(totalDays / 7);
 
-  // Filter measurements for the currently selected day
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const dayMisurazioni = misurazioni.filter((m: any) => m.giornoNumero === selectedDay);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const misMattina = dayMisurazioni.find((m: any) => m.slot === "mattina");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const misPomeriggio = dayMisurazioni.find((m: any) => m.slot === "pomeriggio");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const misSera = dayMisurazioni.find((m: any) => m.slot === "sera");
 
-  // Calculate actual date for the selected day in local calendar time
   const selectedDate = getDateForCycleDay(activeCiclo?.dataInizioEffettiva, selectedDay);
   const selectedDateStr = formatLocalDate(selectedDate);
+  const cyclePercent = Math.round((selectedDay / totalDays) * 100);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleOpenSlot = (slot: "mattina" | "pomeriggio" | "sera", existing?: any) => {
     if (selectedDay > currentActiveDay) {
-      alert(`Il Giorno ${selectedDay} è una data futura rispetto al piano clinico attuale (oggi è il Giorno ${currentActiveDay}). Non è possibile registrare misurazioni anticipate.`);
+      const msg = `Il Giorno ${selectedDay} è futuro rispetto a oggi (Giorno ${currentActiveDay}). Non è possibile registrare misurazioni anticipate.`;
+      setFutureNotice(msg);
+      showToast(msg, "info");
       return;
     }
+    setFutureNotice(null);
     setSelectedSlotForModal(slot);
     setExistingMisurazioneToEdit(existing || null);
     setMeasurementModalOpen(true);
   };
 
   const handleMeasurementSuccess = () => {
-    loadData();
+    void loadData();
     if (selectedDay === totalDays && selectedSlotForModal === "sera") {
       setIsConclusioneOpen(true);
     }
   };
 
+  const slots = [
+    {
+      id: "mattina" as const,
+      title: "Misurazione Mattina",
+      cutoff: "Promemoria ore 11:00",
+      Icon: Sun,
+      iconBg: "bg-primary-container/30 text-primary",
+      mis: misMattina,
+    },
+    {
+      id: "pomeriggio" as const,
+      title: "Misurazione Pomeriggio",
+      cutoff: "Promemoria ore 16:00",
+      Icon: SunMedium,
+      iconBg: "bg-secondary-container text-tertiary",
+      mis: misPomeriggio,
+    },
+    {
+      id: "sera" as const,
+      title: "Misurazione Sera",
+      cutoff: "Promemoria ore 22:00",
+      Icon: Moon,
+      iconBg: "bg-surface-container text-secondary",
+      mis: misSera,
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-surface flex flex-col pt-safe pb-safe">
-      {/* Fixed Appbar Header */}
-      <header className="fixed top-0 inset-x-0 z-40 bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(46,50,48,0.04)] border-b border-surface-variant/30">
-        <div className="max-w-md mx-auto h-16 px-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+      <header className="fixed top-0 inset-x-0 z-40 bg-surface/90 backdrop-blur-xl shadow-xs border-b border-surface-variant/30">
+        <div className="max-w-md mx-auto min-h-[64px] px-4 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2.5 min-w-0">
             <Link
               href="/paziente/cicli"
-              className="w-9 h-9 rounded-full bg-surface-container flex items-center justify-center text-on-surface hover:bg-surface-container-high transition-colors"
+              aria-label="Torna all'elenco dei cicli"
+              className="min-w-[44px] min-h-[44px] rounded-full bg-surface-container flex items-center justify-center text-on-surface hover:bg-surface-container-high transition-colors shrink-0"
             >
-              <span className="material-symbols-outlined text-lg">arrow_back</span>
+              <ArrowLeft className="w-5 h-5" aria-hidden="true" />
             </Link>
-            <div className="flex flex-col">
-              <span className="font-headline font-bold text-base leading-tight text-primary">
-                CardioDiario
-              </span>
-              <span className="text-[11px] text-on-surface-variant">
-                {paziente.nome} {paziente.cognome}
-              </span>
+            <div className="flex items-center gap-2 min-w-0">
+              <Logo size={32} showText={false} />
+              <div className="flex flex-col min-w-0">
+                <span className="font-headline font-bold text-base leading-tight text-primary">
+                  CardioDiario
+                </span>
+                <span className="text-[11px] text-on-surface-variant truncate">
+                  {paziente.nome} {paziente.cognome}
+                </span>
+              </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-0.5 shrink-0">
             <button
-              onClick={() => setIsNotificheOpen(true)}
-              title={unreadCount > 0 ? `Centro Notifiche (${unreadCount} nuove)` : "Centro Notifiche (Nessuna nuova notifica)"}
-              aria-label="Centro Notifiche"
-              className="relative w-10 h-10 flex items-center justify-center rounded-full text-on-surface hover:bg-surface-container active:scale-95 transition-all"
+              type="button"
+              onClick={() => setIsSettingsOpen(true)}
+              aria-label="Impostazioni dell'app (Notifiche, Suoneria e Biometria)"
+              className="min-w-[40px] min-h-[44px] flex items-center justify-center rounded-full text-on-surface hover:bg-surface-container transition-colors"
             >
-              <span className="material-symbols-outlined text-[22px]">notifications</span>
+              <Settings className="w-5 h-5" aria-hidden="true" />
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setIsNotificheOpen(true)}
+              aria-label={
+                isNotificationsMuted
+                  ? unreadCount > 0
+                    ? `Centro Notifiche (${unreadCount} nuove, notifiche silenziate)`
+                    : "Centro Notifiche (Notifiche silenziate)"
+                  : unreadCount > 0
+                  ? `Centro Notifiche (${unreadCount} nuove)`
+                  : "Centro Notifiche"
+              }
+              className="relative min-w-[40px] min-h-[44px] flex items-center justify-center rounded-full text-on-surface hover:bg-surface-container transition-colors"
+            >
+              {isNotificationsMuted ? (
+                <BellOff className="w-5 h-5 text-tertiary" aria-hidden="true" />
+              ) : (
+                <Bell className="w-5 h-5" aria-hidden="true" />
+              )}
               {unreadCount > 0 && (
                 <span className="absolute top-1.5 right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-error text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-surface">
                   {unreadCount}
@@ -180,107 +288,113 @@ export default function PazienteDiarioPage({
             </button>
 
             <button
+              type="button"
               onClick={() => setIsNoteOpen(true)}
-              title="Note di Terapia e Prescrizioni del Medico"
-              aria-label="Note Medico"
-              className="w-10 h-10 flex items-center justify-center rounded-full text-on-surface hover:bg-surface-container active:scale-95 transition-all"
+              aria-label="Note di Terapia e Prescrizioni del Medico"
+              className="min-w-[40px] min-h-[44px] flex items-center justify-center rounded-full text-on-surface hover:bg-surface-container transition-colors"
             >
-              <span className="material-symbols-outlined text-[22px]">prescriptions</span>
+              <ClipboardList className="w-5 h-5" aria-hidden="true" />
             </button>
 
             <button
+              type="button"
               onClick={() => setIsReportOpen(true)}
-              title="Stampa o Salva il Diario in Formato PDF"
-              aria-label="Stampa Diario PDF"
-              className="w-10 h-10 flex items-center justify-center rounded-full text-secondary hover:text-primary hover:bg-surface-container active:scale-95 transition-all"
+              aria-label="Stampa o salva il diario in formato PDF"
+              className="min-w-[40px] min-h-[44px] flex items-center justify-center rounded-full text-secondary hover:text-primary hover:bg-surface-container transition-colors"
             >
-              <span className="material-symbols-outlined text-[22px]">print</span>
+              <Printer className="w-5 h-5" aria-hidden="true" />
             </button>
           </div>
         </div>
       </header>
 
-      {/* Main Screen */}
-      <main className="flex-1 w-full max-w-md mx-auto pt-20 px-4 pb-16 space-y-5">
-        {/* Info Bar: Official Reference Arm & Cycle Progress */}
-        <section className="bg-surface-container-low rounded-2xl p-4 shadow-sm space-y-3 border border-surface-variant/40">
-          <div className="flex items-center justify-between">
-            {/* Badge Braccio Ufficiale */}
+      <main id="main-content" tabIndex={-1} className="flex-1 w-full max-w-md mx-auto pt-20 px-4 pb-16 space-y-5">
+        <section
+          aria-label="Riepilogo ciclo attivo"
+          className="bg-surface-container-low rounded-2xl p-4 shadow-terra space-y-3 border border-surface-variant/40"
+        >
+          <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 bg-primary-container/35 px-3 py-1.5 rounded-full border border-primary/20">
-              <span className="material-symbols-outlined text-primary text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>
-                pan_tool
-              </span>
+              <Hand className="w-4 h-4 text-primary" aria-hidden="true" />
               <span className="text-xs font-bold text-on-surface tracking-wide uppercase">
-                Braccio: <strong className="text-primary font-extrabold">{braccioRef === "DX" ? "DESTRO (DX)" : "SINISTRO (SX)"}</strong>
+                Braccio:{" "}
+                <strong className="text-primary font-extrabold">
+                  {braccioRef === "DX" ? "DESTRO (DX)" : "SINISTRO (SX)"}
+                </strong>
               </span>
             </div>
 
-            {/* Guida Rapida */}
             <button
               type="button"
               onClick={() => setIsOnboardingOpen(true)}
-              className="flex items-center gap-1.5 text-xs font-semibold text-primary hover:text-primary/80 py-1 px-2.5 rounded-lg active:bg-surface-container transition-colors"
+              className="min-h-[38px] flex items-center gap-1.5 text-xs font-semibold text-primary hover:text-primary/80 py-1 px-2.5 rounded-lg hover:bg-surface-container transition-colors"
             >
-              <span className="material-symbols-outlined text-[18px]">help_outline</span>
+              <HelpCircle className="w-4 h-4" aria-hidden="true" />
               <span>Guida</span>
             </button>
           </div>
 
           <div className="flex items-center justify-between text-xs text-on-surface-variant font-medium pt-1">
             <div className="flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-[16px] text-tertiary">calendar_today</span>
+              <Calendar className="w-4 h-4 text-tertiary" aria-hidden="true" />
               <span>
-                Settimana {currentWeek} di {totalWeeks} • <strong className="text-on-surface font-semibold">Giorno {selectedDay} di {totalDays}</strong>
+                Settimana {currentWeek} di {totalWeeks} •{" "}
+                <strong className="text-on-surface font-semibold">
+                  Giorno {selectedDay} di {totalDays}
+                </strong>
               </span>
             </div>
             <span className="text-[11px] bg-secondary-container px-2 py-0.5 rounded text-on-secondary-container font-semibold">
-              {Math.round((selectedDay / totalDays) * 100)}% Ciclo
+              {cyclePercent}% Ciclo
             </span>
           </div>
 
-          {/* Smooth Progress Bar */}
-          <div className="w-full bg-surface-variant h-2 rounded-full overflow-hidden">
+          <div
+            role="progressbar"
+            aria-label={`Avanzamento al giorno ${selectedDay} su ${totalDays}`}
+            aria-valuenow={cyclePercent}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            className="w-full bg-surface-variant h-2 rounded-full overflow-hidden"
+          >
             <div
               className="bg-primary h-full rounded-full transition-all duration-500"
-              style={{ width: `${(selectedDay / totalDays) * 100}%` }}
-            ></div>
+              style={{ width: `${cyclePercent}%` }}
+            />
           </div>
         </section>
 
-        {/* Horizontal Scrollable Days Calendar */}
-        <section className="space-y-3">
+        <section className="space-y-3" aria-labelledby="calendar-heading">
           <div className="flex items-center justify-between px-1">
-            <div className="flex items-center gap-2">
-              <h2 className="font-headline font-bold text-base text-on-surface">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 id="calendar-heading" className="font-headline font-bold text-lg text-on-surface">
                 Calendario del Diario
-              </h2>
+              </h1>
               <span className="text-xs font-semibold text-secondary capitalize">
                 • {selectedDate.toLocaleDateString("it-IT", { month: "long", year: "numeric" })}
               </span>
             </div>
 
-            {/* Desktop / Touch Scroll Controls */}
             <div className="flex items-center gap-1">
               <button
                 type="button"
                 onClick={() => scrollCalendar("left")}
-                title="Giorni precedenti"
-                className="w-8 h-8 rounded-full bg-surface-container hover:bg-surface-container-high active:scale-95 text-on-surface flex items-center justify-center transition-all shadow-sm"
+                aria-label="Scorri ai giorni precedenti"
+                className="min-w-[38px] min-h-[38px] rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface flex items-center justify-center shadow-sm transition-colors"
               >
-                <span className="material-symbols-outlined text-lg">chevron_left</span>
+                <ChevronLeft className="w-4 h-4" aria-hidden="true" />
               </button>
               <button
                 type="button"
                 onClick={() => scrollCalendar("right")}
-                title="Giorni successivi"
-                className="w-8 h-8 rounded-full bg-surface-container hover:bg-surface-container-high active:scale-95 text-on-surface flex items-center justify-center transition-all shadow-sm"
+                aria-label="Scorri ai giorni successivi"
+                className="min-w-[38px] min-h-[38px] rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface flex items-center justify-center shadow-sm transition-colors"
               >
-                <span className="material-symbols-outlined text-lg">chevron_right</span>
+                <ChevronRight className="w-4 h-4" aria-hidden="true" />
               </button>
             </div>
           </div>
 
-          {/* Week Selector Tabs */}
           <div className="flex items-center gap-2 px-1">
             {Array.from({ length: totalWeeks }, (_, wIdx) => {
               const wNum = wIdx + 1;
@@ -291,26 +405,25 @@ export default function PazienteDiarioPage({
                 <button
                   key={wNum}
                   type="button"
+                  aria-pressed={isWeekActive}
                   onClick={() => {
+                    setFutureNotice(null);
                     setSelectedDay(startDayOfW);
-                    const el = document.getElementById(`day-btn-${startDayOfW}`);
-                    if (el) {
-                      el.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
-                    }
                   }}
-                  className={`flex-1 py-2 px-1.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center text-center leading-snug ${
+                  className={`flex-1 min-h-[40px] py-2 px-1.5 rounded-xl text-xs font-bold transition-colors flex items-center justify-center text-center leading-snug ${
                     isWeekActive
                       ? "bg-primary text-white shadow-sm ring-1 ring-primary"
                       : "bg-surface-container-low text-secondary hover:bg-surface-container hover:text-on-surface border border-surface-variant/40"
                   }`}
                 >
-                  <span>Settimana {wNum} (G{startDayOfW}–G{endDayOfW})</span>
+                  <span>
+                    Settimana {wNum} (G{startDayOfW}–G{endDayOfW})
+                  </span>
                 </button>
               );
             })}
           </div>
 
-          {/* Scrollable Days Strip */}
           <div
             ref={scrollContainerRef}
             className="flex items-center gap-2.5 overflow-x-auto py-3 -mx-4 px-4 scroll-smooth"
@@ -321,19 +434,22 @@ export default function PazienteDiarioPage({
               const isToday = dayNum === currentActiveDay;
               const isFuture = dayNum > currentActiveDay;
 
-              // Compute date for this day
               const d = getDateForCycleDay(activeCiclo?.dataInizioEffettiva, dayNum);
               const dayOfWeek = d.toLocaleDateString("it-IT", { weekday: "short" });
               const dayOfMonth = d.getDate();
 
-              // Get status of measurements on this day
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               const dMis = misurazioni.filter((m: any) => m.giornoNumero === dayNum);
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               const mMat = dMis.find((m: any) => m.slot === "mattina");
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               const mPom = dMis.find((m: any) => m.slot === "pomeriggio");
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               const mSer = dMis.find((m: any) => m.slot === "sera");
 
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               const getDotColor = (m?: any) => {
-                if (!m) return isSelected ? "bg-white/40" : (isFuture ? "bg-surface-variant" : "bg-outline/30");
+                if (!m) return isSelected ? "bg-white/40" : isFuture ? "bg-surface-variant" : "bg-outline/30";
                 if (m.pressioneMax >= 140 || m.pressioneMin >= 90) return isSelected ? "bg-red-200" : "bg-error";
                 if (m.pressioneMax >= 130 || m.pressioneMin >= 85) return isSelected ? "bg-amber-200" : "bg-tertiary-fixed";
                 return isSelected ? "bg-white" : "bg-primary";
@@ -344,36 +460,40 @@ export default function PazienteDiarioPage({
                   key={dayNum}
                   id={`day-btn-${dayNum}`}
                   type="button"
-                  onClick={() => setSelectedDay(dayNum)}
-                  className={`flex-shrink-0 flex flex-col items-center justify-between rounded-2xl transition-all duration-200 relative ${
+                  aria-current={isSelected ? "date" : undefined}
+                  aria-label={`Giorno ${dayNum}, ${dayOfWeek} ${dayOfMonth}${isToday ? ", oggi" : ""}${isFuture ? ", data futura" : ""}, ${dMis.length} di 3 misurazioni`}
+                  onClick={() => {
+                    setFutureNotice(null);
+                    setSelectedDay(dayNum);
+                  }}
+                  className={`shrink-0 flex flex-col items-center justify-between rounded-2xl transition-all duration-200 relative ${
                     isSelected
                       ? "w-16 py-3 bg-primary text-white shadow-lg shadow-primary/30 ring-2 ring-primary ring-offset-2 ring-offset-background scale-105 z-10 font-bold border-2 border-primary"
                       : isToday
                       ? "w-14 py-2.5 bg-primary-container/30 border-2 border-primary text-primary font-bold shadow-sm hover:bg-primary-container/45"
                       : isFuture
-                      ? "w-14 py-2.5 bg-surface-container-highest/40 text-on-surface-variant/40 opacity-50 cursor-not-allowed border border-transparent"
+                      ? "w-14 py-2.5 bg-surface-container-highest/40 text-on-surface-variant/50 border border-transparent"
                       : "w-14 py-2.5 bg-surface-container-low text-on-surface hover:bg-surface-container border border-surface-variant/40"
                   }`}
                 >
-                  <span className={`text-[10px] uppercase font-bold tracking-tight ${
-                    isSelected
-                      ? "text-white"
-                      : isToday
-                      ? "text-primary font-extrabold"
-                      : "text-secondary"
-                  }`}>
+                  <span
+                    className={`text-[10px] uppercase font-bold tracking-tight ${
+                      isSelected ? "text-white" : isToday ? "text-primary font-extrabold" : "text-secondary"
+                    }`}
+                  >
                     {isToday ? "Oggi" : `${dayOfWeek} ${dayOfMonth}`}
                   </span>
-                  <span className={`font-headline font-extrabold my-0.5 ${
-                    isSelected ? "text-white text-lg" : isToday ? "text-primary text-base" : "text-on-surface text-base"
-                  }`}>
+                  <span
+                    className={`font-headline font-extrabold my-0.5 ${
+                      isSelected ? "text-white text-lg" : isToday ? "text-primary text-base" : "text-on-surface text-base"
+                    }`}
+                  >
                     G{dayNum}
                   </span>
-                  {/* 3 Status dots: Mattina, Pomeriggio, Sera */}
-                  <div className="flex items-center gap-1 pt-1">
-                    <span className={`w-1.5 h-1.5 rounded-full ${getDotColor(mMat)}`}></span>
-                    <span className={`w-1.5 h-1.5 rounded-full ${getDotColor(mPom)}`}></span>
-                    <span className={`w-1.5 h-1.5 rounded-full ${getDotColor(mSer)}`}></span>
+                  <div className="flex items-center gap-1 pt-1" aria-hidden="true">
+                    <span className={`w-1.5 h-1.5 rounded-full ${getDotColor(mMat)}`} />
+                    <span className={`w-1.5 h-1.5 rounded-full ${getDotColor(mPom)}`} />
+                    <span className={`w-1.5 h-1.5 rounded-full ${getDotColor(mSer)}`} />
                   </div>
                 </button>
               );
@@ -381,206 +501,111 @@ export default function PazienteDiarioPage({
           </div>
         </section>
 
-        {/* 3 Daily Slot Cards */}
-        <section className="space-y-4 pt-1">
-          {/* Card 1: MATTINA */}
+        <div className="flex items-center justify-between px-1 text-xs">
+          <span className="font-semibold text-on-surface">
+            Giorno {selectedDay} • {selectedDate.toLocaleDateString("it-IT", { weekday: "long", day: "numeric", month: "long" })}
+          </span>
+          <span className="px-2.5 py-0.5 rounded-full bg-surface-container font-bold text-primary">
+            {dayMisurazioni.length}/3 registrate
+          </span>
+        </div>
+
+        {futureNotice && (
           <div
-            onClick={() => handleOpenSlot("mattina", misMattina)}
-            className={`p-5 rounded-3xl border transition-all cursor-pointer shadow-sm ${
-              misMattina
-                ? "bg-surface-container-lowest border-surface-variant/60 hover:border-primary/50"
-                : "bg-surface-container-lowest border-dashed border-surface-variant hover:border-primary/50"
-            }`}
+            role="status"
+            className="p-3.5 rounded-2xl bg-secondary-container/70 border border-tertiary/30 text-xs font-medium text-on-surface"
           >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="w-10 h-10 rounded-2xl bg-primary-container/30 text-primary flex items-center justify-center">
-                  <span className="material-symbols-outlined text-xl">wb_sunny</span>
-                </div>
-                <div>
-                  <span className="text-xs font-bold text-on-surface block">
-                    Misurazione Mattina
-                  </span>
-                  <span className="text-[11px] text-secondary">Cutoff promemoria: ore 11:00</span>
-                </div>
-              </div>
-
-              {misMattina ? (
-                <span className="material-symbols-outlined text-outline text-lg">edit</span>
-              ) : (
-                <span className="px-3 py-1.5 rounded-xl bg-primary text-on-primary text-xs font-bold flex items-center gap-1 shadow-sm">
-                  <span className="material-symbols-outlined text-sm">add</span>
-                  Inserisci
-                </span>
-              )}
-            </div>
-
-            {misMattina && (
-              <div className="mt-4 pt-3 border-t border-surface-variant/30 flex items-center justify-between">
-                <div className="flex items-baseline gap-1">
-                  <span className="text-3xl font-headline font-bold text-on-surface">
-                    {misMattina.pressioneMax} / {misMattina.pressioneMin}
-                  </span>
-                  <span className="text-xs text-secondary font-semibold">mmHg</span>
-                  {misMattina.bpm && (
-                    <span className="text-xs text-secondary ml-3">
-                      ❤️ {misMattina.bpm} bpm
-                    </span>
-                  )}
-                </div>
-
-                {(() => {
-                  const cat = classifyBloodPressure(misMattina.pressioneMax, misMattina.pressioneMin);
-                  return (
-                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${cat.badgeClass}`}>
-                      {cat.category}
-                    </span>
-                  );
-                })()}
-              </div>
-            )}
+            {futureNotice}
           </div>
+        )}
 
-          {/* Card 2: POMERIGGIO */}
-          <div
-            onClick={() => handleOpenSlot("pomeriggio", misPomeriggio)}
-            className={`p-5 rounded-3xl border transition-all cursor-pointer shadow-sm ${
-              misPomeriggio
-                ? "bg-surface-container-lowest border-surface-variant/60 hover:border-primary/50"
-                : "bg-surface-container-lowest border-dashed border-surface-variant hover:border-primary/50"
-            }`}
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="w-10 h-10 rounded-2xl bg-secondary-container text-tertiary flex items-center justify-center">
-                  <span className="material-symbols-outlined text-xl">light_mode</span>
+        <section className="space-y-4 pt-1" aria-label="Schede misurazione del giorno">
+          {slots.map(({ id, title, cutoff, Icon, iconBg, mis }) => (
+            <button
+              key={id}
+              type="button"
+              onClick={() => handleOpenSlot(id, mis)}
+              aria-disabled={selectedDay > currentActiveDay ? "true" : undefined}
+              className={`w-full text-left p-5 rounded-3xl border transition-all shadow-terra ${
+                mis
+                  ? "bg-surface-container-lowest border-surface-variant/60 hover:border-primary/50"
+                  : "bg-surface-container-lowest border-dashed border-surface-variant hover:border-primary/50"
+              }`}
+            >
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-3">
+                  <div className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 ${iconBg}`}>
+                    <Icon className="w-5 h-5" aria-hidden="true" />
+                  </div>
+                  <div>
+                    <span className="text-sm font-bold text-on-surface block">{title}</span>
+                    <span className="text-xs text-secondary">{cutoff}</span>
+                  </div>
                 </div>
-                <div>
-                  <span className="text-xs font-bold text-on-surface block">
-                    Misurazione Pomeriggio
+
+                {mis ? (
+                  <span className="min-w-[36px] min-h-[36px] rounded-xl bg-surface-container text-secondary flex items-center justify-center">
+                    <Pencil className="w-4 h-4" aria-hidden="true" />
                   </span>
-                  <span className="text-[11px] text-secondary">Cutoff promemoria: ore 16:00</span>
-                </div>
+                ) : (
+                  <span className="px-3.5 py-2 rounded-xl bg-primary text-on-primary text-xs font-bold flex items-center gap-1 shadow-sm shrink-0">
+                    <Plus className="w-4 h-4" aria-hidden="true" />
+                    <span>Inserisci</span>
+                  </span>
+                )}
               </div>
 
-              {misPomeriggio ? (
-                <span className="material-symbols-outlined text-outline text-lg">edit</span>
-              ) : (
-                <span className="px-3 py-1.5 rounded-xl bg-primary text-on-primary text-xs font-bold flex items-center gap-1 shadow-sm">
-                  <span className="material-symbols-outlined text-sm">add</span>
-                  Inserisci
-                </span>
+              {mis && (
+                <div className="mt-4 pt-3 border-t border-surface-variant/30 flex items-center justify-between gap-2 flex-wrap">
+                  <div className="flex items-baseline gap-1.5 flex-wrap">
+                    <span className="text-3xl font-headline font-bold text-on-surface">
+                      {mis.pressioneMax} / {mis.pressioneMin}
+                    </span>
+                    <span className="text-xs text-secondary font-semibold">mmHg</span>
+                    {mis.bpm && (
+                      <span className="text-xs text-secondary ml-2 inline-flex items-center gap-1">
+                        <Heart className="w-3.5 h-3.5 text-error fill-error" aria-hidden="true" />
+                        <span>{mis.bpm} bpm</span>
+                      </span>
+                    )}
+                  </div>
+
+                  {(() => {
+                    const cat = classifyBloodPressure(mis.pressioneMax, mis.pressioneMin);
+                    return (
+                      <span className={`px-2.5 py-0.5 rounded-full text-[11px] ${cat.badgeClass}`}>
+                        {cat.category}
+                      </span>
+                    );
+                  })()}
+                </div>
               )}
-            </div>
-
-            {misPomeriggio && (
-              <div className="mt-4 pt-3 border-t border-surface-variant/30 flex items-center justify-between">
-                <div className="flex items-baseline gap-1">
-                  <span className="text-3xl font-headline font-bold text-on-surface">
-                    {misPomeriggio.pressioneMax} / {misPomeriggio.pressioneMin}
-                  </span>
-                  <span className="text-xs text-secondary font-semibold">mmHg</span>
-                  {misPomeriggio.bpm && (
-                    <span className="text-xs text-secondary ml-3">
-                      ❤️ {misPomeriggio.bpm} bpm
-                    </span>
-                  )}
-                </div>
-
-                {(() => {
-                  const cat = classifyBloodPressure(misPomeriggio.pressioneMax, misPomeriggio.pressioneMin);
-                  return (
-                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${cat.badgeClass}`}>
-                      {cat.category}
-                    </span>
-                  );
-                })()}
-              </div>
-            )}
-          </div>
-
-          {/* Card 3: SERA */}
-          <div
-            onClick={() => handleOpenSlot("sera", misSera)}
-            className={`p-5 rounded-3xl border transition-all cursor-pointer shadow-sm ${
-              misSera
-                ? "bg-surface-container-lowest border-surface-variant/60 hover:border-primary/50"
-                : "bg-surface-container-lowest border-dashed border-surface-variant hover:border-primary/50"
-            }`}
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="w-10 h-10 rounded-2xl bg-surface-container text-secondary flex items-center justify-center">
-                  <span className="material-symbols-outlined text-xl">bedtime</span>
-                </div>
-                <div>
-                  <span className="text-xs font-bold text-on-surface block">
-                    Misurazione Sera
-                  </span>
-                  <span className="text-[11px] text-secondary">Cutoff promemoria: ore 22:00</span>
-                </div>
-              </div>
-
-              {misSera ? (
-                <span className="material-symbols-outlined text-outline text-lg">edit</span>
-              ) : (
-                <span className="px-3 py-1.5 rounded-xl bg-primary text-on-primary text-xs font-bold flex items-center gap-1 shadow-sm">
-                  <span className="material-symbols-outlined text-sm">add</span>
-                  Inserisci
-                </span>
-              )}
-            </div>
-
-            {misSera && (
-              <div className="mt-4 pt-3 border-t border-surface-variant/30 flex items-center justify-between">
-                <div className="flex items-baseline gap-1">
-                  <span className="text-3xl font-headline font-bold text-on-surface">
-                    {misSera.pressioneMax} / {misSera.pressioneMin}
-                  </span>
-                  <span className="text-xs text-secondary font-semibold">mmHg</span>
-                  {misSera.bpm && (
-                    <span className="text-xs text-secondary ml-3">
-                      ❤️ {misSera.bpm} bpm
-                    </span>
-                  )}
-                </div>
-
-                {(() => {
-                  const cat = classifyBloodPressure(misSera.pressioneMax, misSera.pressioneMin);
-                  return (
-                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${cat.badgeClass}`}>
-                      {cat.category}
-                    </span>
-                  );
-                })()}
-              </div>
-            )}
-          </div>
+            </button>
+          ))}
         </section>
 
-        {/* Therapy Advice Prompt Banner */}
         {noteTerapia && noteTerapia.length > 0 && (
-          <div
+          <button
+            type="button"
             onClick={() => setIsNoteOpen(true)}
-            className="p-4 rounded-2xl bg-secondary-container/40 border border-secondary/20 flex items-center justify-between cursor-pointer hover:bg-secondary-container/60 transition-colors"
+            className="w-full text-left p-4 rounded-2xl bg-secondary-container/40 border border-secondary/20 flex items-center justify-between gap-3 hover:bg-secondary-container/60 transition-colors"
           >
-            <div className="flex items-center gap-3">
-              <span className="material-symbols-outlined text-tertiary text-xl">clinical_notes</span>
-              <div>
+            <div className="flex items-center gap-3 min-w-0">
+              <ClipboardList className="w-5 h-5 text-tertiary shrink-0" aria-hidden="true" />
+              <div className="min-w-0">
                 <span className="text-xs font-bold text-on-surface block">
                   Indicazioni del Medico
                 </span>
-                <span className="text-[11px] text-on-surface-variant truncate max-w-[240px] block">
+                <span className="text-xs text-on-surface-variant truncate block">
                   {noteTerapia[0].testo}
                 </span>
               </div>
             </div>
-            <span className="material-symbols-outlined text-outline text-base">chevron_right</span>
-          </div>
+            <ChevronRight className="w-4 h-4 text-outline shrink-0" aria-hidden="true" />
+          </button>
         )}
       </main>
 
-      {/* Modals */}
       <NuovaMisurazioneModal
         isOpen={measurementModalOpen}
         onClose={() => setMeasurementModalOpen(false)}
@@ -597,9 +622,7 @@ export default function PazienteDiarioPage({
       <OnboardingModal
         isOpen={isOnboardingOpen}
         onClose={() => setIsOnboardingOpen(false)}
-        onStartCalibration={() => {
-          setIsOnboardingOpen(false);
-        }}
+        onStartCalibration={() => setIsOnboardingOpen(false)}
       />
 
       <ConclusioneCicloModal
@@ -622,8 +645,18 @@ export default function PazienteDiarioPage({
         isOpen={isNotificheOpen}
         onClose={() => setIsNotificheOpen(false)}
         onRead={() => setUnreadCount(0)}
+        onMuteChange={(m) => setIsNotificationsMuted(m.isMuted)}
         pazienteId={paziente.id}
       />
+
+      <ImpostazioniAppModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        onOpenBiometria={() => setIsBioOpen(true)}
+        onMuteChange={(m) => setIsNotificationsMuted(m.isMuted)}
+      />
+
+      <GestioneBiometriaModal isOpen={isBioOpen} onClose={() => setIsBioOpen(false)} />
 
       <ReportClinicoModal
         isOpen={isReportOpen}
@@ -631,9 +664,17 @@ export default function PazienteDiarioPage({
         paziente={paziente}
         ciclo={activeCiclo}
         misurazioni={misurazioni}
-        averages={averages || { avgMax: 125, avgMin: 80, avgBpm: 72, targetRate: 90, totalCount: misurazioni.length }}
+        averages={
+          averages || {
+            avgMax: 125,
+            avgMin: 80,
+            avgBpm: 72,
+            targetRate: 90,
+            totalCount: misurazioni.length,
+          }
+        }
         noteTerapia={noteTerapia}
-        medicoNome="Dott.ssa Ivana Pariggiano"
+        medicoNome={medicoNomeCompleto || "Dott.ssa Ivana Pariggiano"}
       />
 
       <DisclaimerPazienteModal

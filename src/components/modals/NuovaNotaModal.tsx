@@ -1,8 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { AlertCircle, ClipboardList, Eye, Lock, X } from "lucide-react";
 import { addNotaTerapia } from "@/db/actions";
 import { StethoscopeLoader } from "@/components/StethoscopeLoader";
+import { AppDialog } from "@/components/ui/AppDialog";
 
 interface NuovaNotaModalProps {
   isOpen: boolean;
@@ -24,7 +26,13 @@ export const NuovaNotaModal: React.FC<NuovaNotaModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  if (!isOpen) return null;
+  useEffect(() => {
+    if (isOpen) {
+      setTesto("");
+      setVisibilePaziente(true);
+      setError(null);
+    }
+  }, [isOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,131 +58,133 @@ export const NuovaNotaModal: React.FC<NuovaNotaModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-inverse-surface/40 backdrop-blur-sm animate-in fade-in duration-200">
+    <AppDialog
+      isOpen={isOpen}
+      onClose={loading ? () => {} : onClose}
+      labelledBy="nuova-nota-title"
+      dismissible={!loading}
+      variant="sheet"
+      maxWidthClassName="max-w-lg"
+    >
       {loading && <StethoscopeLoader overlay text="Salvataggio nota clinica..." />}
-      <div className="bg-surface-container-lowest w-full max-w-lg rounded-t-3xl sm:rounded-3xl shadow-2xl border-t sm:border border-surface-variant/50 overflow-hidden max-h-[88vh] sm:max-h-[90vh] flex flex-col animate-in slide-in-from-bottom-6 sm:slide-in-from-bottom-0 duration-300">
-        {/* Mobile drag handle */}
-        <div className="sm:hidden pt-3 pb-1 flex justify-center flex-shrink-0">
-          <div className="w-12 h-1.5 bg-outline/25 rounded-full" />
-        </div>
 
-        {/* Header */}
-        <div className="p-4 sm:p-6 pb-3 sm:pb-4 border-b border-surface-variant/40 flex items-center justify-between flex-shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-primary-container/40 text-primary flex items-center justify-center flex-shrink-0">
-              <span className="material-symbols-outlined text-2xl">clinical_notes</span>
-            </div>
-            <div>
-              <h2 className="text-lg sm:text-xl font-headline font-bold text-on-surface leading-tight">Nuova Nota Clinica</h2>
-              <p className="text-xs text-on-surface-variant line-clamp-1 sm:line-clamp-none">Aggiungi indicazioni sul trattamento o annotazioni private.</p>
-            </div>
+      <div className="p-4 sm:p-6 pb-3 sm:pb-4 border-b border-surface-variant/40 flex items-center justify-between shrink-0">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-primary-container/40 text-primary flex items-center justify-center shrink-0">
+            <ClipboardList className="w-5 h-5" aria-hidden="true" />
           </div>
-          <button
-            onClick={onClose}
-            className="w-8 h-8 rounded-full flex items-center justify-center text-outline hover:bg-surface-container flex-shrink-0"
+          <div>
+            <h1 id="nuova-nota-title" className="text-lg sm:text-xl font-headline font-bold text-on-surface leading-tight">
+              Nuova Nota Clinica
+            </h1>
+            <p className="text-xs text-on-surface-variant">
+              Aggiungi indicazioni sul trattamento o annotazioni private.
+            </p>
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Chiudi modulo nota clinica"
+          className="min-w-[40px] min-h-[40px] rounded-full flex items-center justify-center text-secondary hover:bg-surface-container"
+        >
+          <X className="w-5 h-5" aria-hidden="true" />
+        </button>
+      </div>
+
+      <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4 overflow-y-auto flex-1">
+        {error && (
+          <div
+            role="alert"
+            className="p-3 rounded-xl bg-error-container text-on-error-container text-xs flex items-center gap-2"
           >
-            <span className="material-symbols-outlined text-xl">close</span>
-          </button>
-        </div>
-
-        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4 overflow-y-auto flex-1">
-          {error && (
-            <div className="p-3 rounded-xl bg-error-container text-on-error-container text-xs flex items-center gap-2">
-              <span className="material-symbols-outlined text-error text-base">error</span>
-              <span>{error}</span>
-            </div>
-          )}
-
-          {/* Visibility Switch */}
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-on-surface uppercase tracking-wider block">
-              Tipologia di Nota
-            </label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
-              <button
-                type="button"
-                onClick={() => setVisibilePaziente(true)}
-                className={`p-3.5 rounded-2xl border text-left flex items-start gap-3 transition-all ${
-                  visibilePaziente
-                    ? "bg-primary-container/30 border-primary shadow-sm"
-                    : "bg-surface-container-low border-surface-variant/40 opacity-70"
-                }`}
-              >
-                <span className="material-symbols-outlined text-primary text-xl mt-0.5">
-                  visibility
-                </span>
-                <div>
-                  <span className="text-xs font-bold text-on-surface block">
-                    Nota per il Paziente
-                  </span>
-                  <span className="text-[11px] text-on-surface-variant leading-tight block mt-0.5">
-                    Visibile al paziente nell&apos;app come promemoria terapia.
-                  </span>
-                </div>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setVisibilePaziente(false)}
-                className={`p-3.5 rounded-2xl border text-left flex items-start gap-3 transition-all ${
-                  !visibilePaziente
-                    ? "bg-secondary-container border-tertiary shadow-sm"
-                    : "bg-surface-container-low border-surface-variant/40 opacity-70"
-                }`}
-              >
-                <span className="material-symbols-outlined text-tertiary text-xl mt-0.5">
-                  lock
-                </span>
-                <div>
-                  <span className="text-xs font-bold text-on-surface block">
-                    Nota Privata Medico
-                  </span>
-                  <span className="text-[11px] text-on-surface-variant leading-tight block mt-0.5">
-                    Riservata esclusivamente all&apos;equipe medica.
-                  </span>
-                </div>
-              </button>
-            </div>
+            <AlertCircle className="w-4 h-4 text-error shrink-0" aria-hidden="true" />
+            <span>{error}</span>
           </div>
+        )}
 
-          {/* Testo */}
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-on-surface uppercase tracking-wider">
-              Testo della Nota *
-            </label>
-            <textarea
-              required
-              rows={4}
-              value={testo}
-              onChange={(e) => setTesto(e.target.value)}
-              placeholder={
-                visibilePaziente
-                  ? "es. Assumere 1 compressa di Ramipril 5mg ogni mattina dopo colazione..."
-                  : "es. Valutare ecocardiogramma e aggiunta di beta-bloccante se i valori rimangono stabili..."
-              }
-              className="w-full p-3 bg-surface-container-low rounded-xl text-sm border border-surface-variant/50 focus:ring-2 focus:ring-primary focus:outline-none"
-            />
-          </div>
-
-          {/* Actions */}
-          <div className="pt-3 border-t border-surface-variant/30 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3">
+        <fieldset className="space-y-2">
+          <legend className="text-xs font-bold text-on-surface uppercase tracking-wider block">
+            Tipologia di Nota
+          </legend>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
             <button
               type="button"
-              onClick={onClose}
-              className="px-4 py-2.5 rounded-xl text-sm font-semibold text-secondary hover:bg-surface-container text-center"
+              aria-pressed={visibilePaziente}
+              onClick={() => setVisibilePaziente(true)}
+              className={`p-3.5 rounded-2xl border text-left flex items-start gap-3 transition-colors ${
+                visibilePaziente
+                  ? "bg-primary-container/30 border-primary shadow-sm"
+                  : "bg-surface-container-low border-surface-variant/40 opacity-75"
+              }`}
             >
-              Annulla
+              <Eye className="w-5 h-5 text-primary mt-0.5 shrink-0" aria-hidden="true" />
+              <div>
+                <span className="text-xs font-bold text-on-surface block">Nota per il Paziente</span>
+                <span className="text-[11px] text-on-surface-variant leading-tight block mt-0.5">
+                  Visibile al paziente nell&apos;app come promemoria terapia.
+                </span>
+              </div>
             </button>
+
             <button
-              type="submit"
-              disabled={loading}
-              className="px-6 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-on-primary text-sm font-bold shadow-sm flex items-center justify-center gap-2"
+              type="button"
+              aria-pressed={!visibilePaziente}
+              onClick={() => setVisibilePaziente(false)}
+              className={`p-3.5 rounded-2xl border text-left flex items-start gap-3 transition-colors ${
+                !visibilePaziente
+                  ? "bg-secondary-container border-tertiary shadow-sm"
+                  : "bg-surface-container-low border-surface-variant/40 opacity-75"
+              }`}
             >
-              {loading ? "Salvataggio..." : "Salva Nota Clinica"}
+              <Lock className="w-5 h-5 text-tertiary mt-0.5 shrink-0" aria-hidden="true" />
+              <div>
+                <span className="text-xs font-bold text-on-surface block">Nota Privata Medico</span>
+                <span className="text-[11px] text-on-surface-variant leading-tight block mt-0.5">
+                  Riservata esclusivamente all&apos;equipe medica.
+                </span>
+              </div>
             </button>
           </div>
-        </form>
-      </div>
-    </div>
+        </fieldset>
+
+        <div className="space-y-1">
+          <label htmlFor="nota-testo" className="text-xs font-bold text-on-surface uppercase tracking-wider block">
+            Testo della Nota *
+          </label>
+          <textarea
+            id="nota-testo"
+            name="testo"
+            required
+            rows={4}
+            value={testo}
+            onChange={(e) => setTesto(e.target.value)}
+            placeholder={
+              visibilePaziente
+                ? "es. Assumere 1 compressa di Ramipril 5mg ogni mattina dopo colazione..."
+                : "es. Valutare ecocardiogramma e aggiunta di beta-bloccante se i valori rimangono stabili..."
+            }
+            className="w-full p-3 bg-surface-container-low rounded-xl text-sm border border-surface-variant/50 focus:outline-none"
+          />
+        </div>
+
+        <div className="pt-3 border-t border-surface-variant/30 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3">
+          <button
+            type="button"
+            onClick={onClose}
+            className="min-h-[44px] px-4 py-2 rounded-xl text-sm font-semibold text-secondary hover:bg-surface-container text-center"
+          >
+            Annulla
+          </button>
+          <button
+            type="submit"
+            disabled={loading}
+            className="min-h-[44px] px-6 py-2 rounded-xl bg-primary hover:bg-primary/90 text-on-primary text-sm font-bold shadow-sm flex items-center justify-center gap-2"
+          >
+            {loading ? "Salvataggio..." : "Salva Nota Clinica"}
+          </button>
+        </div>
+      </form>
+    </AppDialog>
   );
 };
